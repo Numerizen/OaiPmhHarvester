@@ -1,0 +1,73 @@
+
+<?php
+use Zend\Debug\Debug;
+//Debug::dump($imports); 
+$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester harvests undo');
+$escape = $this->plugin('escapeHtml');
+//$this->headLink()->appendStylesheet($this->assetUrl('css/csvimport.css', 'CSVImport'));
+?>
+
+<?php echo $this->pageTitle($this->translate('Past Imports'), 1, $this->translate('Oai Pmh Harvester')); ?>
+<?php if(empty($imports)): ?>
+
+<?php else: ?>
+<?php echo $this->pagination(); ?>
+
+<form method='POST'>
+    <fieldset id='page-actions'>
+        <input type="submit" value="<?php echo $escape($this->translate('Submit')); ?>" />
+    </fieldset>
+    <table class="tablesaw" data-tablesaw-mode="stack">
+        <thead>
+            <tr>
+                <th><?php echo $escape($this->translate('Undo?'));?></th>
+                <th><?php echo $this->sortLink($this->translate('Job ID'), 'id');?></th>
+                <th><?php echo $escape($this->translate('Comment'));?></th>
+                <th><?php echo $escape($this->translate('Imported content'));?></th>
+                <th><?php echo $escape($this->translate('Date'));?></th>
+                <th><?php echo $escape($this->translate('Status'));?></th>
+                <th><?php echo $escape($this->translate('Owner'));?></th>
+            </tr>
+        </thead>
+        <tbody>
+
+        <?php foreach ($imports as $import): ?>
+        <?php $job = $import->job(); ?>
+        <?php $undoJob = $import->undoJob(); ?>
+        <tr class="<?php echo $undoJob ? 'undone' : ''; ?>" >
+            <td>
+                <input type='checkbox' name='jobs[]' value='<?php echo $job->id(); ?>' />
+            </td>
+            <td><?php echo $job->link($job->id()); ?></td>
+            <td class='comment'>
+                <?php echo $import->comment(); ?>
+                <?php if($import->hasErr()): ?>
+                    <p><?php echo $this->translate("Problems were detected with the import. Check the job's log for details."); ?></p>
+                <?php endif; ?>
+            </td>
+            <td>
+                <?php //echo $this->translate('Added: ') . $import->addedCount() . ' ' . $this->translate($import->resourceType()); ?>
+            </td>
+            <td><?php echo $escape($this->i18n()->dateFormat($job->started())); ?></td>
+            <td>
+            <?php if ($undoJob) {
+                if ($undoJob->ended()) {
+                    $status = $this->translate('Undone') . ' ' . $escape($this->i18n()->dateFormat($undoJob->ended()));
+                } else {
+                    $status = $this->translate('Undo in progress');
+                }
+
+
+            } else {
+                $status = $this->translate($job->status());
+            }
+            ?>
+            <?php echo $status; ?>
+            </td>
+            <td><?php echo $this->hyperlink($job->owner()->name(), $this->url('admin/id', array('controller' => 'user', 'action' => 'show', 'id' => $job->owner()->id()))); ?></td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</form>
+<?php endif; ?>

@@ -1,0 +1,16 @@
+<?php
+/*
+$form->prepare();
+$escapeHtml = $this->plugin('escapeHtml');
+*/
+?>
+
+<?php echo $this->pageTitle($this->translate('Oai-Pmh Base Page'), 1, $this->translate('Oai-Pmh Harvester')); ?>
+
+<?php echo $this->form()->openTag($form); ?>
+<fieldset id='page-actions'>
+    <button type="submit"><?php echo $this->translate('View sets'); ?></button>
+</fieldset>
+<?php echo $this->formCollection($form, false); ?>
+
+<?php echo $this->form()->closeTag($form); ?>
