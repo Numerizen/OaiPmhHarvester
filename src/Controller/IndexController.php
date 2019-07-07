@@ -52,7 +52,7 @@ class IndexController extends AbstractActionController
         foreach ($response->ListMetadataFormats->metadataFormat as $idFormat => $format) {
             $prefix = (string) $format->metadataPrefix;
             // TODO : autres formats ?
-            if (in_array($prefix, ['oai_dc', 'mets'])) {
+            if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
                 $formats[$prefix] = $prefix;
             }
         }

@@ -22,8 +22,10 @@ class HarvestJob extends AbstractJob
 
     /** XML namespace for unqualified Dublin Core */
     const DUBLIN_CORE_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
+    const DCTERMS_NAMESPACE = 'http://purl.org/dc/terms/';
 
     const OAI_DC_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
+    const OAI_DCTERMS_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dcterms/';
 
     const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
 
@@ -82,7 +84,12 @@ class HarvestJob extends AbstractJob
                 $method = '_dmdSecToJson';
                 break;
             case 'oai_dc':
+            case 'dc':
                 $method = '_oaidcToJson';
+                break;
+            case 'dcterms':
+            case 'oai_dcterms':
+                $method = '_oaidctermsToJson';
                 break;
             default:
                 // TODO : Exception ou message d'erreur
@@ -160,7 +167,7 @@ class HarvestJob extends AbstractJob
      * @param SimpleXMLElement $record
      * @return boolean/array
      */
-    private function _dmdSecToJson($record, $setId)
+    private function _dmdSecToJson(SimpleXMLElement $record, $setId)
     {
         $mets = $record->metadata->mets->children(self::METS_NAMESPACE);
         $meta = null;
@@ -169,18 +176,11 @@ class HarvestJob extends AbstractJob
                 ->mdWrap
                 ->xmlData
                 ->children(self::DUBLIN_CORE_NAMESPACE);
+
             $elementTexts = [];
-            foreach ($this->dcProperties as $property_id => $element) {
-                if (isset($dcMetadata->$element)) {
-                    foreach ($dcMetadata->$element as $rawText) {
-                        $text = trim($rawText);
-                        $elementTexts["dcterms:$element"][] = [
-                            '@value' => $text,
-                            'type' => 'literal',
-                            //                            "value_is_html" => false,
-                            "property_id" => $property_id,
-                        ];
-                    }
+            foreach ($this->dcProperties as $propertyId => $localName) {
+                if (isset($dcMetadata->$localName)) {
+                    $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
                 }
             }
             $meta = $elementTexts;
@@ -189,7 +189,7 @@ class HarvestJob extends AbstractJob
         return $meta;
     }
 
-    private function _oaidcToJson($record, $setId)
+    private function _oaidcToJson(SimpleXMLElement $record, $setId)
     {
         $dcMetadata = $record
             ->metadata
@@ -197,22 +197,56 @@ class HarvestJob extends AbstractJob
             ->children(self::DUBLIN_CORE_NAMESPACE);
 
         $elementTexts = [];
-        foreach ($this->dcProperties as $property_id => $element) {
-            if (isset($dcMetadata->$element)) {
-                foreach ($dcMetadata->$element as $rawText) {
-                    $text = trim($rawText);
-                    $elementTexts["dcterms:$element"][] = [
-                        '@value' => $text,
-                        'type' => 'literal',
-                        //                            "value_is_html" => false,
-                        "property_id" => $property_id,
-                    ];
-                }
+        foreach ($this->dcProperties as $propertyId => $localName) {
+            if (isset($dcMetadata->$localName)) {
+                $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
+            }
+        }
+
+        $meta = $elementTexts;
+        $meta['o:item_set'] = ["o:id" => $setId];
+        return $meta;
+    }
+
+    private function _oaidctermsToJson(SimpleXMLElement $record, $setId)
+    {
+        $dcMetadata = $record
+            ->metadata
+            ->children(self::OAI_DCTERMS_NAMESPACE)
+            ->children(self::DCTERMS_NAMESPACE);
+
+        $elementTexts = [];
+        foreach ($this->dcProperties as $propertyId => $localName) {
+            if (isset($dcMetadata->$localName)) {
+                $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
             }
         }
         $meta = $elementTexts;
         $meta['o:item_set'] = ["o:id" => $setId];
         return $meta;
+    }
+
+    protected function extractValues(SimpleXMLElement $metadata, $propertyId)
+    {
+        $data = [];
+        $localName = $this->dcProperties[$propertyId];
+        foreach ($metadata->$localName as $value) {
+            $text = trim($value);
+            if (!mb_strlen($text)) {
+                continue;
+            }
+
+            $val = [
+                'property_id' => $propertyId,
+                'type' => 'literal',
+                '@value' => $text,
+                // "value_is_html" => false,
+                'is_public' => true,
+            ];
+
+            $data[] = $val;
+        }
+        return $data;
     }
 
     protected function buildImportRecordJson($resourceReference)
