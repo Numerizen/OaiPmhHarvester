@@ -37,7 +37,7 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
      * @Column(type="string")
      */
     protected $resource_type;
-    
+
     /**
      * @Column(type="integer")
      */
@@ -72,12 +72,12 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
      * @Column(type="integer")
      */
     protected $initiated;
-    
+
     /**
      * @Column(type="integer")
      */
     protected $completed;
-    
+
     /**
      * @Column(type="string")
      */
@@ -137,89 +137,108 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     {
         return $this->resource_type;
     }
-    
+
     public function getHasErr()
     {
         return $this->has_err;
     }
-    public function getCollectionId() {
+    public function getCollectionId()
+    {
         return $this->collection_id;
     }
 
-    public function getBaseUrl() {
+    public function getBaseUrl()
+    {
         return $this->base_url;
     }
 
-    public function getMetadataPrefix() {
+    public function getMetadataPrefix()
+    {
         return $this->metadata_prefix;
     }
 
-    public function getSetSpec() {
+    public function getSetSpec()
+    {
         return $this->set_spec;
     }
 
-    public function getSetName() {
+    public function getSetName()
+    {
         return $this->set_name;
     }
 
-    public function getSetDescription() {
+    public function getSetDescription()
+    {
         return $this->set_description;
     }
 
-    public function getInitiated() {
+    public function getInitiated()
+    {
         return $this->initiated;
     }
 
-    public function getCompleted() {
+    public function getCompleted()
+    {
         return $this->completed;
     }
 
-    public function getStartFrom() {
+    public function getStartFrom()
+    {
         return $this->start_from;
     }
 
-    public function getResumptionToken() {
+    public function getResumptionToken()
+    {
         return $this->resumption_token;
     }
 
-    public function setCollectionId($collection_id) {
+    public function setCollectionId($collection_id)
+    {
         $this->collection_id = $collection_id;
     }
 
-    public function setBaseUrl($baseUrl) {
+    public function setBaseUrl($baseUrl)
+    {
         $this->base_url = $baseUrl;
     }
 
-    public function setMetadataPrefix($metadata_prefix) {
+    public function setMetadataPrefix($metadata_prefix)
+    {
         $this->metadata_prefix = $metadata_prefix;
     }
 
-    public function setSetSpec($set_spec) {
+    public function setSetSpec($set_spec)
+    {
         $this->set_spec = $set_spec;
     }
 
-    public function setSetName($set_name) {
+    public function setSetName($set_name)
+    {
         $this->set_name = $set_name;
     }
 
-    public function setSetDescription($set_description) {
+    public function setSetDescription($set_description)
+    {
         $this->set_description = $set_description;
     }
 
-    public function setInitiated($initiated) {
+    public function setInitiated($initiated)
+    {
         $this->initiated = $initiated;
     }
 
-    public function setCompleted($completed) {
+    public function setCompleted($completed)
+    {
         $this->completed = $completed;
     }
 
-    public function setStartFrom($start_from) {
+    public function setStartFrom($start_from)
+    {
         $this->start_from = $start_from;
     }
 
-    public function setResumptionToken($resumption_token) {
+    public function setResumptionToken($resumption_token)
+    {
         $this->resumption_token = $resumption_token;
     }
-   
 }

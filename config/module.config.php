@@ -21,7 +21,7 @@ return [
         'mapping_classes_paths' => [
             OMEKA_PATH . '/modules/OaiPmhHarvester/src/Entity',
         ],
-    ],    
+    ],
     'router' => [
         'routes' => [
             'admin' => [
@@ -36,7 +36,7 @@ return [
                                 'action' => 'index',
                             ],
                         ],
-                        'may_terminate' => true,                        
+                        'may_terminate' => true,
                         'child_routes' => [
                             'sets' => [
                                 'type' => 'Literal',
@@ -46,7 +46,7 @@ return [
                                         '__NAMESPACE__' => 'OaiPmhHarvester\Controller',
                                         'controller' => 'Index',
                                         'action' => 'sets',
-                                         'visible'    => false,                                        
+                                         'visible' => false,
                                     ],
                                 ],
                             ],
@@ -58,7 +58,7 @@ return [
                                         '__NAMESPACE__' => 'OaiPmhHarvester\Controller',
                                         'controller' => 'Index',
                                         'action' => 'harvest',
-                                         'visible'    => false,                                        
+                                         'visible' => false,
                                     ],
                                 ],
                             ],
@@ -72,7 +72,8 @@ return [
                                         'action' => 'past-harvests',
                                     ],
                                 ],
-                            ],                        ]                    
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -86,29 +87,29 @@ return [
                 'resource' => 'OaiPmhHarvester\Controller\Index',
                 'pages' => [
                     [
-                        'label'      => 'Harvest', // @translate
-                        'route'      => 'admin/oaipmhharvester',
-                        'resource'   => 'OaiPmhHarvester\Controller\Index',
+                        'label' => 'Harvest', // @translate
+                        'route' => 'admin/oaipmhharvester',
+                        'resource' => 'OaiPmhHarvester\Controller\Index',
                     ],
                     [
-                        'label'      => 'Sets', // @translate
-                        'route'      => 'admin/oaipmhharvester/sets',
-                        'resource'   => 'OaiPmhHarvester\Controller\Index',
-                        'visible' => false,                        
-                    ],                
+                        'label' => 'Sets', // @translate
+                        'route' => 'admin/oaipmhharvester/sets',
+                        'resource' => 'OaiPmhHarvester\Controller\Index',
+                        'visible' => false,
+                    ],
                     [
-                        'label'      => 'Harvest', // @translate
-                        'route'      => 'admin/oaipmhharvester/harvest',
-                        'resource'   => 'OaiPmhHarvester\Controller\Index',
-                        'visible' => false,                        
-                    ],                  
+                        'label' => 'Harvest', // @translate
+                        'route' => 'admin/oaipmhharvester/harvest',
+                        'resource' => 'OaiPmhHarvester\Controller\Index',
+                        'visible' => false,
+                    ],
                     [
-                        'label'      => 'Past Harvests', // @translate
-                        'route'      => 'admin/oaipmhharvester/past-harvests',
+                        'label' => 'Past Harvests', // @translate
+                        'route' => 'admin/oaipmhharvester/past-harvests',
                         'controller' => 'Index',
                         'action' => 'past-harvests',
                         'resource' => 'OaiPmhHarvester\Controller\Index',
-                    ],                    
+                    ],
                 ],
             ],
         ],

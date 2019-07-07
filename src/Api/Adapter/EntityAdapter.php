@@ -38,13 +38,13 @@ class EntityAdapter extends AbstractEntityAdapter
                 $this->createNamedParameter($qb, $query['entity_id']))
             );
         }
-        
+
         if (isset($query['resource_type'])) {
             $qb->andWhere($qb->expr()->eq(
                 $this->getEntityClass() . '.resource_type',
                 $this->createNamedParameter($qb, $query['resource_type']))
             );
-        }        
+        }
     }
 
     public function hydrate(Request $request, EntityInterface $entity,
@@ -59,7 +59,7 @@ class EntityAdapter extends AbstractEntityAdapter
         if (isset($data['resource_type'])) {
             $entity->setResourceType($data['resource_type']);
         }
-        
+
         if (isset($data['entity_id'])) {
             $entity->setEntityId($data['entity_id']);
         }

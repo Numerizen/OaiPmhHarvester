@@ -44,7 +44,7 @@ class HarvestJobAdapter extends AbstractEntityAdapter
         if (isset($data['has_err'])) {
             $entity->setHasErr($data['has_err']);
         }
-        
+
         if (isset($data['resource_type'])) {
             $entity->setResourceType($data['resource_type']);
         }
@@ -52,39 +52,39 @@ class HarvestJobAdapter extends AbstractEntityAdapter
         if (isset($data['base_url'])) {
             $entity->setBaseUrl($data['base_url']);
         }
-        
+
         if (isset($data['metadata_prefix'])) {
             $entity->setMetadataPrefix($data['metadata_prefix']);
-        }        
-        
+        }
+
         if (isset($data['collection_id'])) {
             $entity->setCollectionId($data['collection_id']);
         }
-        
+
         if (isset($data['set_name'])) {
             $entity->setSetName($data['set_name']);
         }
-        
+
         if (isset($data['set_description'])) {
             $entity->setSetDescription($data['set_description']);
         }
-        
+
         if (isset($data['initiated'])) {
             $entity->setInitiated($data['initiated']);
         }
-        
+
         if (isset($data['completed'])) {
             $entity->setCompleted($data['completed']);
-        }                                        
+        }
 
         if (isset($data['start_from'])) {
             $entity->setStartFrom($data['start_from']);
-        } 
-        
+        }
+
         if (isset($data['resumption_token'])) {
             $entity->setResumptionToken($data['resumption_token']);
-        } 
-      }        
+        }
+    }
 
     public function buildQuery(QueryBuilder $qb, array $query)
     {

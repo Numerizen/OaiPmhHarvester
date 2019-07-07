@@ -5,7 +5,6 @@ use Zend\Form\Form;
 
 class HarvestForm extends Form
 {
-
     public function init()
     {
         $this->setAttribute('action', 'oaipmhharvester/sets');
@@ -36,14 +35,13 @@ class HarvestForm extends Form
                 'required' => 'true',
                 'value' => 'http://localhost/bacasable/oai-pmh-repository/request',
                 'size' => 60,
-            ],                      
+            ],
         ]);
-        
+
 /*
         $this->applyOmekaStyles();
         $this->setAutoApplyOmekaStyles(false);
 */
-        
 
         $inputFilter = $this->getInputFilter();
         $inputFilter->add([
@@ -51,5 +49,4 @@ class HarvestForm extends Form
             'required' => true,
         ]);
     }
-
 }

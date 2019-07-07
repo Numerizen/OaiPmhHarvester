@@ -7,18 +7,18 @@ class OaipmhHarvester_Harvest_Mock extends OaipmhHarvester_Harvest_Abstract
 
     protected function _harvestRecord($record)
     {
-        return array(
-            'itemMetadata' => array(
+        return [
+            'itemMetadata' => [
                 'public' => $this->getOption('public'),
-            ),
-            'elementTexts' => array(
-                'Dublin Core' => array(
-                    'Title' => array(
-                        array('text' => 'Mock Title', 'html' => 0),
-                    ),
-                ),
-            ),
-            'fileMetadata' => array(),
-        );        
+            ],
+            'elementTexts' => [
+                'Dublin Core' => [
+                    'Title' => [
+                        ['text' => 'Mock Title', 'html' => 0],
+                    ],
+                ],
+            ],
+            'fileMetadata' => [],
+        ];
     }
 }

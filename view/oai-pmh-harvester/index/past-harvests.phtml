@@ -1,9 +1,11 @@
 
 <?php
 use Zend\Debug\Debug;
-//Debug::dump($imports); 
-$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester harvests undo');
+
+$translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
+//Debug::dump($imports);
+$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester harvests undo');
 //$this->headLink()->appendStylesheet($this->assetUrl('css/csvimport.css', 'CSVImport'));
 ?>
 

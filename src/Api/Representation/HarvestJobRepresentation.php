@@ -26,7 +26,7 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
             'start_from' => $this->getResumptionToken(),
             'resumption_token' => $this->resourceType(),
             'o:job' => $this->job()->getReference(),
-            'o:undo_job' => $undo_job,            
+            'o:undo_job' => $undo_job,
         ];
     }
 
@@ -56,50 +56,59 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
     {
         return $this->resource->getHasErr();
     }
-    
+
     public function getHasErr()
     {
         return $this->has_err;
     }
-    
-    public function getCollectionId() {
+
+    public function getCollectionId()
+    {
         return $this->resource->collection_id;
     }
 
-    public function getBaseUrl() {
+    public function getBaseUrl()
+    {
         return $this->resource->base_url;
     }
 
-    public function getMetadataPrefix() {
+    public function getMetadataPrefix()
+    {
         return $this->resource->metadata_prefix;
     }
 
-    public function getSetSpec() {
+    public function getSetSpec()
+    {
         return $this->resource->set_spec;
     }
 
-    public function getSetName() {
+    public function getSetName()
+    {
         return $this->resource->set_name;
     }
 
-    public function getSetDescription() {
+    public function getSetDescription()
+    {
         return $this->resource->set_description;
     }
 
-    public function getInitiated() {
+    public function getInitiated()
+    {
         return $this->resource->initiated;
     }
 
-    public function getCompleted() {
+    public function getCompleted()
+    {
         return $this->resource->completed;
     }
 
-    public function getStartFrom() {
+    public function getStartFrom()
+    {
         return $this->resource->start_from;
     }
 
-    public function getResumptionToken() {
+    public function getResumptionToken()
+    {
         return $this->resource->resumption_token;
     }
-
 }
