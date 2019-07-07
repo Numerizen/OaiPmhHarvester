@@ -256,7 +256,12 @@ class HarvestJob extends AbstractJob
 
                 case 'literal':
                 default:
+                    // Extract xml language if any.
+                    $attributes = iterator_to_array($value->attributes('xml', true));
+                    $language = empty($attributes['lang']) ? null : trim($attributes['lang']);
+
                     $val['@value'] = $text;
+                    $val['@language'] = $language;
                     break;
             }
 
