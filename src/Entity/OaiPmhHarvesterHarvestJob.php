@@ -34,6 +34,11 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     protected $comment;
 
     /**
+     * @Column(type="boolean")
+     */
+    protected $has_err = false;
+
+    /**
      * @Column(type="string")
      */
     protected $resource_type;
