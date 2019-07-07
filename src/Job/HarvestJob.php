@@ -236,13 +236,29 @@ class HarvestJob extends AbstractJob
                 continue;
             }
 
+            // Extract xsi type if any.
+            $attributes = iterator_to_array($value->attributes('xsi', true));
+            $type = empty($attributes['type']) ? null : trim($attributes['type']);
+            $type = in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
+
             $val = [
                 'property_id' => $propertyId,
-                'type' => 'literal',
-                '@value' => $text,
+                'type' => $type,
                 // "value_is_html" => false,
                 'is_public' => true,
             ];
+
+            switch ($type) {
+                case 'uri':
+                    $val['o:label'] = null;
+                    $val['@id'] = $text;
+                    break;
+
+                case 'literal':
+                default:
+                    $val['@value'] = $text;
+                    break;
+            }
 
             $data[] = $val;
         }
