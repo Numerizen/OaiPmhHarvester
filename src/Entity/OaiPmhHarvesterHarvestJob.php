@@ -34,7 +34,7 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     protected $comment;
 
     /**
-     * @Column(type="boolean")
+     * @Column(type="boolean", nullable=false)
      */
     protected $has_err = false;
 
@@ -59,7 +59,7 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     protected $metadata_prefix;
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $set_spec;
 
@@ -69,27 +69,27 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     protected $set_name;
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $set_description;
 
     /**
-     * @Column(type="integer")
+     * @Column(type="integer", nullable=true)
      */
     protected $initiated;
 
     /**
-     * @Column(type="integer")
+     * @Column(type="integer", nullable=true)
      */
     protected $completed;
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $start_from;
 
     /**
-     * @Column(type="string")
+     * @Column(type="string", nullable=true)
      */
     protected $resumption_token;
 
