@@ -54,7 +54,7 @@ class IndexController extends AbstractActionController
             }
         }
         $view = new ViewModel;
-        $view->content .= 'Please choose a set to import.';
+        $view->content .= $this->translate('Please choose a set to import.'); // @translate
         $form = $this->getForm(SetsForm::class, ['sets' => $sets, 'formats' => $formats, 'base_url' => $base_url]);
         $view->form = $form;
         return $view;
@@ -113,7 +113,7 @@ class IndexController extends AbstractActionController
         return $this->redirect()->toRoute('admin/oaipmhharvester/past-harvests', ['action' => 'pastHarvests'], true);
 
         $view = new ViewModel;
-        $view->content = 'Lancement du job Harvest';
+        $view->content = $this->translate('Processing job Harvest'); // @translate
         return $view;
     }
 
@@ -126,7 +126,7 @@ class IndexController extends AbstractActionController
                 $undoJob = $this->undoJob($jobId);
                 $undoJobIds[] = $undoJob->getId();
             }
-            $this->messenger()->addSuccess('Undo in progress in the following jobs: ' . implode(', ', $undoJobIds));
+            $this->messenger()->addSuccess('Undo in progress in the following jobs: ' . implode(', ', $undoJobIds)); // @translate
         }
 
         $view = new ViewModel;

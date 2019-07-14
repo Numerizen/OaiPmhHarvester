@@ -1,8 +1,8 @@
 <?php
 namespace OaiPmhHarvester\Form;
 
+use Zend\Form\Element;
 use Zend\Form\Form;
-use Zend\Debug\Debug;
 
 class SetsForm extends Form
 {
@@ -14,9 +14,8 @@ class SetsForm extends Form
         $sets = $this->getOption('sets');
         $formats = $this->getOption('formats');
 
-//        Debug::dump($sets);
         $this->add([
-            'type' => 'hidden',
+            'type' => Element\Hidden::class,
             'name' => 'base_url',
             'attributes' => [
                 'id' => 'base_url',
@@ -26,49 +25,38 @@ class SetsForm extends Form
 
         foreach ($sets as $id => $set) {
             $this->add([
-              'type' => 'select',
-              'name' => 'namespace['  . $id . "]",
-              'options' => [
-                  'label' => strip_tags($set) . "($id)",
-                  'value_options' => $formats,
-              ],
-          ]);
+                'type' => Element\Select::class,
+                'name' => 'namespace['  . $id . "]",
+                'options' => [
+                    'label' => strip_tags($set) . "($id)",
+                    'value_options' => $formats,
+                ],
+            ]);
             $this->add([
-              'type' => 'hidden',
-              'name' => 'setSpec['  . $id . "]",
-              'attributes' => [
-                  'id' => 'setSpec'  .  $id,
-                  'value' => strip_tags($set),
-              ],
-              'options' => [
-                  'label' => strip_tags($set),
-                  'value_options' => $formats,
-              ],
-          ]);
+                'type' => 'hidden',
+                'name' => 'setSpec['  . $id . "]",
+                'attributes' => [
+                    'id' => 'setSpec'  .  $id,
+                    'value' => strip_tags($set),
+                ],
+                'options' => [
+                    'label' => strip_tags($set),
+                    'value_options' => $formats,
+                ],
+            ]);
             $this->add([
-              'type' => 'checkbox',
-              'name' => 'harvest['  . $id . "]",
-              'options' => [
-                   'label' => 'Harvest this set ?',
-                   'use_hidden_element' => true,
-                   'checked_value' => 'yes',
-                   'unchecked_value' => 'no',
-               ],
-               'attributes' => [
+                'type' => Element\Checkbox::class,
+                'name' => 'harvest['  . $id . "]",
+                'options' => [
+                    'label' => 'Harvest this set ?',
+                    'use_hidden_element' => true,
+                    'checked_value' => 'yes',
+                    'unchecked_value' => 'no',
+                ],
+                'attributes' => [
                     'value' => 'no',
-               ],
-          ]);
+                ],
+            ]);
         }
-
-/*
-        $this->applyOmekaStyles();
-        $this->setAutoApplyOmekaStyles(false);
-*/
-
-//        $inputFilter = $this->getInputFilter();
-//        $inputFilter->add([
-//            'name' => 'base_url',
-//            'required' => true,
-//        ]);
     }
 }
