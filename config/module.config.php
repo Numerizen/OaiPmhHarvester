@@ -1,25 +1,29 @@
 <?php
+namespace OaiPmhHarvester;
 
 return [
-    'controllers' => [
-        'factories' => [
-            'OaiPmhHarvester\Controller\Index' => 'OaiPmhHarvester\Service\Controller\IndexControllerFactory',
+    'entity_manager' => [
+        'mapping_classes_paths' => [
+            dirname(__DIR__) . '/src/Entity',
+        ],
+        'proxy_paths' => [
+            dirname(__DIR__) . '/data/doctrine-proxies',
         ],
     ],
     'api_adapters' => [
         'invokables' => [
-            'oaipmhharvester_entities' => 'OaiPmhHarvester\Api\Adapter\EntityAdapter',
-            'oaipmhharvester_harvestjob' => 'OaiPmhHarvester\Api\Adapter\HarvestJobAdapter',
+            'oaipmhharvester_entities' => Api\Adapter\EntityAdapter::class,
+            'oaipmhharvester_harvestjob' => Api\Adapter\HarvestJobAdapter::class,
+        ],
+    ],
+    'controllers' => [
+        'factories' => [
+            'OaiPmhHarvester\Controller\Index' => Service\Controller\IndexControllerFactory::class,
         ],
     ],
     'view_manager' => [
         'template_path_stack' => [
-            OMEKA_PATH . '/modules/OaiPmhHarvester/view',
-        ],
-    ],
-    'entity_manager' => [
-        'mapping_classes_paths' => [
-            OMEKA_PATH . '/modules/OaiPmhHarvester/src/Entity',
+            dirname(__DIR__) . '/view',
         ],
     ],
     'router' => [
@@ -27,7 +31,7 @@ return [
             'admin' => [
                 'child_routes' => [
                     'oaipmhharvester' => [
-                        'type' => 'Literal',
+                        'type' => \Zend\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/oaipmhharvester',
                             'defaults' => [
@@ -39,7 +43,7 @@ return [
                         'may_terminate' => true,
                         'child_routes' => [
                             'sets' => [
-                                'type' => 'Literal',
+                                'type' => \Zend\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/sets',
                                     'defaults' => [
@@ -51,7 +55,7 @@ return [
                                 ],
                             ],
                             'harvest' => [
-                                'type' => 'Literal',
+                                'type' => \Zend\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/harvest',
                                     'defaults' => [
@@ -63,7 +67,7 @@ return [
                                 ],
                             ],
                             'past-harvests' => [
-                                'type' => 'Literal',
+                                'type' => \Zend\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/past-harvests',
                                     'defaults' => [
