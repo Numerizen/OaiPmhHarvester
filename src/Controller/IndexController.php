@@ -17,9 +17,6 @@ class IndexController extends AbstractActionController
 
     public function indexAction()
     {
-        error_reporting(E_ALL ^ E_NOTICE);
-        ini_set('display_errors', 1);
-
         $view = new ViewModel;
         $form = $this->getForm(HarvestForm::class);
         $view->form = $form;
@@ -68,9 +65,6 @@ class IndexController extends AbstractActionController
      */
     public function harvestAction()
     {
-//      $fake = ["o:job" => ["o:id" => 65, "entity_id" => 913, "resource_type" => "items"]];
-//      $this->api()->create('oaipmhharvester_entities', $fake, [], []);
-
         $post = $this->params()->fromPost();
 
         $message = 'Harvesting from ' . $post['base_url'] . ' sets :  ';
@@ -98,7 +92,8 @@ class IndexController extends AbstractActionController
         $dispatcher = $this->jobDispatcher();
 
         foreach ($sets as $setSpec => $set) {
-            $url = $post['base_url']; //  . "?metadataPrefix=" . $set[1] . "&verb=ListRecords&set=" . $setSpec
+            //  . "?metadataPrefix=" . $set[1] . "&verb=ListRecords&set=" . $setSpec
+            $url = $post['base_url'];
             // TODO : job harvest / job item creation ?
             // TODO : toutes les propriétés (prefix, resumption, etc.)
             $harvestJson = [
@@ -133,10 +128,7 @@ class IndexController extends AbstractActionController
             }
             $this->messenger()->addSuccess('Undo in progress in the following jobs: ' . implode(', ', $undoJobIds));
         }
-        /*
-       error_reporting(E_ALL ^ E_NOTICE);
-        ini_set('display_errors', 1);
-        */
+
         $view = new ViewModel;
         $page = $this->params()->fromQuery('page', 1);
         $query = $this->params()->fromQuery() + [

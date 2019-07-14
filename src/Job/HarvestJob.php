@@ -2,9 +2,7 @@
 namespace OaiPmhHarvester\Job;
 
 use Omeka\Job\AbstractJob;
-
-use Zend\Log\Logger;
-use Zend\Log\Writer\Stream;
+use SimpleXMLElement;
 
 class HarvestJob extends AbstractJob
 {
@@ -45,12 +43,11 @@ class HarvestJob extends AbstractJob
     {
         $this->logger = $this->getServiceLocator()->get('Omeka\Logger');
         $this->api = $this->getServiceLocator()->get('Omeka\ApiManager');
-        $config = $this->getServiceLocator()->get('Config');
 
         // Set Dc Properties for mapping
         $dcProperties = $this->api->search('properties', ['vocabulary_id' => 1], ['responseContent' => 'resource'])->getContent();
         $elements = [];
-        foreach ($dcProperties as $id => $property) {
+        foreach ($dcProperties as $property) {
             $elements[$property->getId()] = $property->getLocalName();
         }
         $this->dcProperties = $elements;
@@ -68,14 +65,6 @@ class HarvestJob extends AbstractJob
             'metadata_prefix' => $args['metadata_prefix'],
             'resource_type' => $this->getArg('resource_type', 'items'),
         ];
-
-        $insertJson = [];
-
-        //        $logger = new Logger;
-        //        $writer = new Stream('/Apache/Omeka-S/logs/vb.log');
-        //        $logger->addWriter($writer);
-        //        Logger::registerErrorHandler($logger);
-        //        $this->logger = $logger;
 
         // TODO : autres protocoles.
         $method = '';
@@ -107,7 +96,7 @@ class HarvestJob extends AbstractJob
 
             $records = $response->ListRecords;
             $toInsert = [];
-            foreach ($records->record as $n => $record) {
+            foreach ($records->record as $record) {
                 $toInsert[] = $this->{$method}($record, $args['collection_id']);
             }
             $this->createItems($toInsert);
@@ -126,7 +115,8 @@ class HarvestJob extends AbstractJob
         $harvestJson = [
             'comment' => $comment,
             'has_err' => $this->hasErr,
-            'nb_items' => count($sets), //TODO : nombre d'items ?
+            // TODO Nombre d'items ?
+            'nb_items' => count($sets),
         ];
 
         $response = $this->api->update('oaipmhharvester_harvestjob', $importRecordId, $harvestJson);
