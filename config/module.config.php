@@ -86,7 +86,7 @@ return [
     'navigation' => [
         'AdminModule' => [
             [
-                'label' => 'Oai-Pmh Harvester',
+                'label' => 'OAI-PMH Harvester', // @translate
                 'route' => 'admin/oaipmhharvester',
                 'resource' => 'OaiPmhHarvester\Controller\Index',
                 'pages' => [
