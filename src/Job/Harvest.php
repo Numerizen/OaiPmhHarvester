@@ -61,6 +61,8 @@ class Harvest extends AbstractJob
 
         $args = $this->job->getArgs();
 
+        $comment = null;
+
         $harvestData = [
             'o:job' => ['o:id' => $this->job->getId()],
             'o:undo_job' => null,
@@ -131,6 +133,7 @@ class Harvest extends AbstractJob
             $response = \simplexml_load_file($url);
             if (!$response) {
                 $this->hasErr = true;
+                $comment = 'Error.'; // @translate
                 $this->logger->err(sprintf(
                     'Error: the harvester does not list records with url %s.', // @translate
                     $url
@@ -140,6 +143,7 @@ class Harvest extends AbstractJob
 
             if (!$response->ListRecords) {
                 $this->hasErr = true;
+                $comment = 'Error.'; // @translate
                 $this->logger->err(sprintf(
                     'Error: the harvester does not list records with url %s.', // @translate
                     $url
@@ -195,7 +199,9 @@ class Harvest extends AbstractJob
         } while ($resumptionToken);
 
         // Update job.
-        $comment = $this->getArg('comment');
+        if (empty($comment)) {
+            $comment = 'Harvest ended.'; // @translate
+        }
         $harvestData = [
             'o-module-oai-pmh-harvester:comment' => $comment,
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr,

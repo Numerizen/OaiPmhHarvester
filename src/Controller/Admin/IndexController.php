@@ -221,7 +221,6 @@ class IndexController extends AbstractActionController
             // TODO : job harvest / job item creation ?
             // TODO : toutes les propriétés (prefix, resumption, etc.)
             $args = [
-                'comment' => sprintf($this->translate('Harvest "%1$s" from %2$s (%3$s)'), $set['set_name'], $repositoryName, $endpoint), // @translate
                 'repository_name' => $repositoryName,
                 'endpoint' => $endpoint,
                 'set_spec' => $setSpec,
