@@ -110,7 +110,10 @@ class IndexController extends AbstractActionController
                 return !in_array($v, $checks);
             });
             if ($unmanaged) {
-                $message = sprintf($this->translate('The following formats are not managed: "%s".'), implode('", "', $unmanaged)); // @translate
+                $message = sprintf(
+                    $this->translate('The following formats are not managed: "%s".'), // @translate
+                    implode('", "', $unmanaged)
+                );
                 $this->messenger()->addError($message);
                 return $this->redirect()->toRoute('admin/oaipmhharvester');
             }
@@ -198,7 +201,11 @@ class IndexController extends AbstractActionController
             foreach (array_keys($post['harvest']) as $id) {
                 $prefix = $post['namespace'][$id];
                 $label = $post['setSpec'][$id];
-                $message .= $label . ' as ' . $prefix . ' | ';
+                $message .= sprintf(
+                    $this->translate('%s as %s'), // @translate
+                    $label,
+                    $prefix
+                ) . ' | ';
                 $toCreate = [
                     // dctype:Collection.
                     'o:resource_class' => ['o:id' => 23],
