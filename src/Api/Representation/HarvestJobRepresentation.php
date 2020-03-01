@@ -111,4 +111,19 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
     {
         return $this->resource->resumption_token;
     }
+
+    /**
+     * Get the count of the currently imported resources.
+     *
+     * @return int
+     */
+    public function totalImported()
+    {
+        $response = $this->getServiceLocator()->get('Omeka\ApiManager')
+            ->search('oaipmhharvester_entities', [
+                'job_id' => $this->job()->id(),
+                'limit' => 0,
+            ]);
+        return $response->getTotalResults();
+    }
 }
