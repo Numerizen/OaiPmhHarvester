@@ -64,7 +64,7 @@ class Harvest extends AbstractJob
         $harvestData = [
             'o:job' => ['o:id' => $this->job->getId()],
             'o:undo_job' => null,
-            'o-module-oai-pmh-harvester:comment' => 'Harvesting started',
+            'o-module-oai-pmh-harvester:comment' => 'Harvesting started', // @translate
             'o-module-oai-pmh-harvester:resource_type' => $this->getArg('resource_type', 'items'),
             'o-module-oai-pmh-harvester:base_url' => $args['base_url'],
             'o:item_set' => ['o:id' => $args['item_set_id']],
@@ -72,12 +72,10 @@ class Harvest extends AbstractJob
             'o-module-oai-pmh-harvester:set_spec' => $args['set_spec'],
             'o-module-oai-pmh-harvester:set_name' => $args['set_name'],
             'o-module-oai-pmh-harvester:set_description' => @$args['set_description'],
-            'o-module-oai-pmh-harvester:initiated' => true,
             'o-module-oai-pmh-harvester:has_err' => false,
-            'o-module-oai-pmh-harvester:start_from' => new \DateTime('now'),
         ];
 
-        $response = $this->api->create('oaipmhharvester_harvestjob', $harvestData);
+        $response = $this->api->create('oaipmhharvester_harvests', $harvestData);
         $harvestId = $response->getContent()->id();
 
         $method = '';
@@ -98,7 +96,7 @@ class Harvest extends AbstractJob
                     'The format "%s" is not managed by the module currently.',
                     $args['metadata_prefix']
                 ));
-                $this->api->update('oaipmhharvester_harvestjob', $harvestId, ['o-module-oai-pmh-harvester:has_err' => true]);
+                $this->api->update('oaipmhharvester_harvests', $harvestId, ['o-module-oai-pmh-harvester:has_err' => true]);
                 return false;
         }
 
@@ -122,7 +120,10 @@ class Harvest extends AbstractJob
             if ($resumptionToken) {
                 $url = $args['base_url'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
             } else {
-                $url = $args['base_url'] . "?metadataPrefix=" . $args['metadata_prefix'] . "&verb=ListRecords&set=" . $args['set_spec'];
+                $url = $args['base_url'] . "?metadataPrefix=" . $args['metadata_prefix'] . '&verb=ListRecords';
+                if ($args['set_spec']) {
+                    $url .= '&set=' . $args['set_spec'];
+                }
             }
 
             /** @var \SimpleXMLElement $response */
@@ -182,12 +183,12 @@ class Harvest extends AbstractJob
             ],
         ];
 
+        $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
+
         $this->logger->notice(sprintf(
             'Results: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
             $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
         ));
-
-        $response = $this->api->update('oaipmhharvester_harvestjob', $harvestId, $harvestData);
     }
 
     protected function createItems($toCreate)
@@ -200,29 +201,29 @@ class Harvest extends AbstractJob
         foreach ($toCreate as $index => $item) {
             $insertData[] = $item;
             if ($index % 20 == 0) {
-                $createResponse = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
-                $this->createRollback($createResponse->getContent());
+                $response = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
+                $this->createRollback($response->getContent());
                 $insertData = [];
             }
         }
 
-        $createResponse = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
+        // Remaining resources.
+        $response = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
 
-        $this->createRollback($createResponse->getContent());
+        $this->createRollback($response->getContent());
     }
 
-    protected function createRollback($records)
+    protected function createRollback($resources)
     {
-        if (empty($records)) {
+        if (empty($resources)) {
             return null;
         }
 
-        $createImportEntitiesJson = [];
-        foreach ($records as $resourceReference) {
-            $createImportEntitiesJson[] = $this->buildImportRecordJson($resourceReference);
+        $importEntities = [];
+        foreach ($resources as $resource) {
+            $importEntities[] = $this->buildImportEntity($resource);
         }
-
-        $this->api->batchCreate('oaipmhharvester_entities', $createImportEntitiesJson, [], ['continueOnError' => true]);
+        $this->api->batchCreate('oaipmhharvester_entities', $importEntities, [], ['continueOnError' => true]);
     }
 
     /**
@@ -230,9 +231,10 @@ class Harvest extends AbstractJob
      * xmls dmdSec as an Omeka ElementTexts array
      *
      * @param SimpleXMLElement $record
-     * @return boolean/array
+     * @param int $itemSetId
+     * @return array|null
      */
-    private function _dmdSecToJson(SimpleXMLElement $record, $setId)
+    private function _dmdSecToJson(SimpleXMLElement $record, $itemSetId)
     {
         $mets = $record->metadata->mets->children(self::METS_NAMESPACE);
         $meta = null;
@@ -249,12 +251,12 @@ class Harvest extends AbstractJob
                 }
             }
             $meta = $elementTexts;
-            $meta['o:item_set'] = ["o:id" => $setId];
+            $meta['o:item_set'] = ["o:id" => $itemSetId];
         }
         return $meta;
     }
 
-    private function _oaidcToJson(SimpleXMLElement $record, $setId)
+    private function _oaidcToJson(SimpleXMLElement $record, $itemSetId)
     {
         $dcMetadata = $record
             ->metadata
@@ -269,11 +271,11 @@ class Harvest extends AbstractJob
         }
 
         $meta = $elementTexts;
-        $meta['o:item_set'] = ["o:id" => $setId];
+        $meta['o:item_set'] = ["o:id" => $itemSetId];
         return $meta;
     }
 
-    private function _oaidctermsToJson(SimpleXMLElement $record, $setId)
+    private function _oaidctermsToJson(SimpleXMLElement $record, $itemSetId)
     {
         $dcMetadata = $record
             ->metadata
@@ -287,7 +289,7 @@ class Harvest extends AbstractJob
             }
         }
         $meta = $elementTexts;
-        $meta['o:item_set'] = ["o:id" => $setId];
+        $meta['o:item_set'] = ["o:id" => $itemSetId];
         return $meta;
     }
 
@@ -335,11 +337,11 @@ class Harvest extends AbstractJob
         return $data;
     }
 
-    protected function buildImportRecordJson($resourceReference)
+    protected function buildImportEntity($resource)
     {
         return [
             'o:job' => ['o:id' => $this->job->getId()],
-            'o-module-oai-pmh-harvester:entity_id' => $resourceReference->id(),
+            'o-module-oai-pmh-harvester:entity_id' => $resource->id(),
             'o-module-oai-pmh-harvester:resource_type' => $this->getArg('entity_type', 'items'),
         ];
     }

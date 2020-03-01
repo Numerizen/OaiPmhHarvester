@@ -1,6 +1,8 @@
 SET FOREIGN_KEY_CHECKS=0;
-ALTER TABLE oai_pmh_harvester_harvest_job DROP FOREIGN KEY FK_FC86A2F24C276F75;
-ALTER TABLE oai_pmh_harvester_harvest_job DROP FOREIGN KEY FK_FC86A2F2BE04EA9;
-DROP TABLE oai_pmh_harvester_entity;
-DROP TABLE oai_pmh_harvester_harvest_job;
+ALTER TABLE oaipmhharvester_harvest DROP FOREIGN KEY FK_929CA732BE04EA9;
+ALTER TABLE oaipmhharvester_harvest DROP FOREIGN KEY FK_929CA7324C276F75;
+ALTER TABLE oaipmhharvester_harvest DROP FOREIGN KEY FK_929CA732960278D7;
+ALTER TABLE oaipmhharvester_entity DROP FOREIGN KEY FK_FE902C0EBE04EA9;
+DROP TABLE IF EXISTS oaipmhharvester_entity;
+DROP TABLE IF EXISTS oaipmhharvester_harvest;
 SET FOREIGN_KEY_CHECKS=1;

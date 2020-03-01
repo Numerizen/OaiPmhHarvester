@@ -146,7 +146,7 @@ class IndexController extends AbstractActionController
                 'resource_type' => 'items',
                 'filters' => $filters,
             ];
-            $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\HarvestJob::class, $harvestJson);
+            $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Harvest::class, $harvestJson);
             $this->messenger()->addSuccess('Harvesting ' . $set[0] . ' in Job ID ' . $job->getId());
 
             $message = new Message(
@@ -194,7 +194,7 @@ class IndexController extends AbstractActionController
             'sort_by' => $this->params()->fromQuery('sort_by', 'id'),
             'sort_order' => $this->params()->fromQuery('sort_order', 'desc'),
         ];
-        $response = $this->api()->search('oaipmhharvester_harvestjob', $query);
+        $response = $this->api()->search('oaipmhharvester_harvests', $query);
 
         $this->paginator($response->getTotalResults(), $page);
         $view->setVariable('imports', $response->getContent());
@@ -203,12 +203,12 @@ class IndexController extends AbstractActionController
 
     protected function undoJob($jobId)
     {
-        $response = $this->api()->search('oaipmhharvester_harvestjob', ['job_id' => $jobId]);
+        $response = $this->api()->search('oaipmhharvester_harvests', ['job_id' => $jobId]);
         $harvest = $response->getContent()[0];
         $dispatcher = $this->jobDispatcher();
         $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Undo::class, ['jobId' => $jobId]);
         $response = $this->api()->update(
-            'oaipmhharvester_harvestjob',
+            'oaipmhharvester_harvests',
             $harvest->id(),
             [
                 'o:undo_job' => ['o:id' => $job->getId() ],

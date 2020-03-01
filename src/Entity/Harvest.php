@@ -1,15 +1,17 @@
 <?php
 namespace OaiPmhHarvester\Entity;
 
-use DateTime;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\ItemSet;
 use Omeka\Entity\Job;
 
 /**
  * @Entity
+ * @Table(
+ *     name="oaipmhharvester_harvest"
+ * )
  */
-class OaiPmhHarvesterHarvestJob extends AbstractEntity
+class Harvest extends AbstractEntity
 {
     /**
      * @var int
@@ -60,6 +62,15 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
      *     length=190
      * )
      */
+    protected $baseUrl;
+
+    /**
+     * @var string
+     * @Column(
+     *     type="string",
+     *     length=190
+     * )
+     */
     protected $resourceType;
 
     /**
@@ -74,15 +85,6 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
      * )
      */
     protected $itemSet;
-
-    /**
-     * @var string
-     * @Column(
-     *     type="string",
-     *     length=190
-     * )
-     */
-    protected $baseUrl;
 
     /**
      * @var string
@@ -125,37 +127,10 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
      * @var bool
      * @Column(
      *     type="boolean",
-     *     nullable=true
-     * )
-     */
-    protected $initiated;
-
-    /**
-     * @var bool
-     * @Column(
-     *     type="boolean",
-     *     nullable=true
-     * )
-     */
-    protected $completed;
-
-    /**
-     * @var bool
-     * @Column(
-     *     type="boolean",
      *     nullable=false
      * )
      */
     protected $hasErr = false;
-
-    /**
-     * @var DateTime
-     * @Column(
-     *     type="datetime",
-     *     nullable=true
-     * )
-     */
-    protected $startFrom;
 
     /**
      * @var string
@@ -191,12 +166,12 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     }
 
     /**
-     * @param Job $job
+     * @param Job $undoJob
      * @return self
      */
-    public function setUndoJob(Job $job)
+    public function setUndoJob(Job $undoJob = null)
     {
-        $this->undoJob = $job;
+        $this->undoJob = $undoJob;
         return $this;
     }
 
@@ -224,6 +199,24 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     public function getComment()
     {
         return $this->comment;
+    }
+
+    /**
+     * @param string $baseUrl
+     * @return self
+     */
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
     }
 
     /**
@@ -260,24 +253,6 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     public function getItemSet()
     {
         return $this->itemSet;
-    }
-
-    /**
-     * @param string $baseUrl
-     * @return self
-     */
-    public function setBaseUrl($baseUrl)
-    {
-        $this->baseUrl = $baseUrl;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBaseUrl()
-    {
-        return $this->baseUrl;
     }
 
     /**
@@ -353,42 +328,6 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     }
 
     /**
-     * @param bool $initiated
-     * @return self
-     */
-    public function setInitiated($initiated)
-    {
-        $this->initiated = (bool) $initiated;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getInitiated()
-    {
-        return $this->initiated;
-    }
-
-    /**
-     * @param bool $completed
-     * @return self
-     */
-    public function setCompleted($completed)
-    {
-        $this->completed = (bool) $completed;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getCompleted()
-    {
-        return $this->completed;
-    }
-
-    /**
      * @param bool $hasErr
      * @return self
      */
@@ -404,24 +343,6 @@ class OaiPmhHarvesterHarvestJob extends AbstractEntity
     public function getHasErr()
     {
         return $this->hasErr;
-    }
-
-    /**
-     * @param DateTime $startFrom
-     * @return self
-     */
-    public function setStartFrom(DateTime$startFrom)
-    {
-        $this->startFrom = $startFrom;
-        return $this;
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function getStartFrom()
-    {
-        return $this->startFrom;
     }
 
     /**

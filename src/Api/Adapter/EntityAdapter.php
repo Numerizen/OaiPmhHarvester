@@ -11,7 +11,7 @@ class EntityAdapter extends AbstractEntityAdapter
 {
     public function getEntityClass()
     {
-        return \OaiPmhHarvester\Entity\OaiPmhHarvesterEntity::class;
+        return \OaiPmhHarvester\Entity\Entity::class;
     }
 
     public function getResourceName()
@@ -55,19 +55,20 @@ class EntityAdapter extends AbstractEntityAdapter
         ErrorStore $errorStore
     ) {
         $data = $request->getContent();
-        if (isset($data['o:job']['o:id'])) {
+
+        if (array_key_exists('o:job', $data)) {
             $job = isset($data['o:job']['o:id'])
                 ? $this->getAdapter('jobs')->findEntity($data['o:job']['o:id'])
                 : null;
             $entity->setJob($job);
         }
 
-        if (array_key_exists('entity_id', $data)) {
-            $entity->setEntityId($data['entity_id']);
+        if (array_key_exists('o-module-oai-pmh-harvester:entity_id', $data)) {
+            $entity->setEntityId($data['o-module-oai-pmh-harvester:entity_id']);
         }
 
-        if (array_key_exists('resource_type', $data)) {
-            $entity->setResourceType($data['resource_type']);
+        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
+            $entity->setResourceType($data['o-module-oai-pmh-harvester:resource_type']);
         }
     }
 }

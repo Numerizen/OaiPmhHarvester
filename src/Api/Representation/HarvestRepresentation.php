@@ -3,7 +3,7 @@ namespace OaiPmhHarvester\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
-class HarvestJobRepresentation extends AbstractEntityRepresentation
+class HarvestRepresentation extends AbstractEntityRepresentation
 {
     public function getJsonLd()
     {
@@ -21,17 +21,14 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
             'o:job' => $this->job()->getReference(),
             'o:undo_job' => $undoJob,
             'o-module-oai-pmh-harvester:comment' => $this->comment(),
-            'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
             'o-module-oai-pmh-harvester:base_url' => $this->getbaseUrl(),
+            'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
             'o:item_set' => $itemSet(),
             'o-module-oai-pmh-harvester:metadata_prefix' => $this->getMetadataPrefix(),
             'o-module-oai-pmh-harvester:set_spec' => $this->getSetSpec(),
             'o-module-oai-pmh-harvester:set_name' => $this->getSetName(),
             'o-module-oai-pmh-harvester:set_description' => $this->getSetDescription(),
-            'o-module-oai-pmh-harvester:initiated' => $this->getInitiated(),
-            'o-module-oai-pmh-harvester:completed' => $this->getCompleted(),
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr(),
-            'o-module-oai-pmh-harvester:start_from' => $this->getStartFrom(),
             'o-module-oai-pmh-harvester:resumption_token' => $this->getResumptionToken(),
         ];
     }
@@ -94,24 +91,9 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
         return $this->resource->set_description;
     }
 
-    public function getInitiated()
-    {
-        return $this->resource->initiated;
-    }
-
-    public function getCompleted()
-    {
-        return $this->resource->completed;
-    }
-
     public function hasErr()
     {
         return $this->resource->getHasErr();
-    }
-
-    public function getStartFrom()
-    {
-        return $this->resource->start_from;
     }
 
     public function getResumptionToken()

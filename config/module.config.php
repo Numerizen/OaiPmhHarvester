@@ -13,7 +13,7 @@ return [
     'api_adapters' => [
         'invokables' => [
             'oaipmhharvester_entities' => Api\Adapter\EntityAdapter::class,
-            'oaipmhharvester_harvestjob' => Api\Adapter\HarvestJobAdapter::class,
+            'oaipmhharvester_harvests' => Api\Adapter\HarvestAdapter::class,
         ],
     ],
     'controllers' => [

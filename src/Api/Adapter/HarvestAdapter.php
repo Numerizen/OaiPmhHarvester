@@ -7,21 +7,21 @@ use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
 use Omeka\Stdlib\ErrorStore;
 
-class HarvestJobAdapter extends AbstractEntityAdapter
+class HarvestAdapter extends AbstractEntityAdapter
 {
     public function getEntityClass()
     {
-        return \OaiPmhHarvester\Entity\OaiPmhHarvesterHarvestJob::class;
+        return \OaiPmhHarvester\Entity\Harvest::class;
     }
 
     public function getResourceName()
     {
-        return 'oaipmhharvester_harvestjob';
+        return 'oaipmhharvester_harvests';
     }
 
     public function getRepresentationClass()
     {
-        return \OaiPmhHarvester\Api\Representation\HarvestJobRepresentation::class;
+        return \OaiPmhHarvester\Api\Representation\HarvestRepresentation::class;
     }
 
     public function buildQuery(QueryBuilder $qb, array $query)
@@ -49,14 +49,15 @@ class HarvestJobAdapter extends AbstractEntityAdapter
         ErrorStore $errorStore
     ) {
         $data = $request->getContent();
-        if (isset($data['o:job']['o:id'])) {
+
+        if (array_key_exists('o:job', $data)) {
             $job = isset($data['o:job']['o:id'])
                 ? $this->getAdapter('jobs')->findEntity($data['o:job']['o:id'])
                 : null;
             $entity->setJob($job);
         }
 
-        if (isset($data['o:undo_job']['o:id'])) {
+        if (array_key_exists('o:undo_job', $data)) {
             $job = isset($data['o:undo_job']['o:id'])
                 ? $this->getAdapter('jobs')->findEntity($data['o:undo_job']['o:id'])
                 : null;
@@ -98,20 +99,8 @@ class HarvestJobAdapter extends AbstractEntityAdapter
             $entity->setSetDescription($data['o-module-oai-pmh-harvester:set_description']);
         }
 
-        if (array_key_exists('o-module-oai-pmh-harvester:initiated', $data)) {
-            $entity->setInitiated($data['o-module-oai-pmh-harvester:initiated']);
-        }
-
-        if (array_key_exists('o-module-oai-pmh-harvester:completed', $data)) {
-            $entity->setCompleted($data['o-module-oai-pmh-harvester:completed']);
-        }
-
         if (array_key_exists('o-module-oai-pmh-harvester:has_err', $data)) {
             $entity->setHasErr($data['o-module-oai-pmh-harvester:has_err']);
-        }
-
-        if (array_key_exists('o-module-oai-pmh-harvester:start_from', $data)) {
-            $entity->setStartFrom($data['o-module-oai-pmh-harvester:start_from']);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:resumption_token', $data)) {

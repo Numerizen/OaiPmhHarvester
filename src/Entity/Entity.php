@@ -6,8 +6,11 @@ use Omeka\Entity\Job;
 
 /**
  * @Entity
+ * @Table(
+ *     name="oaipmhharvester_entity"
+ * )
  */
-class OaiPmhHarvesterEntity extends AbstractEntity
+class Entity extends AbstractEntity
 {
     /**
      * @var int;
