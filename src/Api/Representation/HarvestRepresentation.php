@@ -29,6 +29,7 @@ class HarvestRepresentation extends AbstractEntityRepresentation
             'o-module-oai-pmh-harvester:set_name' => $this->getSetName(),
             'o-module-oai-pmh-harvester:set_description' => $this->getSetDescription(),
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr(),
+            'o-module-oai-pmh-harvester:stats' => $this->stats(),
             'o-module-oai-pmh-harvester:resumption_token' => $this->resumptionToken(),
         ];
     }
@@ -127,6 +128,14 @@ class HarvestRepresentation extends AbstractEntityRepresentation
     public function hasErr()
     {
         return $this->resource->getHasErr();
+    }
+
+    /**
+     * @return array
+     */
+    public function stats()
+    {
+        return $this->resource->getStats();
     }
 
     /**

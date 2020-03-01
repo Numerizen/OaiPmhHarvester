@@ -1,70 +1,109 @@
 <?php
 /**
  * @var \Zend\View\Renderer\PhpRenderer $this
- * @var \OaiPmhHarvester\Api\Representation\HarvestRepresentation[] $imports
+ * @var \OaiPmhHarvester\Api\Representation\HarvestRepresentation[] $harvests
  */
 
 $translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester harvests undo');
+$hyperlink = $this->plugin('hyperlink');
+$url = $this->plugin('url');
+
+$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester jobs harvests undo');
 ?>
 
-<?php echo $this->pageTitle($translate('Past Imports'), 1, $translate('OAI-PMH Harvester')); ?>
-<?php if(empty($imports)): ?>
+<?= $this->pageTitle($translate('Past Imports'), 1, $translate('OAI-PMH Harvester')) ?>
+<?php if (empty($harvests)): ?>
+
+<?= $translate('There are no harvests currently.') ?>
 
 <?php else: ?>
-<?php echo $this->pagination(); ?>
+<?= $this->pagination() ?>
 
 <form method='POST'>
     <fieldset id='page-actions'>
-        <input type="submit" value="<?php echo $escape($translate('Submit')); ?>" />
+        <input type="submit" value="<?= $escape($translate('Submit')) ?>" />
     </fieldset>
     <table class="tablesaw" data-tablesaw-mode="stack">
         <thead>
             <tr>
-                <th><?php echo $escape($translate('Undo?'));?></th>
-                <th><?php echo $this->sortLink($translate('Job'), 'id');?></th>
-                <th><?php echo $escape($translate('Comment'));?></th>
-                <th><?php echo $escape($translate('Imported content'));?></th>
-                <th><?php echo $escape($translate('Date'));?></th>
-                <th><?php echo $escape($translate('Status'));?></th>
-                <th><?php echo $escape($translate('Owner'));?></th>
+                <th><?= $escape($translate('Undo?')) ?></th>
+                <th><?= $escape($translate('Date')) ?></th>
+                <th><?= $escape($translate('Comment')) ?></th>
+                <th><?= $escape($translate('Results')) ?></th>
+                <th><?= $escape($translate('Status')) ?></th>
+                <th><?= $escape($translate('Owner')) ?></th>
             </tr>
         </thead>
         <tbody>
 
-        <?php foreach ($imports as $import): ?>
-        <?php $job = $import->job(); ?>
-        <?php $undoJob = $import->undoJob(); ?>
-        <tr class="<?php echo $undoJob ? 'undone' : ''; ?>" >
+        <?php foreach ($harvests as $harvest): ?>
+        <?php $job = $harvest->job(); ?>
+        <?php $undoJob = $harvest->undoJob(); ?>
+        <tr class="<?= $undoJob ? 'undone' : '' ?>">
             <td>
-                <input type='checkbox' name='jobs[]' value='<?php echo $job->id(); ?>' />
+                <input type="checkbox" name="jobs[]" value="<?= $job->id() ?>" <?= $undoJob ? ' disabled="disabled"' : '' ?>/>
             </td>
-            <td><?php echo $job->link($job->id()); ?></td>
-            <td class='comment'>
-                <?php echo $import->comment(); ?>
-                <?php if($import->hasErr()): ?>
-                    <p><?php echo $translate("Problems were detected with the import. Check the job's log for details."); ?></p>
+            <td>
+                <span class="oai-pmh-date">
+                    <?= $escape($this->i18n()->dateFormat($job->started())) ?>
+                </span>
+                <br/>
+                <span class="oai-pmh-job">
+                    <?= $job->link($translate('Job details')) ?>
+                </span>
+                <?php if ($job->log()): ?>
+                /
+                <span class="oai-pmh-log">
+                    <?= $job->link($translate('Log'), 'log', ['target' => '_blank']) ?>
+                </span>
                 <?php endif; ?>
             </td>
             <td>
-                <?php echo sprintf($translate('Imported: %d %s'), $import->totalImported(), $translate('items'/* $import->resourceType() */)); ?>
+                <?= $translate($harvest->comment()) ?>
+                <?php if ($harvest->hasErr()): ?>
+                    <p><?= $translate('Problems were detected with the import. Check the job‘s log for details.') ?></p>
+                <?php endif; ?>
             </td>
-            <td><?php echo $escape($this->i18n()->dateFormat($job->started())); ?></td>
             <td>
-            <?php if ($undoJob) {
-                if ($undoJob->ended()) {
-                    $status = $translate('Undone') . ' ' . $escape($this->i18n()->dateFormat($undoJob->ended()));
-                } else {
-                    $status = $translate('Undo in progress');
-                }
-            } else {
-                $status = $translate($job->status());
-            }
-            ?>
-            <?php echo $status; ?>
+                <?php if ($stats = $harvest->stats()): ?>
+                <?php foreach ($stats as $statKey => $statValue): ?>
+                <span class="oai-pmh-stat">
+                    <?= sprintf($translate('%s: %s'), $translate($statKey), $statValue) ?>
+                </span>
+                <br/>
+                <?php endforeach; ?>
+                <?php else: ?>
+                <?= sprintf($translate('Imported: %d %s'), $harvest->totalImported(), $translate('items'/* $harvest->resourceType() */)) ?>
+                <?php endif; ?>
             </td>
-            <td><?php echo $this->hyperlink($job->owner()->name(), $this->url('admin/id', array('controller' => 'user', 'action' => 'show', 'id' => $job->owner()->id()))); ?></td>
+            <td>
+                <?php
+                if ($undoJob):
+                    if ($undoJob->ended()):
+                        echo $translate('Undone') . ' ' . $escape($this->i18n()->dateFormat($undoJob->ended()));
+                    else:
+                        echo $translate('Undo in progress');
+                    endif;
+                    ?>
+                    <span class="oai-pmh-job">
+                        <?= $undoJob->link($translate('Job details')) ?>
+                    </span>
+                    <?php if ($undoJob->log()): ?>
+                    /
+                    <span class="oai-pmh-log">
+                        <?= $undoJob->link($translate('Log'), 'log', ['target' => '_blank']) ?>
+                    </span>
+                    <?php
+                    endif;
+                else:
+                    echo $escape($translate($job->status()));
+                endif;
+                ?>
+            </td>
+            <td>
+                <?= $hyperlink($job->owner()->name(), $url('admin/id', ['controller' => 'user', 'action' => 'show', 'id' => $job->owner()->id()])) ?>
+            </td>
         </tr>
         <?php endforeach; ?>
         </tbody>

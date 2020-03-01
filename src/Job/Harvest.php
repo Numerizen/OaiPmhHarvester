@@ -62,6 +62,13 @@ class Harvest extends AbstractJob
         $args = $this->job->getArgs();
 
         $comment = null;
+        $stats = [
+            'records' => null, // @translate
+            'harvested' => 0, // @translate
+            'whitelisted' => 0, // @translate
+            'blacklisted' => 0, // @translate
+            'imported' => 0, // @translate
+        ];
 
         $harvestData = [
             'o:job' => ['o:id' => $this->job->getId()],
@@ -75,6 +82,7 @@ class Harvest extends AbstractJob
             'o-module-oai-pmh-harvester:set_name' => $args['set_name'],
             'o-module-oai-pmh-harvester:set_description' => @$args['set_description'],
             'o-module-oai-pmh-harvester:has_err' => false,
+            'o-module-oai-pmh-harvester:stats' => $stats,
         ];
 
         $response = $this->api->create('oaipmhharvester_harvests', $harvestData);
@@ -103,16 +111,11 @@ class Harvest extends AbstractJob
         }
 
         $resumptionToken = false;
-        $totalRecords = null;
-        $totalHarvested = 0;
-        $totalWhitelisted = 0;
-        $totalBlacklisted = 0;
-        $totalImported = 0;
         do {
             if ($this->shouldStop()) {
                 $this->logger->notice(sprintf(
                     'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
-                    $totalRecords, $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+                    $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported']
                 ));
                 $this->logger->warn(
                     'The job was stopped.' // @translate
@@ -153,8 +156,8 @@ class Harvest extends AbstractJob
 
             $records = $response->ListRecords;
 
-            if (is_null($totalRecords)) {
-                $totalRecords = isset($response->ListRecords->resumptionToken)
+            if (is_null($stats['records'])) {
+                $stats['records'] = isset($response->ListRecords->resumptionToken)
                     ? (int) $records->resumptionToken['completeListSize']
                     : count($response->ListRecords->record);
             }
@@ -162,26 +165,26 @@ class Harvest extends AbstractJob
             $toInsert = [];
             /** @var \SimpleXMLElement $record */
             foreach ($records->record as $record) {
-                ++$totalHarvested;
+                ++$stats['harvested'];
                 if ($whitelist || $blacklist) {
                     // Use xml instead of string because some format may use
                     // attributes for data.
                     $recordString = $record->asXML();
                     foreach ($whitelist as $string) {
                         if (mb_stripos($recordString, $string) === false) {
-                            ++$totalWhitelisted;
+                            ++$stats['whitelisted'];
                             continue 2;
                         }
                     }
                     foreach ($blacklist as $string) {
                         if (mb_stripos($recordString, $string) !== false) {
-                            ++$totalBlacklisted;
+                            ++$stats['blacklisted'];
                             continue 2;
                         }
                     }
                 }
                 $toInsert[] = $this->{$method}($record, $args['item_set_id']);
-                ++$totalImported;
+                ++$stats['imported'];
             }
 
             if ($toInsert) {
@@ -192,10 +195,13 @@ class Harvest extends AbstractJob
                 ? $response->ListRecords->resumptionToken
                 : false;
 
-            $this->logger->info(sprintf(
-                'Processing: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
-                $totalRecords, $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
-            ));
+            // Update job.
+            $harvestData = [
+                'o-module-oai-pmh-harvester:comment' => 'Processing', // @translate
+                'o-module-oai-pmh-harvester:has_err' => $this->hasErr,
+                'o-module-oai-pmh-harvester:stats' => $stats,
+            ];
+            $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
         } while ($resumptionToken);
 
         // Update job.
@@ -205,19 +211,13 @@ class Harvest extends AbstractJob
         $harvestData = [
             'o-module-oai-pmh-harvester:comment' => $comment,
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr,
-            'stats' => [
-                'total_harvested' => $totalHarvested,
-                'total_whitelisted' => $totalWhitelisted,
-                'total_blacklisted' => $totalBlacklisted,
-                'total_imported' => $totalImported,
-            ],
+            'o-module-oai-pmh-harvester:stats' => $stats,
         ];
-
         $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
 
         $this->logger->notice(sprintf(
             'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
-            $totalRecords, $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+            $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported']
         ));
     }
 

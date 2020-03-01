@@ -133,6 +133,14 @@ class Harvest extends AbstractEntity
     protected $hasErr = false;
 
     /**
+     * @var array
+     * @Column(
+     *     type="json_array"
+     * )
+     */
+    protected $stats;
+
+    /**
      * @var string
      * @Column(
      *     type="string",
@@ -343,6 +351,24 @@ class Harvest extends AbstractEntity
     public function getHasErr()
     {
         return $this->hasErr;
+    }
+
+    /**
+     * @param array $stats
+     * @return self
+     */
+    public function setStats($stats)
+    {
+        $this->stats = $stats;
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStats()
+    {
+        return $this->stats;
     }
 
     /**

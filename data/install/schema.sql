@@ -11,6 +11,7 @@ CREATE TABLE oaipmhharvester_harvest (
     set_name LONGTEXT DEFAULT NULL,
     set_description LONGTEXT DEFAULT NULL,
     has_err TINYINT(1) NOT NULL,
+    stats LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)',
     resumption_token VARCHAR(190) DEFAULT NULL,
     UNIQUE INDEX UNIQ_929CA732BE04EA9 (job_id),
     UNIQUE INDEX UNIQ_929CA7324C276F75 (undo_job_id),

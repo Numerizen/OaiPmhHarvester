@@ -280,7 +280,7 @@ class IndexController extends AbstractActionController
         $response = $this->api()->search('oaipmhharvester_harvests', $query);
 
         $this->paginator($response->getTotalResults(), $page);
-        $view->setVariable('imports', $response->getContent());
+        $view->setVariable('harvests', $response->getContent());
         return $view;
     }
 

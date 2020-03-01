@@ -64,10 +64,10 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'resourceType', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'resumptionToken'];
+            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'resourceType', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
         }
 
-        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'resourceType', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'resumptionToken'];
+        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'resourceType', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
     }
 
     /**
@@ -428,6 +428,28 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getHasErr', []);
 
         return parent::getHasErr();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setStats($stats)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStats', [$stats]);
+
+        return parent::setStats($stats);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getStats()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStats', []);
+
+        return parent::getStats();
     }
 
     /**

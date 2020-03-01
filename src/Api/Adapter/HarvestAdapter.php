@@ -103,6 +103,10 @@ class HarvestAdapter extends AbstractEntityAdapter
             $entity->setHasErr($data['o-module-oai-pmh-harvester:has_err']);
         }
 
+        if (array_key_exists('o-module-oai-pmh-harvester:stats', $data)) {
+            $entity->setStats($data['o-module-oai-pmh-harvester:stats']);
+        }
+
         if (array_key_exists('o-module-oai-pmh-harvester:resumption_token', $data)) {
             $entity->setResumptionToken($data['o-module-oai-pmh-harvester:resumption_token']);
         }
