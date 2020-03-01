@@ -128,7 +128,7 @@ class Harvest extends AbstractJob
 
             /** @var \SimpleXMLElement $response */
             $response = \simplexml_load_file($url);
-            $records = $response->ListRecords;
+            $records = $response->ListRecords ?: [];
             $toInsert = [];
             /** @var \SimpleXMLElement $record */
             foreach ($records->record as $record) {
@@ -158,13 +158,11 @@ class Harvest extends AbstractJob
                 $this->createItems($toInsert);
             }
 
-            if (isset($response->ListRecords->resumptionToken) && $response->ListRecords->resumptionToken <> '') {
-                $resumptionToken = $response->ListRecords->resumptionToken;
-            } else {
-                $resumptionToken = false;
-            }
+            $resumptionToken = isset($response->ListRecords->resumptionToken) && $response->ListRecords->resumptionToken <> ''
+                ? $response->ListRecords->resumptionToken
+                : false;
 
-            $this->logger->notice(sprintf(
+            $this->logger->info(sprintf(
                 'Processing: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
                 $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
             ));

@@ -10,77 +10,108 @@ class SetsForm extends Form
     {
         $this->setAttribute('action', 'harvest');
 
+        $repositoryName = $this->getOption('repository_name');
         $endpoint = $this->getOption('endpoint');
         $formats = $this->getOption('formats');
         $sets = $this->getOption('sets') ?: [];
+        $harvestAllRecords = $this->getOption('harvest_all_records');
 
-        $this->add([
-            'type' => Element\Hidden::class,
-            'name' => 'endpoint',
-            'attributes' => [
-                'id' => 'endpoint',
-                'value' => $endpoint,
-            ],
-        ]);
-
-        $this->add([
-            'name' => 'filters_whitelist',
-            'type' => Element\Textarea::class,
-            'options' => [
-                'label' => 'Filters (whitelist)', // @translate
-                'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
-            ],
-            'attributes' => [
-                'id' => 'filters_whitelist',
-            ],
-        ]);
-
-        $this->add([
-            'name' => 'filters_blacklist',
-            'type' => Element\Textarea::class,
-            'options' => [
-                'label' => 'Filters (blacklist)', // @translate
-                'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
-            ],
-            'attributes' => [
-                'id' => 'filters_blacklist',
-            ],
-        ]);
-
-        foreach ($sets as $id => $set) {
-            $this->add([
-                'type' => Element\Select::class,
-                'name' => 'namespace['  . $id . "]",
-                'options' => [
-                    'label' => strip_tags($set) . "($id)",
-                    'value_options' => $formats,
-                ],
-            ]);
-            $this->add([
+        $this
+            ->add([
                 'type' => Element\Hidden::class,
-                'name' => 'setSpec['  . $id . "]",
+                'name' => 'repository_name',
                 'attributes' => [
-                    'id' => 'setSpec'  .  $id,
-                    'value' => strip_tags($set),
+                    'id' => 'repository_name',
+                    'value' => $repositoryName,
                 ],
+            ])
+            ->add([
+                'type' => Element\Hidden::class,
+                'name' => 'endpoint',
+                'attributes' => [
+                    'id' => 'endpoint',
+                    'value' => $endpoint,
+                ],
+            ])
+            ->add([
+                'type' => Element\Hidden::class,
+                'name' => 'harvest_all_records',
+                'attributes' => [
+                    'id' => 'harvest_all_records',
+                    'value' => $harvestAllRecords,
+                ],
+            ])
+            ->add([
+                'name' => 'filters_whitelist',
+                'type' => Element\Textarea::class,
                 'options' => [
-                    'label' => strip_tags($set),
-                    'value_options' => $formats,
+                    'label' => 'Filters (whitelist)', // @translate
+                    'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'filters_whitelist',
+                ],
+            ])
+            ->add([
+                'name' => 'filters_blacklist',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Filters (blacklist)', // @translate
+                    'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'filters_blacklist',
                 ],
             ]);
-            $this->add([
-                'type' => Element\Checkbox::class,
-                'name' => 'harvest['  . $id . "]",
-                'options' => [
-                    'label' => 'Harvest this set ?',
-                    'use_hidden_element' => true,
-                    'checked_value' => 'yes',
-                    'unchecked_value' => 'no',
-                ],
-                'attributes' => [
-                    'value' => 'no',
-                ],
-            ]);
+
+        if ($sets && !$harvestAllRecords) {
+            foreach ($sets as $id => $set) {
+                $this
+                    ->add([
+                        'type' => Element\Select::class,
+                        'name' => 'namespace[' . $id . ']',
+                        'options' => [
+                            'label' => strip_tags($set) . " ($id)",
+                            'value_options' => $formats,
+                        ],
+                        'attributes' => [
+                            'id' => 'namespace[' . $id . ']',
+                        ],
+                    ])
+                    ->add([
+                        'type' => Element\Hidden::class,
+                        'name' => 'setSpec[' . $id . ']',
+                        'attributes' => [
+                            'id' => 'setSpec' . $id,
+                            'value' => strip_tags($set),
+                        ],
+                    ])
+                    ->add([
+                        'type' => Element\Checkbox::class,
+                        'name' => 'harvest[' . $id . ']',
+                        'options' => [
+                            'label' => 'Harvest this set?', // @translate
+                            'use_hidden_element' => false,
+                        ],
+                        'attributes' => [
+                            'id' => 'harvest[' . $id . ']',
+                        ],
+                    ]);
+            }
+        } else {
+            $this
+                ->add([
+                    'type' => Element\Select::class,
+                    'name' => 'namespace[0]',
+                    'options' => [
+                        'label' => 'Whole repository', // @translate
+                        'value_options' => $formats,
+                    ],
+                    'attributes' => [
+                        'id' => 'namespace[0]',
+                    ],
+                ])
+            ;
         }
     }
 }

@@ -25,7 +25,18 @@ class HarvestForm extends Form
                     // support it.
                     'placeholder' => 'https://example.org/oai-pmh-repository/request',
                 ],
-            ]);
+            ])
+            ->add([
+                'name' => 'harvest_all_records',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Skip listing of sets and harvest all records', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'harvest_all_records',
+                ],
+            ])
+        ;
 
         $inputFilter = $this->getInputFilter();
         $inputFilter

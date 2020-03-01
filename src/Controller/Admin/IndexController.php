@@ -41,6 +41,8 @@ class IndexController extends AbstractActionController
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
+        $harvestAllRecords = !empty($post['harvest_all_records']);
+
         $url = $endpoint . '?verb=Identify';
         $response = @\simplexml_load_file($url);
         if (!$response) {
@@ -58,14 +60,16 @@ class IndexController extends AbstractActionController
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
-        $sets = $this->listOaiPmhSets($endpoint);
+        $sets = $harvestAllRecords ? ['total' => null, 'sets' => []] : $this->listOaiPmhSets($endpoint);
         $total = $sets['total'];
         $sets = $sets['sets'];
 
         $options = [
+            'repository_name' => $repositoryName,
             'endpoint' => $endpoint,
             'formats' => $formats,
             'sets' => $sets,
+            'harvest_all_records' => $harvestAllRecords,
         ];
         $form = $this->getForm(SetsForm::class, $options);
 
@@ -74,6 +78,7 @@ class IndexController extends AbstractActionController
             ->setVariable('form', $form)
             ->setVariable('repositoryName', $repositoryName)
             ->setVariable('total', $total)
+            ->setVariable('harvestAllRecords', $harvestAllRecords)
         ;
     }
 
@@ -96,25 +101,67 @@ class IndexController extends AbstractActionController
         $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['endpoint']) // @translate
             . ' ';
 
+        $repositoryName = $post['repository_name'];
+        $harvestAllRecords = !empty($post['harvest_all_records']);
+
         // List item sets and create oai-pmh harvesting sets.
+        // FIXME Check if the item sets exist.
+        // TODO Append description of sets, if any.
         $sets = [];
-        foreach ($post['namespace'] as $id => $prefix) {
-            if ($post['harvest'][$id] == 'yes') {
-                $message .= $post['setSpec'][$id] . ' as ' . $prefix . '|';
+        if ($harvestAllRecords) {
+            $prefix = $post['namespace'][0];
+            $message .= $repositoryName;
+            $tocreate = [
+                // dctype:Collection.
+                'o:resource_class' => ['o:id' => 23],
+                'dcterms:title' => [[
+                    'type' => 'literal',
+                    'property_id' => 1,
+                    '@value' => $repositoryName,
+                ]],
+                'dcterms:isFormatOf' => [[
+                    'type' => 'uri',
+                    'property_id' => 37,
+                    '@id' => $post['endpoint'],
+                    'o:label' => 'OAI-PMH repository',
+                ]],
+            ];
+            $itemSet = $this->api()->create('item_sets', $tocreate, [], ['responseContent' => 'resource'])->getContent();
+            $sets[''] = [
+                'set_name' => $repositoryName,
+                'metadata_prefix' => $prefix,
+                'item_set_id' => $itemSet->getId(),
+            ];
+        } else {
+            foreach (array_keys($post['harvest']) as $id) {
+                $prefix = $post['namespace'][$id];
+                $label = $post['setSpec'][$id];
+                $message .= $label . ' as ' . $prefix . ' | ';
                 $tocreate = [
-                    ["dcterms:title" =>
-                        ['@value' => $post['setSpec'][$id],
-                            'type' => 'literal',
-                            "property_id" => 1,
-                        ],
-                    ],
+                    // dctype:Collection.
+                    'o:resource_class' => ['o:id' => 23],
+                    'dcterms:title' => [[
+                        '@value' => $label,
+                        'type' => 'literal',
+                        'property_id' => 1,
+                    ]],
+                    'dcterms:isFormatOf' => [[
+                        'type' => 'uri',
+                        'property_id' => 37,
+                        '@id' => $post['endpoint'],
+                        'o:label' => 'OAI-PMH repository',
+                    ]],
                 ];
-                $setId = $this->api()->create('item_sets', $tocreate, [], ['responseContent' => 'resource'])->getContent();
-                $sets[$id] = [$post['setSpec'][$id], $prefix, $setId->getId()];
+                $itemSetId = $this->api()->create('item_sets', $tocreate, [], ['responseContent' => 'resource'])->getContent();
+                $sets[$id] = [
+                    'set_name' => $label,
+                    'metadata_prefix' => $prefix,
+                    'item_set_id' => $itemSetId->getId(),
+                ];
             }
         }
 
-        $message = rtrim($message, '|');
+        $message = rtrim($message, '| ') . '.';
         $this->messenger()->addSuccess($message);
 
         if ($filters['whitelist']) {
@@ -135,19 +182,18 @@ class IndexController extends AbstractActionController
             $endpoint = $post['endpoint'];
             // TODO : job harvest / job item creation ?
             // TODO : toutes les propriétés (prefix, resumption, etc.)
-            $harvestJson = [
-                'comment' => 'Harvest ' . $set[0] . ' from ' . $endpoint,
+            $args = [
+                'comment' => sprintf($this->translate('Harvest "%1$s" from %2$s (%3$s)'), $set['set_name'], $repositoryName, $endpoint), // @translate
+                'repository_name' => $repositoryName,
                 'endpoint' => $endpoint,
-                'set_name' => $set[0],
                 'set_spec' => $setSpec,
-                'item_set_id' => $set[2],
+                'item_set_id' => $set['item_set_id'],
                 'has_err' => 0,
-                'metadata_prefix' => $set[1],
+                'metadata_prefix' => $set['metadata_prefix'],
                 'resource_type' => 'items',
                 'filters' => $filters,
-            ];
-            $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Harvest::class, $harvestJson);
-            $this->messenger()->addSuccess('Harvesting ' . $set[0] . ' in Job ID ' . $job->getId());
+            ] + $set;
+            $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Harvest::class, $args);
 
             $message = new Message(
                 vsprintf($this->translate('Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). This may take a while.'), // @translate
