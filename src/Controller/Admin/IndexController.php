@@ -18,6 +18,23 @@ class IndexController extends AbstractActionController
     protected $maxListSets = 200;
 
     /**
+     * List of managed metadata prefixes.
+     *
+     * @var array
+     */
+    protected $metadataPrefixes = [
+        'oai_dc',
+        'dc',
+        'oai_dcterms',
+        'oai_dcq',
+        'oai_qdc',
+        'dcterms',
+        'qdc',
+        'dcq',
+        'mets',
+    ];
+
+    /**
      * Main form to set the url.
      */
     public function indexAction()
@@ -315,7 +332,7 @@ class IndexController extends AbstractActionController
         if ($response) {
             foreach ($response->ListMetadataFormats->metadataFormat as $format) {
                 $prefix = (string) $format->metadataPrefix;
-                if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
+                if (in_array($prefix, $this->metadataPrefixes)) {
                     $formats[$prefix] = $prefix;
                 } else {
                     $formats[$prefix] = sprintf($this->translate('%s [unmanaged]'), $prefix); // @translate

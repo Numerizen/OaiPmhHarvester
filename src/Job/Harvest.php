@@ -24,6 +24,8 @@ class Harvest extends AbstractJob
 
     const OAI_DC_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
     const OAI_DCTERMS_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dcterms/';
+    const OAI_QDC_NAMESPACE = 'qdc="http://www.bl.uk/namespaces/oai_dcq/';
+    const QDC_NAMESPACE = 'http://worldcat.org/xmlschemas/qdc-1.0/';
 
     const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
 
@@ -97,9 +99,13 @@ class Harvest extends AbstractJob
             case 'dc':
                 $method = '_oaidcToJson';
                 break;
-            case 'dcterms':
             case 'oai_dcterms':
-                $method = '_oaidctermsToJson';
+            case 'oai_dcq':
+            case 'oai_qdc':
+            case 'dcterms':
+            case 'qdc':
+            case 'dcq':
+                $method = '_anyDctermsToJson';
                 break;
             default:
                 $this->logger->err(sprintf(
@@ -281,7 +287,7 @@ class Harvest extends AbstractJob
                 }
             }
             $meta = $elementTexts;
-            $meta['o:item_set'] = ["o:id" => $itemSetId];
+            $meta['o:item_set'] = ['o:id' => $itemSetId];
         }
         return $meta;
     }
@@ -301,25 +307,30 @@ class Harvest extends AbstractJob
         }
 
         $meta = $elementTexts;
-        $meta['o:item_set'] = ["o:id" => $itemSetId];
+        $meta['o:item_set'] = ['o:id' => $itemSetId];
         return $meta;
     }
 
-    private function _oaidctermsToJson(SimpleXMLElement $record, $itemSetId)
+    private function _anyDctermsToJson(SimpleXMLElement $record, $itemSetId)
     {
-        $dcMetadata = $record
-            ->metadata
-            ->children(self::OAI_DCTERMS_NAMESPACE)
-            ->children(self::DCTERMS_NAMESPACE);
-
         $elementTexts = [];
-        foreach ($this->dcProperties as $propertyId => $localName) {
-            if (isset($dcMetadata->$localName)) {
-                $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
+
+        $metadata = $record->metadata;
+        $namespaces = $metadata->getNamespaces(true);
+
+        foreach ($namespaces as $namespace) {
+            $dcMetadata = $metadata
+                ->children($namespace)
+                ->children(self::DCTERMS_NAMESPACE);
+            foreach ($this->dcProperties as $propertyId => $localName) {
+                if (isset($dcMetadata->$localName)) {
+                    $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
+                }
             }
         }
+
         $meta = $elementTexts;
-        $meta['o:item_set'] = ["o:id" => $itemSetId];
+        $meta['o:item_set'] = ['o:id' => $itemSetId];
         return $meta;
     }
 
@@ -341,7 +352,6 @@ class Harvest extends AbstractJob
             $val = [
                 'property_id' => $propertyId,
                 'type' => $type,
-                // "value_is_html" => false,
                 'is_public' => true,
             ];
 
