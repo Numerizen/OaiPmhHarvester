@@ -33,6 +33,7 @@ class IndexController extends AbstractActionController
      */
     public function setsAction()
     {
+        // FIXME Validate post.
         $post = $this->params()->fromPost();
         $endpoint = @$post['endpoint'];
 
@@ -310,12 +311,14 @@ class IndexController extends AbstractActionController
 
             /** @var \SimpleXMLElement $response */
             $response = \simplexml_load_file($url);
-            if (!isset($response->ListSets)) {
+            if (!$response || !isset($response->ListSets)) {
                 break;
             }
 
-            if (empty($totalSets)) {
-                $totalSets = (int) $response->ListSets->resumptionToken['completeListSize'];
+            if (is_null($totalSets)) {
+                $totalSets = isset($response->ListRecords->resumptionToken)
+                    ? (int) $response->ListSets->resumptionToken['completeListSize']
+                    : count($response->ListSets->set);
             }
 
             foreach ($response->ListSets->set as $set) {

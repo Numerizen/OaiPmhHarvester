@@ -101,19 +101,20 @@ class Harvest extends AbstractJob
         }
 
         $resumptionToken = false;
+        $totalRecords = null;
         $totalHarvested = 0;
         $totalWhitelisted = 0;
         $totalBlacklisted = 0;
         $totalImported = 0;
         do {
             if ($this->shouldStop()) {
+                $this->logger->notice(sprintf(
+                    'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
+                    $totalRecords, $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+                ));
                 $this->logger->warn(
                     'The job was stopped.' // @translate
                 );
-                $this->logger->notice(sprintf(
-                    'Results: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
-                    $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
-                ));
                 return false;
             }
 
@@ -128,7 +129,32 @@ class Harvest extends AbstractJob
 
             /** @var \SimpleXMLElement $response */
             $response = \simplexml_load_file($url);
-            $records = $response->ListRecords ?: [];
+            if (!$response) {
+                $this->hasErr = true;
+                $this->logger->err(sprintf(
+                    'Error: the harvester does not list records with url %s.', // @translate
+                    $url
+                ));
+                break;
+            }
+
+            if (!$response->ListRecords) {
+                $this->hasErr = true;
+                $this->logger->err(sprintf(
+                    'Error: the harvester does not list records with url %s.', // @translate
+                    $url
+                ));
+                break;
+            }
+
+            $records = $response->ListRecords;
+
+            if (is_null($totalRecords)) {
+                $totalRecords = isset($response->ListRecords->resumptionToken)
+                    ? (int) $records->resumptionToken['completeListSize']
+                    : count($response->ListRecords->record);
+            }
+
             $toInsert = [];
             /** @var \SimpleXMLElement $record */
             foreach ($records->record as $record) {
@@ -163,8 +189,8 @@ class Harvest extends AbstractJob
                 : false;
 
             $this->logger->info(sprintf(
-                'Processing: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
-                $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+                'Processing: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
+                $totalRecords, $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
             ));
         } while ($resumptionToken);
 
@@ -184,8 +210,8 @@ class Harvest extends AbstractJob
         $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
 
         $this->logger->notice(sprintf(
-            'Results: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
-            $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+            'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
+            $totalRecords, $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
         ));
     }
 
