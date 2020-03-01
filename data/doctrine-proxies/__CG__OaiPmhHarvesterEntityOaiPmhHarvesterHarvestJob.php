@@ -12,14 +12,14 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
      *      three parameters, being respectively the proxy object to be initialized, the method that triggered the
      *      initialization process and an array of ordered parameters that were passed to that method.
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__setInitializer
+     * @see \Doctrine\Common\Proxy\Proxy::__setInitializer
      */
     public $__initializer__;
 
     /**
      * @var \Closure the callback responsible of loading properties that need to be copied in the cloned object
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__setCloner
+     * @see \Doctrine\Common\Proxy\Proxy::__setCloner
      */
     public $__cloner__;
 
@@ -34,7 +34,7 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
      * @var array properties to be lazy loaded, with keys being the property
      *            names and values being their default values
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__getLazyProperties
+     * @see \Doctrine\Common\Proxy\Proxy::__getLazyProperties
      */
     public static $lazyPropertiesDefaults = [];
 
@@ -64,10 +64,10 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'has_err', 'resource_type', 'collection_id', 'base_url', 'metadata_prefix', 'set_spec', 'set_name', 'set_description', 'initiated', 'completed', 'start_from', 'resumption_token'];
+            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'resourceType', 'itemSet', 'baseUrl', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'initiated', 'completed', 'hasErr', 'startFrom', 'resumptionToken'];
         }
 
-        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'has_err', 'resource_type', 'collection_id', 'base_url', 'metadata_prefix', 'set_spec', 'set_name', 'set_description', 'initiated', 'completed', 'start_from', 'resumption_token'];
+        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'resourceType', 'itemSet', 'baseUrl', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'initiated', 'completed', 'hasErr', 'startFrom', 'resumptionToken'];
     }
 
     /**
@@ -257,17 +257,6 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
     /**
      * {@inheritDoc}
      */
-    public function setHasErr($hasErr)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setHasErr', [$hasErr]);
-
-        return parent::setHasErr($hasErr);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function setResourceType($resourceType)
     {
 
@@ -290,133 +279,23 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
     /**
      * {@inheritDoc}
      */
-    public function getHasErr()
+    public function setItemSet(\Omeka\Entity\ItemSet $itemSet = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getHasErr', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setItemSet', [$itemSet]);
 
-        return parent::getHasErr();
+        return parent::setItemSet($itemSet);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getCollectionId()
+    public function getItemSet()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCollectionId', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getItemSet', []);
 
-        return parent::getCollectionId();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getBaseUrl()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getBaseUrl', []);
-
-        return parent::getBaseUrl();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getMetadataPrefix()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMetadataPrefix', []);
-
-        return parent::getMetadataPrefix();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getSetSpec()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetSpec', []);
-
-        return parent::getSetSpec();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getSetName()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetName', []);
-
-        return parent::getSetName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getSetDescription()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetDescription', []);
-
-        return parent::getSetDescription();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getInitiated()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getInitiated', []);
-
-        return parent::getInitiated();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getCompleted()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCompleted', []);
-
-        return parent::getCompleted();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getStartFrom()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStartFrom', []);
-
-        return parent::getStartFrom();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getResumptionToken()
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResumptionToken', []);
-
-        return parent::getResumptionToken();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setCollectionId($collection_id)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCollectionId', [$collection_id]);
-
-        return parent::setCollectionId($collection_id);
+        return parent::getItemSet();
     }
 
     /**
@@ -433,45 +312,100 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
     /**
      * {@inheritDoc}
      */
-    public function setMetadataPrefix($metadata_prefix)
+    public function getBaseUrl()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMetadataPrefix', [$metadata_prefix]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getBaseUrl', []);
 
-        return parent::setMetadataPrefix($metadata_prefix);
+        return parent::getBaseUrl();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setSetSpec($set_spec)
+    public function setMetadataPrefix($metadataPrefix)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetSpec', [$set_spec]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMetadataPrefix', [$metadataPrefix]);
 
-        return parent::setSetSpec($set_spec);
+        return parent::setMetadataPrefix($metadataPrefix);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setSetName($set_name)
+    public function getMetadataPrefix()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetName', [$set_name]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMetadataPrefix', []);
 
-        return parent::setSetName($set_name);
+        return parent::getMetadataPrefix();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setSetDescription($set_description)
+    public function setSetSpec($setSpec)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetDescription', [$set_description]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetSpec', [$setSpec]);
 
-        return parent::setSetDescription($set_description);
+        return parent::setSetSpec($setSpec);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSetSpec()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetSpec', []);
+
+        return parent::getSetSpec();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setSetName($setName)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetName', [$setName]);
+
+        return parent::setSetName($setName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSetName()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetName', []);
+
+        return parent::getSetName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setSetDescription($setDescription)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetDescription', [$setDescription]);
+
+        return parent::setSetDescription($setDescription);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSetDescription()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetDescription', []);
+
+        return parent::getSetDescription();
     }
 
     /**
@@ -488,6 +422,17 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
     /**
      * {@inheritDoc}
      */
+    public function getInitiated()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getInitiated', []);
+
+        return parent::getInitiated();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function setCompleted($completed)
     {
 
@@ -499,23 +444,78 @@ class OaiPmhHarvesterHarvestJob extends \OaiPmhHarvester\Entity\OaiPmhHarvesterH
     /**
      * {@inheritDoc}
      */
-    public function setStartFrom($start_from)
+    public function getCompleted()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStartFrom', [$start_from]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCompleted', []);
 
-        return parent::setStartFrom($start_from);
+        return parent::getCompleted();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setResumptionToken($resumption_token)
+    public function setHasErr($hasErr)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResumptionToken', [$resumption_token]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setHasErr', [$hasErr]);
 
-        return parent::setResumptionToken($resumption_token);
+        return parent::setHasErr($hasErr);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getHasErr()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getHasErr', []);
+
+        return parent::getHasErr();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setStartFrom(\DateTime $startFrom)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStartFrom', [$startFrom]);
+
+        return parent::setStartFrom($startFrom);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getStartFrom()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStartFrom', []);
+
+        return parent::getStartFrom();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setResumptionToken($resumptionToken)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResumptionToken', [$resumptionToken]);
+
+        return parent::setResumptionToken($resumptionToken);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getResumptionToken()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResumptionToken', []);
+
+        return parent::getResumptionToken();
     }
 
     /**

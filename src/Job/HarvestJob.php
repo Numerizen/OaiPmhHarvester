@@ -4,7 +4,7 @@ namespace OaiPmhHarvester\Job;
 use Omeka\Job\AbstractJob;
 use SimpleXMLElement;
 
-class HarvestJob extends AbstractJob
+class Harvest extends AbstractJob
 {
     /*Xml schema and OAI prefix for the format represented by this class
      * These constants are required for all maps
@@ -61,17 +61,24 @@ class HarvestJob extends AbstractJob
 
         $args = $this->job->getArgs();
 
-        $harvestJson = [
+        $harvestData = [
             'o:job' => ['o:id' => $this->job->getId()],
-            'comment' => 'Harvesting started',
-            'has_err' => 0,
-            'base_url' => $args['base_url'],
-            'set_name' => $args['set_name'],
-            'set_spec' => $args['set_spec'],
-            'collection_id' => $args['collection_id'],
-            'metadata_prefix' => $args['metadata_prefix'],
-            'resource_type' => $this->getArg('resource_type', 'items'),
+            'o:undo_job' => null,
+            'o-module-oai-pmh-harvester:comment' => 'Harvesting started',
+            'o-module-oai-pmh-harvester:resource_type' => $this->getArg('resource_type', 'items'),
+            'o-module-oai-pmh-harvester:base_url' => $args['base_url'],
+            'o:item_set' => ['o:id' => $args['item_set_id']],
+            'o-module-oai-pmh-harvester:metadata_prefix' => $args['metadata_prefix'],
+            'o-module-oai-pmh-harvester:set_spec' => $args['set_spec'],
+            'o-module-oai-pmh-harvester:set_name' => $args['set_name'],
+            'o-module-oai-pmh-harvester:set_description' => @$args['set_description'],
+            'o-module-oai-pmh-harvester:initiated' => true,
+            'o-module-oai-pmh-harvester:has_err' => false,
+            'o-module-oai-pmh-harvester:start_from' => new \DateTime('now'),
         ];
+
+        $response = $this->api->create('oaipmhharvester_harvestjob', $harvestData);
+        $harvestId = $response->getContent()->id();
 
         $method = '';
         switch ($args['metadata_prefix']) {
@@ -91,6 +98,7 @@ class HarvestJob extends AbstractJob
                     'The format "%s" is not managed by the module currently.',
                     $args['metadata_prefix']
                 ));
+                $this->api->update('oaipmhharvester_harvestjob', $harvestId, ['o-module-oai-pmh-harvester:has_err' => true]);
                 return false;
         }
 
@@ -141,7 +149,7 @@ class HarvestJob extends AbstractJob
                         }
                     }
                 }
-                $toInsert[] = $this->{$method}($record, $args['collection_id']);
+                $toInsert[] = $this->{$method}($record, $args['item_set_id']);
                 ++$totalImported;
             }
 
@@ -161,14 +169,11 @@ class HarvestJob extends AbstractJob
             ));
         } while ($resumptionToken);
 
-        $response = $this->api->create('oaipmhharvester_harvestjob', $harvestJson);
-        $importRecordId = $response->getContent()->id();
-
-        // Update du job
+        // Update job.
         $comment = $this->getArg('comment');
-        $harvestJson = [
-            'comment' => $comment,
-            'has_err' => $this->hasErr,
+        $harvestData = [
+            'o-module-oai-pmh-harvester:comment' => $comment,
+            'o-module-oai-pmh-harvester:has_err' => $this->hasErr,
             'stats' => [
                 'total_harvested' => $totalHarvested,
                 'total_whitelisted' => $totalWhitelisted,
@@ -182,7 +187,7 @@ class HarvestJob extends AbstractJob
             $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
         ));
 
-        $response = $this->api->update('oaipmhharvester_harvestjob', $importRecordId, $harvestJson);
+        $response = $this->api->update('oaipmhharvester_harvestjob', $harvestId, $harvestData);
     }
 
     protected function createItems($toCreate)
@@ -191,17 +196,17 @@ class HarvestJob extends AbstractJob
             return;
         }
 
-        $insertJson = [];
+        $insertData = [];
         foreach ($toCreate as $index => $item) {
-            $insertJson[] = $item;
+            $insertData[] = $item;
             if ($index % 20 == 0) {
-                $createResponse = $this->api->batchCreate('items', $insertJson, [], ['continueOnError' => true]);
+                $createResponse = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
                 $this->createRollback($createResponse->getContent());
-                $insertJson = [];
+                $insertData = [];
             }
         }
 
-        $createResponse = $this->api->batchCreate('items', $insertJson, [], ['continueOnError' => true]);
+        $createResponse = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
 
         $this->createRollback($createResponse->getContent());
     }
@@ -216,8 +221,8 @@ class HarvestJob extends AbstractJob
         foreach ($records as $resourceReference) {
             $createImportEntitiesJson[] = $this->buildImportRecordJson($resourceReference);
         }
-        $createImportRecordResponse = $this->api->batchCreate('oaipmhharvester_entities', $createImportEntitiesJson, [], ['continueOnError' => true]);
-        return $createImportRecordResponse;
+
+        $this->api->batchCreate('oaipmhharvester_entities', $createImportEntitiesJson, [], ['continueOnError' => true]);
     }
 
     /**
@@ -332,10 +337,10 @@ class HarvestJob extends AbstractJob
 
     protected function buildImportRecordJson($resourceReference)
     {
-        $recordJson = ['o:job' => ['o:id' => $this->job->getId()],
-            'entity_id' => $resourceReference->id(),
-            'resource_type' => $this->getArg('entity_type', 'items'),
+        return [
+            'o:job' => ['o:id' => $this->job->getId()],
+            'o-module-oai-pmh-harvester:entity_id' => $resourceReference->id(),
+            'o-module-oai-pmh-harvester:resource_type' => $this->getArg('entity_type', 'items'),
         ];
-        return $recordJson;
     }
 }

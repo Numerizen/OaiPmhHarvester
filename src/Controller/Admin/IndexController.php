@@ -96,7 +96,7 @@ class IndexController extends AbstractActionController
         $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['base_url']) // @translate
             . ' ';
 
-        // List collections and create sets
+        // List item sets and create oai-pmh harvesting sets.
         $sets = [];
         foreach ($post['namespace'] as $id => $prefix) {
             if ($post['harvest'][$id] == 'yes') {
@@ -140,7 +140,7 @@ class IndexController extends AbstractActionController
                 'base_url' => $url,
                 'set_name' => $set[0],
                 'set_spec' => $setSpec,
-                'collection_id' => $set[2],
+                'item_set_id' => $set[2],
                 'has_err' => 0,
                 'metadata_prefix' => $set[1],
                 'resource_type' => 'items',

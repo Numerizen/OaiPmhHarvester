@@ -7,26 +7,32 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
 {
     public function getJsonLd()
     {
-        $undo_job = null;
-        if ($this->undoJob()) {
-            $undo_job = $this->undoJob()->getReference();
+        $undoJob = $this->undoJob();
+        if ($undoJob) {
+            $undoJob = $undoJob->getReference();
+        }
+
+        $itemSet = $this->itemSet();
+        if ($itemSet) {
+            $itemSet = $itemSet->getReference();
         }
 
         return [
-            'comment' => $this->comment(),
-            'base_url' => $this->getbaseUrl(),
-            'collection_id' => $this->getCollectionId(),
-            'metadata_prefix' => $this->getMetadataPrefix(),
-            'set_spec' => $this->getSetSpec(),
-            'set_name' => $this->getSetName(),
-            'set_description' => $this->getSetDescription(),
-            'initiated' => $this->getInitiated(),
-            'completed' => $this->getCompleted(),
-            'start_from' => $this->getStartFrom(),
-            'start_from' => $this->getResumptionToken(),
-            'resumption_token' => $this->resourceType(),
             'o:job' => $this->job()->getReference(),
-            'o:undo_job' => $undo_job,
+            'o:undo_job' => $undoJob,
+            'o-module-oai-pmh-harvester:comment' => $this->comment(),
+            'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
+            'o-module-oai-pmh-harvester:base_url' => $this->getbaseUrl(),
+            'o:item_set' => $itemSet(),
+            'o-module-oai-pmh-harvester:metadata_prefix' => $this->getMetadataPrefix(),
+            'o-module-oai-pmh-harvester:set_spec' => $this->getSetSpec(),
+            'o-module-oai-pmh-harvester:set_name' => $this->getSetName(),
+            'o-module-oai-pmh-harvester:set_description' => $this->getSetDescription(),
+            'o-module-oai-pmh-harvester:initiated' => $this->getInitiated(),
+            'o-module-oai-pmh-harvester:completed' => $this->getCompleted(),
+            'o-module-oai-pmh-harvester:has_err' => $this->hasErr(),
+            'o-module-oai-pmh-harvester:start_from' => $this->getStartFrom(),
+            'o-module-oai-pmh-harvester:resumption_token' => $this->getResumptionToken(),
         ];
     }
 
@@ -52,24 +58,20 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
         return $this->resource->getComment();
     }
 
-    public function hasErr()
+    public function resourceType()
     {
-        return $this->resource->getHasErr();
+        return $this->resource->getResourceType();
     }
 
-    public function getHasErr()
+    public function getItemSet()
     {
-        return $this->has_err;
-    }
-
-    public function getCollectionId()
-    {
-        return $this->resource->collection_id;
+        return $this->getAdapter('item_sets')
+            ->getRepresentation($this->resource->getItemSet());
     }
 
     public function getBaseUrl()
     {
-        return $this->resource->base_url;
+        return $this->resource->baseUrl();
     }
 
     public function getMetadataPrefix()
@@ -100,6 +102,11 @@ class HarvestJobRepresentation extends AbstractEntityRepresentation
     public function getCompleted()
     {
         return $this->resource->completed;
+    }
+
+    public function hasErr()
+    {
+        return $this->resource->getHasErr();
     }
 
     public function getStartFrom()

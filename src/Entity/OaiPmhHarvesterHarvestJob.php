@@ -1,7 +1,9 @@
 <?php
 namespace OaiPmhHarvester\Entity;
 
+use DateTime;
 use Omeka\Entity\AbstractEntity;
+use Omeka\Entity\ItemSet;
 use Omeka\Entity\Job;
 
 /**
@@ -10,240 +12,433 @@ use Omeka\Entity\Job;
 class OaiPmhHarvesterHarvestJob extends AbstractEntity
 {
     /**
+     * @var int
      * @Id
-     * @Column(type="integer")
+     * @Column(
+     *     type="integer"
+     * )
      * @GeneratedValue
      */
     protected $id;
 
     /**
-     * @OneToOne(targetEntity="Omeka\Entity\Job")
-     * @JoinColumn(nullable=false)
+     * @var Job
+     * @OneToOne(
+     *     targetEntity=\Omeka\Entity\Job::class
+     * )
+     * @JoinColumn(
+     *     nullable=false
+     * )
      */
     protected $job;
 
     /**
-     * @OneToOne(targetEntity="Omeka\Entity\Job")
-     * @JoinColumn(nullable=true)
+     * @var Job|null
+     * @OneToOne(
+     *     targetEntity=\Omeka\Entity\Job::class
+     * )
+     * @JoinColumn(
+     *     nullable=true
+     * )
      */
     protected $undoJob;
 
     /**
-     * @Column(type="string", nullable=true)
+     * @var string
+     * @Column(
+     *     name="`comment`",
+     *     type="text",
+     *     nullable=true
+     * )
      */
     protected $comment;
 
     /**
-     * @Column(type="boolean", nullable=false)
+     * @var string
+     * @Column(
+     *     type="string",
+     *     length=190
+     * )
      */
-    protected $has_err = false;
+    protected $resourceType;
 
     /**
-     * @Column(type="string")
+     * @var ItemSet
+     * @ManyToOne(
+     *     targetEntity=\Omeka\Entity\ItemSet::class,
+     *     inversedBy="itemSet"
+     * )
+     * @JoinColumn(
+     *     nullable=true,
+     *     onDelete="SET NULL"
+     * )
      */
-    protected $resource_type;
+    protected $itemSet;
 
     /**
-     * @Column(type="integer")
+     * @var string
+     * @Column(
+     *     type="string",
+     *     length=190
+     * )
      */
-    protected $collection_id;
+    protected $baseUrl;
 
     /**
-     * @Column(type="string")
+     * @var string
+     * @Column(
+     *      type="string",
+     *      length=190
+     * )
      */
-    protected $base_url;
+    protected $metadataPrefix;
 
     /**
-     * @Column(type="string")
+     * @var string
+     * @Column(
+     *     type="string",
+     *     length=190,
+     *     nullable=true
+     * )
      */
-    protected $metadata_prefix;
+    protected $setSpec;
 
     /**
-     * @Column(type="string", nullable=true)
+     * @var string
+     * @Column(
+     *     type="text",
+     *     nullable=true
+     * )
      */
-    protected $set_spec;
+    protected $setName;
 
     /**
-     * @Column(type="string")
+     * @var string
+     * @Column(
+     *     type="text",
+     *     nullable=true
+     * )
      */
-    protected $set_name;
+    protected $setDescription;
 
     /**
-     * @Column(type="string", nullable=true)
-     */
-    protected $set_description;
-
-    /**
-     * @Column(type="integer", nullable=true)
+     * @var bool
+     * @Column(
+     *     type="boolean",
+     *     nullable=true
+     * )
      */
     protected $initiated;
 
     /**
-     * @Column(type="integer", nullable=true)
+     * @var bool
+     * @Column(
+     *     type="boolean",
+     *     nullable=true
+     * )
      */
     protected $completed;
 
     /**
-     * @Column(type="string", nullable=true)
+     * @var bool
+     * @Column(
+     *     type="boolean",
+     *     nullable=false
+     * )
      */
-    protected $start_from;
+    protected $hasErr = false;
 
     /**
-     * @Column(type="string", nullable=true)
+     * @var DateTime
+     * @Column(
+     *     type="datetime",
+     *     nullable=true
+     * )
      */
-    protected $resumption_token;
+    protected $startFrom;
+
+    /**
+     * @var string
+     * @Column(
+     *     type="string",
+     *     length=190,
+     *     nullable=true
+     * )
+     */
+    protected $resumptionToken;
 
     public function getId()
     {
         return $this->id;
     }
 
+    /**
+     * @param Job $job
+     * @return self
+     */
     public function setJob(Job $job)
     {
         $this->job = $job;
+        return $this;
     }
 
+    /**
+     * @return \Omeka\Entity\Job
+     */
     public function getJob()
     {
         return $this->job;
     }
 
+    /**
+     * @param Job $job
+     * @return self
+     */
     public function setUndoJob(Job $job)
     {
         $this->undoJob = $job;
+        return $this;
     }
 
+    /**
+     * @return \Omeka\Entity\Job|null
+     */
     public function getUndoJob()
     {
         return $this->undoJob;
     }
 
+    /**
+     * @param string $comment
+     * @return self
+     */
     public function setComment($comment)
     {
         $this->comment = $comment;
+        return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getComment()
     {
         return $this->comment;
     }
 
-    public function setHasErr($hasErr)
-    {
-        $this->has_err = $hasErr;
-    }
-
+    /**
+     * @param string $resourceType
+     * @return self
+     */
     public function setResourceType($resourceType)
     {
-        $this->resource_type = $resourceType;
+        $this->resourceType = $resourceType;
+        return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getResourceType()
     {
-        return $this->resource_type;
+        return $this->resourceType;
     }
 
-    public function getHasErr()
+    /**
+     * @param ItemSet $itemSet
+     * @return self
+     */
+    public function setItemSet(ItemSet $itemSet = null)
     {
-        return $this->has_err;
-    }
-    public function getCollectionId()
-    {
-        return $this->collection_id;
+        $this->itemSet = $itemSet;
+        return $this;
     }
 
+    /**
+     * @return ItemSet|null
+     */
+    public function getItemSet()
+    {
+        return $this->itemSet;
+    }
+
+    /**
+     * @param string $baseUrl
+     * @return self
+     */
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getBaseUrl()
     {
-        return $this->base_url;
+        return $this->baseUrl;
     }
 
+    /**
+     * @param string $metadataPrefix
+     * @return self
+     */
+    public function setMetadataPrefix($metadataPrefix)
+    {
+        $this->metadataPrefix = $metadataPrefix;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getMetadataPrefix()
     {
-        return $this->metadata_prefix;
+        return $this->metadataPrefix;
     }
 
+    /**
+     * @param string $setSpec
+     * @return self
+     */
+    public function setSetSpec($setSpec)
+    {
+        $this->setSpec = $setSpec;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getSetSpec()
     {
-        return $this->set_spec;
+        return $this->setSpec;
     }
 
+    /**
+     * @param string $setName
+     * @return self
+     */
+    public function setSetName($setName)
+    {
+        $this->setName = $setName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getSetName()
     {
-        return $this->set_name;
+        return $this->setName;
     }
 
+    /**
+     * @param string $setDescription
+     * @return self
+     */
+    public function setSetDescription($setDescription)
+    {
+        $this->setDescription = $setDescription;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getSetDescription()
     {
-        return $this->set_description;
+        return $this->setDescription;
     }
 
+    /**
+     * @param bool $initiated
+     * @return self
+     */
+    public function setInitiated($initiated)
+    {
+        $this->initiated = (bool) $initiated;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
     public function getInitiated()
     {
         return $this->initiated;
     }
 
+    /**
+     * @param bool $completed
+     * @return self
+     */
+    public function setCompleted($completed)
+    {
+        $this->completed = (bool) $completed;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
     public function getCompleted()
     {
         return $this->completed;
     }
 
+    /**
+     * @param bool $hasErr
+     * @return self
+     */
+    public function setHasErr($hasErr)
+    {
+        $this->hasErr = (bool) $hasErr;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHasErr()
+    {
+        return $this->hasErr;
+    }
+
+    /**
+     * @param DateTime $startFrom
+     * @return self
+     */
+    public function setStartFrom(DateTime$startFrom)
+    {
+        $this->startFrom = $startFrom;
+        return $this;
+    }
+
+    /**
+     * @return DateTime
+     */
     public function getStartFrom()
     {
-        return $this->start_from;
+        return $this->startFrom;
     }
 
+    /**
+     * @param string $resumptionToken
+     * @return self
+     */
+    public function setResumptionToken($resumptionToken)
+    {
+        $this->resumptionToken = $resumptionToken;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getResumptionToken()
     {
-        return $this->resumption_token;
-    }
-
-    public function setCollectionId($collection_id)
-    {
-        $this->collection_id = $collection_id;
-    }
-
-    public function setBaseUrl($baseUrl)
-    {
-        $this->base_url = $baseUrl;
-    }
-
-    public function setMetadataPrefix($metadata_prefix)
-    {
-        $this->metadata_prefix = $metadata_prefix;
-    }
-
-    public function setSetSpec($set_spec)
-    {
-        $this->set_spec = $set_spec;
-    }
-
-    public function setSetName($set_name)
-    {
-        $this->set_name = $set_name;
-    }
-
-    public function setSetDescription($set_description)
-    {
-        $this->set_description = $set_description;
-    }
-
-    public function setInitiated($initiated)
-    {
-        $this->initiated = $initiated;
-    }
-
-    public function setCompleted($completed)
-    {
-        $this->completed = $completed;
-    }
-
-    public function setStartFrom($start_from)
-    {
-        $this->start_from = $start_from;
-    }
-
-    public function setResumptionToken($resumption_token)
-    {
-        $this->resumption_token = $resumption_token;
+        return $this->resumptionToken;
     }
 }

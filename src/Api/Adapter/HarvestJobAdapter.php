@@ -50,60 +50,72 @@ class HarvestJobAdapter extends AbstractEntityAdapter
     ) {
         $data = $request->getContent();
         if (isset($data['o:job']['o:id'])) {
-            $job = $this->getAdapter('jobs')->findEntity($data['o:job']['o:id']);
+            $job = isset($data['o:job']['o:id'])
+                ? $this->getAdapter('jobs')->findEntity($data['o:job']['o:id'])
+                : null;
             $entity->setJob($job);
         }
+
         if (isset($data['o:undo_job']['o:id'])) {
-            $job = $this->getAdapter('jobs')->findEntity($data['o:undo_job']['o:id']);
+            $job = isset($data['o:undo_job']['o:id'])
+                ? $this->getAdapter('jobs')->findEntity($data['o:undo_job']['o:id'])
+                : null;
             $entity->setUndoJob($job);
         }
 
-        if (isset($data['comment'])) {
-            $entity->setComment($data['comment']);
+        if (array_key_exists('o-module-oai-pmh-harvester:comment', $data)) {
+            $entity->setComment($data['o-module-oai-pmh-harvester:comment']);
         }
 
-        if (isset($data['has_err'])) {
-            $entity->setHasErr($data['has_err']);
+        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
+            $entity->setResourceType($data['o-module-oai-pmh-harvester:resource_type']);
         }
 
-        if (isset($data['resource_type'])) {
-            $entity->setResourceType($data['resource_type']);
+        if (array_key_exists('o-module-oai-pmh-harvester:base_url', $data)) {
+            $entity->setBaseUrl($data['o-module-oai-pmh-harvester:base_url']);
         }
 
-        if (isset($data['base_url'])) {
-            $entity->setBaseUrl($data['base_url']);
+        if (array_key_exists('o:item_set', $data)) {
+            $itemSet = isset($data['o:item_set']['o:id'])
+                ? $this->getAdapter('item_sets')->findEntity($data['o:item_set']['o:id'])
+                : null;
+            $entity->setItemSet($itemSet);
         }
 
-        if (isset($data['metadata_prefix'])) {
-            $entity->setMetadataPrefix($data['metadata_prefix']);
+        if (array_key_exists('o-module-oai-pmh-harvester:metadata_prefix', $data)) {
+            $entity->setMetadataPrefix($data['o-module-oai-pmh-harvester:metadata_prefix']);
         }
 
-        if (isset($data['collection_id'])) {
-            $entity->setCollectionId($data['collection_id']);
+        if (array_key_exists('o-module-oai-pmh-harvester:set_spec', $data)) {
+            $entity->setSetSpec($data['o-module-oai-pmh-harvester:set_spec']);
         }
 
-        if (isset($data['set_name'])) {
-            $entity->setSetName($data['set_name']);
+        if (array_key_exists('o-module-oai-pmh-harvester:set_name', $data)) {
+            $entity->setSetName($data['o-module-oai-pmh-harvester:set_name']);
         }
 
-        if (isset($data['set_description'])) {
-            $entity->setSetDescription($data['set_description']);
+        if (array_key_exists('o-module-oai-pmh-harvester:set_description', $data)) {
+            $entity->setSetDescription($data['o-module-oai-pmh-harvester:set_description']);
         }
 
-        if (isset($data['initiated'])) {
-            $entity->setInitiated($data['initiated']);
+        if (array_key_exists('o-module-oai-pmh-harvester:initiated', $data)) {
+            $entity->setInitiated($data['o-module-oai-pmh-harvester:initiated']);
         }
 
-        if (isset($data['completed'])) {
-            $entity->setCompleted($data['completed']);
+        if (array_key_exists('o-module-oai-pmh-harvester:completed', $data)) {
+            $entity->setCompleted($data['o-module-oai-pmh-harvester:completed']);
         }
 
-        if (isset($data['start_from'])) {
-            $entity->setStartFrom($data['start_from']);
+        if (array_key_exists('o-module-oai-pmh-harvester:has_err', $data)) {
+            $entity->setHasErr($data['o-module-oai-pmh-harvester:has_err']);
         }
 
-        if (isset($data['resumption_token'])) {
-            $entity->setResumptionToken($data['resumption_token']);
+        if (array_key_exists('o-module-oai-pmh-harvester:start_from', $data)) {
+            $entity->setStartFrom($data['o-module-oai-pmh-harvester:start_from']);
+        }
+
+        if (array_key_exists('o-module-oai-pmh-harvester:resumption_token', $data)) {
+            $entity->setResumptionToken($data['o-module-oai-pmh-harvester:resumption_token']);
         }
     }
 }

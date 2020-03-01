@@ -56,16 +56,18 @@ class EntityAdapter extends AbstractEntityAdapter
     ) {
         $data = $request->getContent();
         if (isset($data['o:job']['o:id'])) {
-            $job = $this->getAdapter('jobs')->findEntity($data['o:job']['o:id']);
+            $job = isset($data['o:job']['o:id'])
+                ? $this->getAdapter('jobs')->findEntity($data['o:job']['o:id'])
+                : null;
             $entity->setJob($job);
         }
 
-        if (isset($data['resource_type'])) {
-            $entity->setResourceType($data['resource_type']);
+        if (array_key_exists('entity_id', $data)) {
+            $entity->setEntityId($data['entity_id']);
         }
 
-        if (isset($data['entity_id'])) {
-            $entity->setEntityId($data['entity_id']);
+        if (array_key_exists('resource_type', $data)) {
+            $entity->setResourceType($data['resource_type']);
         }
     }
 }

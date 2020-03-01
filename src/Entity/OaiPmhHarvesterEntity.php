@@ -10,61 +10,99 @@ use Omeka\Entity\Job;
 class OaiPmhHarvesterEntity extends AbstractEntity
 {
     /**
+     * @var int;
      * @Id
-     * @Column(type="integer")
+     * @Column(
+     *     type="integer"
+     * )
      * @GeneratedValue
      */
-    public $id;
+    protected $id;
 
     /**
-     * @ManyToOne(targetEntity="Omeka\Entity\Job")
-     * @JoinColumn(nullable=false)
+     * @var Job
+     * @ManyToOne(
+     *     targetEntity=\Omeka\Entity\Job::class
+     * )
+     * @JoinColumn(
+     *     nullable=false
+     * )
      */
     protected $job;
 
     /**
-     * @Column(type="integer")
+     * @var int
+     * @Column(
+     *     type="integer"
+     * )
      */
-    protected $entity_id;
+    protected $entityId;
 
     /**
      * API resource type (not neccesarily a Resource class)
-     * @Column(type="string")
+     * @Column(
+     *     type="string",
+     *     length=190
+     * )
      */
-    protected $resource_type;
+    protected $resourceType;
 
     public function getId()
     {
         return $this->id;
     }
 
-    public function getEntityId()
-    {
-        return $this->entity_id;
-    }
-
-    public function setEntityId($entityId)
-    {
-        $this->entity_id = $entityId;
-    }
-
+    /**
+     * @param Job $job
+     * @return self
+     */
     public function setJob(Job $job)
     {
         $this->job = $job;
+        return $this;
     }
 
+    /**
+     * @return \Omeka\Entity\Job
+     */
     public function getJob()
     {
         return $this->job;
     }
 
-    public function setResourceType($resourceType)
+    /**
+     * @param int $entityId
+     * @return self
+     */
+    public function setEntityId($entityId)
     {
-        $this->resource_type = $resourceType;
+        $this->entityId = $entityId;
+        return $this;
     }
 
+    /**
+     * @return int
+     */
+    public function getEntityId()
+    {
+        return $this->entityId;
+    }
+
+    /**
+     * @param string $resourceType
+     * @return self
+     */
+    public function setResourceType($resourceType)
+    {
+        $this->resourceType = $resourceType;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
     public function getResourceType()
     {
-        return $this->resource_type;
+        return $this->resourceType;
     }
 }
