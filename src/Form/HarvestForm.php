@@ -12,14 +12,14 @@ class HarvestForm extends Form
 
         $this
             ->add([
-                'name' => 'base_url',
+                'name' => 'endpoint',
                 'type' => Element\Text::class,
                 'options' => [
-                    'label' => 'Base URL', // @translate
+                    'label' => 'OAI-PMH endpoint', // @translate
                     'info' => 'The base URL of the OAI-PMH data provider.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'base_url',
+                    'id' => 'endpoint',
                     'required' => true,
                     // The protocol requires http, but most of repositories
                     // support it.
@@ -30,7 +30,7 @@ class HarvestForm extends Form
         $inputFilter = $this->getInputFilter();
         $inputFilter
             ->add([
-                'name' => 'base_url',
+                'name' => 'endpoint',
                 'required' => true,
             ]);
     }

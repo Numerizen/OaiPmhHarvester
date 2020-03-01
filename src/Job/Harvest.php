@@ -66,7 +66,7 @@ class Harvest extends AbstractJob
             'o:undo_job' => null,
             'o-module-oai-pmh-harvester:comment' => 'Harvesting started', // @translate
             'o-module-oai-pmh-harvester:resource_type' => $this->getArg('resource_type', 'items'),
-            'o-module-oai-pmh-harvester:base_url' => $args['base_url'],
+            'o-module-oai-pmh-harvester:endpoint' => $args['endpoint'],
             'o:item_set' => ['o:id' => $args['item_set_id']],
             'o-module-oai-pmh-harvester:metadata_prefix' => $args['metadata_prefix'],
             'o-module-oai-pmh-harvester:set_spec' => $args['set_spec'],
@@ -118,9 +118,9 @@ class Harvest extends AbstractJob
             }
 
             if ($resumptionToken) {
-                $url = $args['base_url'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
+                $url = $args['endpoint'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
             } else {
-                $url = $args['base_url'] . "?metadataPrefix=" . $args['metadata_prefix'] . '&verb=ListRecords';
+                $url = $args['endpoint'] . "?metadataPrefix=" . $args['metadata_prefix'] . '&verb=ListRecords';
                 if ($args['set_spec']) {
                     $url .= '&set=' . $args['set_spec'];
                 }

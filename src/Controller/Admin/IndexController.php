@@ -34,36 +34,36 @@ class IndexController extends AbstractActionController
     public function setsAction()
     {
         $post = $this->params()->fromPost();
-        $baseUrl = @$post['base_url'];
+        $endpoint = @$post['endpoint'];
 
         // Avoid direct acces to the page.
-        if (empty($baseUrl)) {
+        if (empty($endpoint)) {
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
-        $url = $baseUrl . '?verb=Identify';
+        $url = $endpoint . '?verb=Identify';
         $response = @\simplexml_load_file($url);
         if (!$response) {
-            $message = sprintf($this->translate('The url "%s" does not return xml.'), $baseUrl); // @translate
+            $message = sprintf($this->translate('The endpoint "%s" does not return xml.'), $endpoint); // @translate
             $this->messenger()->addError($message);
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
         $repositoryName = (string) $response->Identify->repositoryName ?: $this->translate('[Untitled repository]'); // @translate
 
-        $formats = $this->listOaiPmhFormats($baseUrl);
+        $formats = $this->listOaiPmhFormats($endpoint);
         if (empty($formats)) {
-            $message = sprintf($this->translate('The url "%s" does not manage any format.'), $baseUrl); // @translate
+            $message = sprintf($this->translate('The endpoint "%s" does not manage any format.'), $endpoint); // @translate
             $this->messenger()->addError($message);
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
-        $sets = $this->listOaiPmhSets($baseUrl);
+        $sets = $this->listOaiPmhSets($endpoint);
         $total = $sets['total'];
         $sets = $sets['sets'];
 
         $options = [
-            'base_url' => $baseUrl,
+            'endpoint' => $endpoint,
             'formats' => $formats,
             'sets' => $sets,
         ];
@@ -93,7 +93,7 @@ class IndexController extends AbstractActionController
             $filter = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $filter))), 'strlen');
         }
 
-        $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['base_url']) // @translate
+        $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['endpoint']) // @translate
             . ' ';
 
         // List item sets and create oai-pmh harvesting sets.
@@ -132,12 +132,12 @@ class IndexController extends AbstractActionController
         $urlHelper = $this->url();
         foreach ($sets as $setSpec => $set) {
             //  . "?metadataPrefix=" . $set[1] . "&verb=ListRecords&set=" . $setSpec
-            $url = $post['base_url'];
+            $endpoint = $post['endpoint'];
             // TODO : job harvest / job item creation ?
             // TODO : toutes les propriétés (prefix, resumption, etc.)
             $harvestJson = [
-                'comment' => 'Harvest ' . $set[0] . ' from ' . $url,
-                'base_url' => $url,
+                'comment' => 'Harvest ' . $set[0] . ' from ' . $endpoint,
+                'endpoint' => $endpoint,
                 'set_name' => $set[0],
                 'set_spec' => $setSpec,
                 'item_set_id' => $set[2],
@@ -220,14 +220,14 @@ class IndexController extends AbstractActionController
     /**
      * Prepare the list of formats of an OAI-PMH repository.
      *
-     * @param string $baseUrl
+     * @param string $endpoint
      * @return string[] Associative array of format prefix and name.
      */
-    protected function listOaiPmhFormats($baseUrl)
+    protected function listOaiPmhFormats($endpoint)
     {
         $formats = [];
 
-        $url = $baseUrl . '?verb=ListMetadataFormats';
+        $url = $endpoint . '?verb=ListMetadataFormats';
         $response = @\simplexml_load_file($url);
         if ($response) {
             foreach ($response->ListMetadataFormats->metadataFormat as $format) {
@@ -246,14 +246,14 @@ class IndexController extends AbstractActionController
     /**
      * Prepare the list of sets of an OAI-PMH repository.
      *
-     * @param string $baseUrl
+     * @param string $endpoint
      * @return array
      */
-    protected function listOaiPmhSets($baseUrl)
+    protected function listOaiPmhSets($endpoint)
     {
         $sets = [];
 
-        $baseListSetUrl = $baseUrl . '?verb=ListSets';
+        $baseListSetUrl = $endpoint . '?verb=ListSets';
         $resumptionToken = false;
         $totalSets = null;
         do {

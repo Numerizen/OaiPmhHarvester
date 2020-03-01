@@ -72,8 +72,8 @@ class HarvestAdapter extends AbstractEntityAdapter
             $entity->setResourceType($data['o-module-oai-pmh-harvester:resource_type']);
         }
 
-        if (array_key_exists('o-module-oai-pmh-harvester:base_url', $data)) {
-            $entity->setBaseUrl($data['o-module-oai-pmh-harvester:base_url']);
+        if (array_key_exists('o-module-oai-pmh-harvester:endpoint', $data)) {
+            $entity->setEndpoint($data['o-module-oai-pmh-harvester:endpoint']);
         }
 
         if (array_key_exists('o:item_set', $data)) {

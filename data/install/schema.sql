@@ -4,7 +4,7 @@ CREATE TABLE oaipmhharvester_harvest (
     undo_job_id INT DEFAULT NULL,
     item_set_id INT DEFAULT NULL,
     `comment` LONGTEXT DEFAULT NULL,
-    base_url VARCHAR(190) NOT NULL,
+    endpoint VARCHAR(190) NOT NULL,
     resource_type VARCHAR(190) NOT NULL,
     metadata_prefix VARCHAR(190) NOT NULL,
     set_spec VARCHAR(190) DEFAULT NULL,

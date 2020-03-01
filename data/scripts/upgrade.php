@@ -67,7 +67,7 @@ if (version_compare($oldVersion, '3.0.6', '<')) {
     $sql = <<<'SQL'
 SET FOREIGN_KEY_CHECKS=0;
 INSERT INTO oaipmhharvester_harvest
-(id, job_id, undo_job_id, item_set_id, `comment`, base_url, resource_type, metadata_prefix, set_spec, set_name, set_description, has_err, resumption_token)
+(id, job_id, undo_job_id, item_set_id, `comment`, endpoint, resource_type, metadata_prefix, set_spec, set_name, set_description, has_err, resumption_token)
 SELECT id, job_id, undo_job_id, collection_id, `comment`, base_url, resource_type, metadata_prefix, set_spec, set_name, set_description, has_err, resumption_token
 FROM oai_pmh_harvester_harvest_job;
 SET FOREIGN_KEY_CHECKS=1;

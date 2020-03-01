@@ -10,16 +10,16 @@ class SetsForm extends Form
     {
         $this->setAttribute('action', 'harvest');
 
-        $baseUrl = $this->getOption('base_url');
+        $endpoint = $this->getOption('endpoint');
         $formats = $this->getOption('formats');
         $sets = $this->getOption('sets') ?: [];
 
         $this->add([
             'type' => Element\Hidden::class,
-            'name' => 'base_url',
+            'name' => 'endpoint',
             'attributes' => [
-                'id' => 'base_url',
-                'value' => $baseUrl,
+                'id' => 'endpoint',
+                'value' => $endpoint,
             ],
         ]);
 

@@ -62,7 +62,7 @@ class Harvest extends AbstractEntity
      *     length=190
      * )
      */
-    protected $baseUrl;
+    protected $endpoint;
 
     /**
      * @var string
@@ -202,21 +202,21 @@ class Harvest extends AbstractEntity
     }
 
     /**
-     * @param string $baseUrl
+     * @param string $endpoint
      * @return self
      */
-    public function setBaseUrl($baseUrl)
+    public function setEndpoint($endpoint)
     {
-        $this->baseUrl = $baseUrl;
+        $this->endpoint = $endpoint;
         return $this;
     }
 
     /**
      * @return string
      */
-    public function getBaseUrl()
+    public function getEndpoint()
     {
-        return $this->baseUrl;
+        return $this->endpoint;
     }
 
     /**

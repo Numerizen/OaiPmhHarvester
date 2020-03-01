@@ -21,7 +21,7 @@ class HarvestRepresentation extends AbstractEntityRepresentation
             'o:job' => $this->job()->getReference(),
             'o:undo_job' => $undoJob,
             'o-module-oai-pmh-harvester:comment' => $this->comment(),
-            'o-module-oai-pmh-harvester:base_url' => $this->getbaseUrl(),
+            'o-module-oai-pmh-harvester:endpoint' => $this->getEndpoint(),
             'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
             'o:item_set' => $itemSet(),
             'o-module-oai-pmh-harvester:metadata_prefix' => $this->getMetadataPrefix(),
@@ -55,6 +55,11 @@ class HarvestRepresentation extends AbstractEntityRepresentation
         return $this->resource->getComment();
     }
 
+    public function getEndpoint()
+    {
+        return $this->resource->getEndpoint();
+    }
+
     public function resourceType()
     {
         return $this->resource->getResourceType();
@@ -66,29 +71,24 @@ class HarvestRepresentation extends AbstractEntityRepresentation
             ->getRepresentation($this->resource->getItemSet());
     }
 
-    public function getBaseUrl()
-    {
-        return $this->resource->baseUrl();
-    }
-
     public function getMetadataPrefix()
     {
-        return $this->resource->metadata_prefix;
+        return $this->resource->getMetadataPrefix();
     }
 
     public function getSetSpec()
     {
-        return $this->resource->set_spec;
+        return $this->resource->getSetSpec();
     }
 
     public function getSetName()
     {
-        return $this->resource->set_name;
+        return $this->resource->getSetName();
     }
 
     public function getSetDescription()
     {
-        return $this->resource->set_description;
+        return $this->resource->getSetDescription();
     }
 
     public function hasErr()
@@ -98,7 +98,7 @@ class HarvestRepresentation extends AbstractEntityRepresentation
 
     public function getResumptionToken()
     {
-        return $this->resource->resumption_token;
+        return $this->resource->getResumptionToken();
     }
 
     /**
