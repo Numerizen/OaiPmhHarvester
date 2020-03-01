@@ -9,6 +9,14 @@ use Zend\View\Model\ViewModel;
 class IndexController extends AbstractActionController
 {
     /**
+     * A standard php server allows only 1000 fields, and there are three fields
+     * by set (prefix, hidden, harvest).
+     *
+     * @var int
+     */
+    protected $maxListSets = 200;
+
+    /**
      * Main form to set the url.
      */
     public function indexAction()
@@ -50,6 +58,8 @@ class IndexController extends AbstractActionController
         }
 
         $sets = $this->listOaiPmhSets($baseUrl);
+        $total = $sets['total'];
+        $sets = $sets['sets'];
 
         $options = [
             'base_url' => $baseUrl,
@@ -62,6 +72,7 @@ class IndexController extends AbstractActionController
         return $view
             ->setVariable('form', $form)
             ->setVariable('repositoryName', $repositoryName)
+            ->setVariable('total', $total)
         ;
     }
 
@@ -215,16 +226,17 @@ class IndexController extends AbstractActionController
      * Prepare the list of sets of an OAI-PMH repository.
      *
      * @param string $baseUrl
-     * @return string[] Associative array of set prefix and set name.
+     * @return array
      */
     protected function listOaiPmhSets($baseUrl)
     {
         $sets = [];
 
-        $url = $baseUrl . '?verb=ListSets';
-        $baseListSetUrl = $baseUrl;
+        $baseListSetUrl = $baseUrl . '?verb=ListSets';
         $resumptionToken = false;
+        $totalSets = null;
         do {
+            $url = $baseListSetUrl;
             if ($resumptionToken) {
                 $url = $baseListSetUrl . '&resumptionToken=' . $resumptionToken;
             }
@@ -235,15 +247,25 @@ class IndexController extends AbstractActionController
                 break;
             }
 
+            if (empty($totalSets)) {
+                $totalSets = (int) $response->ListSets->resumptionToken['completeListSize'];
+            }
+
             foreach ($response->ListSets->set as $set) {
                 $sets[(string) $set->setSpec] = (string) $set->setName;
+                if (count($sets) >= $this->maxListSets) {
+                    break 2;
+                }
             }
 
             $resumptionToken = isset($response->ListSets->resumptionToken) && $response->ListSets->resumptionToken !== ''
                 ? (string) $response->ListSets->resumptionToken
                 : false;
-        } while ($resumptionToken);
+        } while ($resumptionToken && count($sets) <= $this->maxListSets);
 
-        return $sets;
+        return [
+            'total' => $totalSets,
+            'sets' => array_slice($sets, 0, $this->maxListSets),
+        ];
     }
 }

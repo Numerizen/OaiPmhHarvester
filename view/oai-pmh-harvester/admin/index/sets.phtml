@@ -3,21 +3,29 @@
  * @var \Zend\View\Renderer\PhpRenderer $this
  * @var \OaiPmhHarvester\Form\SetsForm $form
  * @var string $repositoryName
+ * @var int|null $total
  */
 
 $translate = $this->plugin('translate');
+
+$sets = $form->getOption('sets');
 ?>
 
-<?php echo $this->pageTitle($translate('Select sets to import'), 1, $translate('OAI-PMH Harvester')); ?>
-<h2><?php echo $repositoryName; ?></h2>
-
+<?= $this->pageTitle($translate('Select sets to import'), 1, $translate('OAI-PMH Harvester')) ?>
+<h2><?= $repositoryName ?></h2>
 <p>
-    <?php echo $translate('Please choose a set to import.'); ?>
+    <?= sprintf($translate('This repository has %d sets.'), $total) ?>
+    <?php if ($total > count($sets)): ?>
+    <?= sprintf($translate('Only the first %d are displayed.'), count($sets)) ?>
+    <?php endif; ?>
+</p>
+<p>
+    <?= $translate('Please choose a set to import.') ?>
 </p>
 
-<?php echo $this->form()->openTag($form); ?>
+<?= $this->form()->openTag($form) ?>
 <fieldset id="page-actions">
-    <button type="submit"><?php echo $translate('Harvest'); ?></button>
+    <button type="submit"><?= $translate('Harvest') ?></button>
 </fieldset>
-<?php echo $this->formCollection($form, false); ?>
-<?php echo $this->form()->closeTag($form); ?>
+<?= $this->formCollection($form, false) ?>
+<?= $this->form()->closeTag($form) ?>
