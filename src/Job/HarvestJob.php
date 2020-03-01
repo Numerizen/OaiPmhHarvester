@@ -86,6 +86,13 @@ class HarvestJob extends AbstractJob
 
         $resumptionToken = false;
         do {
+            if ($this->shouldStop()) {
+                $this->logger->warn(
+                    'The job was stopped.' // @translate
+                );
+                return false;
+            }
+
             if ($resumptionToken) {
                 $url = $args['base_url'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
             } else {

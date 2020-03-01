@@ -9,6 +9,7 @@ class Undo extends AbstractJob
     {
         $jobId = $this->getArg('jobId');
         $api = $this->getServiceLocator()->get('Omeka\ApiManager');
+        // TODO Improve memory management for deletion of previous harvest and allow to stop.
         $response = $api->search('oaipmhharvester_entities', ['job_id' => $jobId]);
         $harvestEntities = $response->getContent();
         if ($harvestEntities) {
