@@ -81,10 +81,14 @@ class IndexController extends AbstractActionController
     {
         $post = $this->params()->fromPost();
 
-        $filters = $post['filters'];
+        $filters = [];
+        $filters['whitelist'] = $post['filters_whitelist'];
+        $filters['blacklist'] = $post['filters_blacklist'];
         // This method fixes Windows and Apple copy/paste from a textarea input,
         // then explode it by line.
-        $filters = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $filters))), 'strlen');
+        foreach ($filters as &$filter) {
+            $filter = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $filter))), 'strlen');
+        }
 
         $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['base_url']) // @translate
             . ' ';
@@ -110,6 +114,16 @@ class IndexController extends AbstractActionController
         $message = rtrim($message, '|');
         $this->messenger()->addSuccess($message);
 
+        if ($filters['whitelist']) {
+            $message = sprintf($this->translate('These whitelist filters are used: "%s".'), implode('", "', $filters['whitelist']));
+            $this->messenger()->addSuccess($message);
+        }
+
+        if ($filters['blacklist']) {
+            $message = sprintf($this->translate('These blacklist filters are used: "%s".'), implode('", "', $filters['blacklist']));
+            $this->messenger()->addSuccess($message);
+        }
+
         $dispatcher = $this->jobDispatcher();
 
         foreach ($sets as $setSpec => $set) {
@@ -126,6 +140,7 @@ class IndexController extends AbstractActionController
                 'has_err' => 0,
                 'metadata_prefix' => $set[1],
                 'resource_type' => 'items',
+                'filters' => $filters,
             ];
             $job = $dispatcher->dispatch('OaiPmhHarvester\Job\HarvestJob', $harvestJson);
             $this->messenger()->addSuccess('Harvesting ' . $set[0] . ' in Job ID ' . $job->getId());

@@ -23,6 +23,30 @@ class SetsForm extends Form
             ],
         ]);
 
+        $this->add([
+            'name' => 'filters_whitelist',
+            'type' => Element\Textarea::class,
+            'options' => [
+                'label' => 'Filters (whitelist)', // @translate
+                'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'filters_whitelist',
+            ],
+        ]);
+
+        $this->add([
+            'name' => 'filters_blacklist',
+            'type' => Element\Textarea::class,
+            'options' => [
+                'label' => 'Filters (blacklist)', // @translate
+                'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+            ],
+            'attributes' => [
+                'id' => 'filters_blacklist',
+            ],
+        ]);
+
         foreach ($sets as $id => $set) {
             $this->add([
                 'type' => Element\Select::class,

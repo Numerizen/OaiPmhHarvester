@@ -52,6 +52,10 @@ class HarvestJob extends AbstractJob
         }
         $this->dcProperties = $elements;
 
+        $filters = $this->getArg('filters', ['whitelist' => [], 'blacklist' => []]);
+        $whitelist = &$filters['whitelist'];
+        $blacklist = &$filters['blacklist'];
+
         $args = $this->job->getArgs();
 
         $harvestJson = [
@@ -85,11 +89,19 @@ class HarvestJob extends AbstractJob
         }
 
         $resumptionToken = false;
+        $totalHarvested = 0;
+        $totalWhitelisted = 0;
+        $totalBlacklisted = 0;
+        $totalImported = 0;
         do {
             if ($this->shouldStop()) {
                 $this->logger->warn(
                     'The job was stopped.' // @translate
                 );
+                $this->logger->notice(sprintf(
+                    'Results: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
+                    $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+                ));
                 return false;
             }
 
@@ -99,19 +111,48 @@ class HarvestJob extends AbstractJob
                 $url = $args['base_url'] . "?metadataPrefix=" . $args['metadata_prefix'] . "&verb=ListRecords&set=" . $args['set_spec'];
             }
 
+            /** @var \SimpleXMLElement $response */
             $response = \simplexml_load_file($url);
-
             $records = $response->ListRecords;
             $toInsert = [];
+            /** @var \SimpleXMLElement $record */
             foreach ($records->record as $record) {
+                ++$totalHarvested;
+                if ($whitelist || $blacklist) {
+                    // Use xml instead of string because some format may use
+                    // attributes for data.
+                    $recordString = $record->asXML();
+                    foreach ($whitelist as $string) {
+                        if (mb_stripos($recordString, $string) === false) {
+                            ++$totalWhitelisted;
+                            continue 2;
+                        }
+                    }
+                    foreach ($blacklist as $string) {
+                        if (mb_stripos($recordString, $string) !== false) {
+                            ++$totalBlacklisted;
+                            continue 2;
+                        }
+                    }
+                }
                 $toInsert[] = $this->{$method}($record, $args['collection_id']);
+                ++$totalImported;
             }
-            $this->createItems($toInsert);
+
+            if ($toInsert) {
+                $this->createItems($toInsert);
+            }
+
             if (isset($response->ListRecords->resumptionToken) && $response->ListRecords->resumptionToken <> '') {
                 $resumptionToken = $response->ListRecords->resumptionToken;
             } else {
                 $resumptionToken = false;
             }
+
+            $this->logger->notice(sprintf(
+                'Processing: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
+                $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+            ));
         } while ($resumptionToken);
 
         $response = $this->api->create('oaipmhharvester_harvestjob', $harvestJson);
@@ -122,15 +163,28 @@ class HarvestJob extends AbstractJob
         $harvestJson = [
             'comment' => $comment,
             'has_err' => $this->hasErr,
-            // TODO Nombre d'items ?
-            'nb_items' => count($sets),
+            'stats' => [
+                'total_harvested' => $totalHarvested,
+                'total_whitelisted' => $totalWhitelisted,
+                'total_blacklisted' => $totalBlacklisted,
+                'total_imported' => $totalImported,
+            ],
         ];
+
+        $this->logger->notice(sprintf(
+            'Results: harvested = %1$d, whitelisted = %2$d, blacklisted = %3$d, imported = %4$d.', // @translate
+            $totalHarvested, $totalWhitelisted, $totalBlacklisted, $totalImported
+        ));
 
         $response = $this->api->update('oaipmhharvester_harvestjob', $importRecordId, $harvestJson);
     }
 
     protected function createItems($toCreate)
     {
+        if (empty($toCreate)) {
+            return;
+        }
+
         $insertJson = [];
         foreach ($toCreate as $index => $item) {
             $insertJson[] = $item;
@@ -144,12 +198,15 @@ class HarvestJob extends AbstractJob
         $createResponse = $this->api->batchCreate('items', $insertJson, [], ['continueOnError' => true]);
 
         $this->createRollback($createResponse->getContent());
-
-        $createImportEntitiesJson = [];
     }
 
     protected function createRollback($records)
     {
+        if (empty($records)) {
+            return null;
+        }
+
+        $createImportEntitiesJson = [];
         foreach ($records as $resourceReference) {
             $createImportEntitiesJson[] = $this->buildImportRecordJson($resourceReference);
         }
