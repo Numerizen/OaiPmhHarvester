@@ -149,7 +149,7 @@ class IndexController extends AbstractActionController
         if ($harvestAllRecords) {
             $prefix = $post['namespace'][0];
             $message .= $repositoryName;
-            $tocreate = [
+            $toCreate = [
                 // dctype:Collection.
                 'o:resource_class' => ['o:id' => 23],
                 'dcterms:title' => [[
@@ -164,18 +164,18 @@ class IndexController extends AbstractActionController
                     'o:label' => 'OAI-PMH repository',
                 ]],
             ];
-            $itemSet = $this->api()->create('item_sets', $tocreate, [], ['responseContent' => 'resource'])->getContent();
+            $itemSet = $this->api()->create('item_sets', $toCreate)->getContent();
             $sets[''] = [
                 'set_name' => $repositoryName,
                 'metadata_prefix' => $prefix,
-                'item_set_id' => $itemSet->getId(),
+                'item_set_id' => $itemSet->id(),
             ];
         } else {
             foreach (array_keys($post['harvest']) as $id) {
                 $prefix = $post['namespace'][$id];
                 $label = $post['setSpec'][$id];
                 $message .= $label . ' as ' . $prefix . ' | ';
-                $tocreate = [
+                $toCreate = [
                     // dctype:Collection.
                     'o:resource_class' => ['o:id' => 23],
                     'dcterms:title' => [[
@@ -190,11 +190,11 @@ class IndexController extends AbstractActionController
                         'o:label' => 'OAI-PMH repository',
                     ]],
                 ];
-                $itemSetId = $this->api()->create('item_sets', $tocreate, [], ['responseContent' => 'resource'])->getContent();
+                $itemSet = $this->api()->create('item_sets', $toCreate)->getContent();
                 $sets[$id] = [
                     'set_name' => $label,
                     'metadata_prefix' => $prefix,
-                    'item_set_id' => $itemSetId->getId(),
+                    'item_set_id' => $itemSet->id(),
                 ];
             }
         }

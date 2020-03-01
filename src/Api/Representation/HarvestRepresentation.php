@@ -21,15 +21,15 @@ class HarvestRepresentation extends AbstractEntityRepresentation
             'o:job' => $this->job()->getReference(),
             'o:undo_job' => $undoJob,
             'o-module-oai-pmh-harvester:comment' => $this->comment(),
-            'o-module-oai-pmh-harvester:endpoint' => $this->getEndpoint(),
+            'o-module-oai-pmh-harvester:endpoint' => $this->endpoint(),
             'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
             'o:item_set' => $itemSet(),
-            'o-module-oai-pmh-harvester:metadata_prefix' => $this->getMetadataPrefix(),
+            'o-module-oai-pmh-harvester:metadata_prefix' => $this->metadataPrefix(),
             'o-module-oai-pmh-harvester:set_spec' => $this->getSetSpec(),
             'o-module-oai-pmh-harvester:set_name' => $this->getSetName(),
             'o-module-oai-pmh-harvester:set_description' => $this->getSetDescription(),
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr(),
-            'o-module-oai-pmh-harvester:resumption_token' => $this->getResumptionToken(),
+            'o-module-oai-pmh-harvester:resumption_token' => $this->resumptionToken(),
         ];
     }
 
@@ -38,65 +38,101 @@ class HarvestRepresentation extends AbstractEntityRepresentation
         return 'o:OaipmhharvesterHarvestJob';
     }
 
+    /**
+     * @return \Omeka\Api\Representation\JobRepresentation
+     */
     public function job()
     {
         return $this->getAdapter('jobs')
             ->getRepresentation($this->resource->getJob());
     }
 
+    /**
+     * @return \Omeka\Api\Representation\JobRepresentation|null
+     */
     public function undoJob()
     {
         return $this->getAdapter('jobs')
             ->getRepresentation($this->resource->getUndoJob());
     }
 
+    /**
+     * @return string
+     */
     public function comment()
     {
         return $this->resource->getComment();
     }
 
-    public function getEndpoint()
+    /**
+     * @return string
+     */
+    public function endpoint()
     {
         return $this->resource->getEndpoint();
     }
 
+    /**
+     * @return string
+     */
     public function resourceType()
     {
         return $this->resource->getResourceType();
     }
 
-    public function getItemSet()
+    /**
+     * @return \Omeka\Api\Representation\ItemSetRepresentation|null
+     */
+    public function itemSet()
     {
         return $this->getAdapter('item_sets')
             ->getRepresentation($this->resource->getItemSet());
     }
 
-    public function getMetadataPrefix()
+    /**
+     * @return string
+     */
+    public function metadataPrefix()
     {
         return $this->resource->getMetadataPrefix();
     }
 
+    /**
+     * @return string
+     */
     public function getSetSpec()
     {
         return $this->resource->getSetSpec();
     }
 
+    /**
+     * @return string
+     */
     public function getSetName()
     {
         return $this->resource->getSetName();
     }
 
+    /**
+     * @return string
+     */
     public function getSetDescription()
     {
         return $this->resource->getSetDescription();
     }
 
+    /**
+     * @return bool
+     */
     public function hasErr()
     {
         return $this->resource->getHasErr();
     }
 
-    public function getResumptionToken()
+    /**
+     * @return string
+     */
+    public function resumptionToken()
     {
         return $this->resource->getResumptionToken();
     }
