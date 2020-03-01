@@ -3,6 +3,7 @@ namespace OaiPmhHarvester\Controller\Admin;
 
 use OaiPmhHarvester\Form\HarvestForm;
 use OaiPmhHarvester\Form\SetsForm;
+use Omeka\Stdlib\Message;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 
@@ -128,6 +129,7 @@ class IndexController extends AbstractActionController
 
         $dispatcher = $this->jobDispatcher();
 
+        $urlHelper = $this->url();
         foreach ($sets as $setSpec => $set) {
             //  . "?metadataPrefix=" . $set[1] . "&verb=ListRecords&set=" . $setSpec
             $url = $post['base_url'];
@@ -146,6 +148,25 @@ class IndexController extends AbstractActionController
             ];
             $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\HarvestJob::class, $harvestJson);
             $this->messenger()->addSuccess('Harvesting ' . $set[0] . ' in Job ID ' . $job->getId());
+
+            $message = new Message(
+                vsprintf($this->translate('Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). This may take a while.'), // @translate
+                [
+                    $set['set_name'],
+                    sprintf(
+                        '<a href="%s">',
+                        htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                    ),
+                    $job->getId(),
+                    '</a>',
+                    sprintf(
+                        '<a href="%s">',
+                        htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]))
+                    ),
+                ]
+            ));
+            $message->setEscapeHtml(false);
+            $this->messenger()->addSuccess($message);
         }
 
         return $this->redirect()->toRoute('admin/oaipmhharvester/past-harvests');
