@@ -10,25 +10,28 @@ class HarvestForm extends Form
     {
         $this->setAttribute('action', 'oaipmhharvester/sets');
 
-        $this->add([
-            'name' => 'base_url',
-            'type' => Element\Text::class,
-            'options' => [
-                'label' => 'Base URL', // @translate
-                'info' => 'The base URL of the OAI-PMH data provider.', // @translate
-            ],
-            'attributes' => [
-                'id' => 'base_url',
-                'required' => 'true',
-                'value' => 'http://localhost/bacasable/oai-pmh-repository/request',
-                'size' => 60,
-            ],
-        ]);
+        $this
+            ->add([
+                'name' => 'base_url',
+                'type' => Element\Text::class,
+                'options' => [
+                    'label' => 'Base URL', // @translate
+                    'info' => 'The base URL of the OAI-PMH data provider.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'base_url',
+                    'required' => true,
+                    // The protocol requires http, but most of repositories
+                    // support it.
+                    'placeholder' => 'https://example.org/oai-pmh-repository/request',
+                ],
+            ]);
 
         $inputFilter = $this->getInputFilter();
-        $inputFilter->add([
-            'name' => 'base_url',
-            'required' => true,
-        ]);
+        $inputFilter
+            ->add([
+                'name' => 'base_url',
+                'required' => true,
+            ]);
     }
 }
