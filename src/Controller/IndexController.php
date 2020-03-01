@@ -29,28 +29,44 @@ class IndexController extends AbstractActionController
     public function setsAction()
     {
         $post = $this->params()->fromPost();
-        $base_url = $post['base_url'];
+        $baseUrl = $post['base_url'];
 
         $sets = [];
-        $url = $base_url . "?verb=ListSets";
+        $url = $baseUrl . '?verb=ListSets';
         $response = @\simplexml_load_file($url);
 
         if (!$response) {
-            $message = sprintf($this->translate('The url "%s" does not return xml.'), $base_url); // @translate
+            $message = sprintf($this->translate('The url "%s" does not return xml.'), $baseUrl); // @translate
             $this->messenger()->addError($message);
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
         if (isset($response->ListSets)) {
-            $list = "<ul>";
-            foreach ($response->ListSets->set as $n => $set) {
-                $sets[(string) $set->setSpec] = (string) $set->setName;
-            }
-            $list .= "</ul>";
+            $resumptionToken = false;
+            $baseListSetUrl = $url;
+            do {
+                // Don't redo the first request.
+                if ($resumptionToken) {
+                    $url = $baseListSetUrl . '&resumptionToken=' . $resumptionToken;
+                    /** @var \SimpleXMLElement $response */
+                    $response = \simplexml_load_file($url);
+                    if (!isset($response->ListSets)) {
+                        break;
+                    }
+                }
+
+                foreach ($response->ListSets->set as $set) {
+                    $sets[(string) $set->setSpec] = (string) $set->setName;
+                }
+
+                $resumptionToken = isset($response->ListSets->resumptionToken) && $response->ListSets->resumptionToken !== ''
+                    ? (string) $response->ListSets->resumptionToken
+                    : false;
+            } while ($resumptionToken);
         }
 
         $formats = [];
-        $url = $base_url . "?verb=ListMetadataFormats";
+        $url = $baseUrl . '?verb=ListMetadataFormats';
         $response = @\simplexml_load_file($url);
         if ($response) {
             foreach ($response->ListMetadataFormats->metadataFormat as $idFormat => $format) {
@@ -65,7 +81,7 @@ class IndexController extends AbstractActionController
         $form = $this->getForm(SetsForm::class, [
             'sets' => $sets,
             'formats' => $formats,
-            'base_url' => $base_url,
+            'base_url' => $baseUrl,
         ]);
 
         $view = new ViewModel;
