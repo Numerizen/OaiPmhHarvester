@@ -16,6 +16,7 @@ class SetsForm extends Form
         $sets = $this->getOption('sets') ?: [];
         $harvestAllRecords = $this->getOption('harvest_all_records');
         $predefinedSets = $this->getOption('predefined_sets');
+        $favoriteFormat = $this->getOption('favorite_format');
 
         $this
             ->add([
@@ -115,6 +116,7 @@ class SetsForm extends Form
                         ],
                         'attributes' => [
                             'id' => 'namespace[' . $id . ']',
+                            'value' => $favoriteFormat,
                         ],
                     ])
                     ->add([
@@ -148,6 +150,7 @@ class SetsForm extends Form
                     ],
                     'attributes' => [
                         'id' => 'namespace[0]',
+                        'value' => $favoriteFormat,
                     ],
                 ])
             ;

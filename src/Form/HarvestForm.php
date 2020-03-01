@@ -41,7 +41,7 @@ class HarvestForm extends Form
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Skip listing of sets and harvest only these sets', // @translate
-                    'info' => 'Set one set identifier and a metadata prefix by line. Separate the set and the prefix by "=". If no prefix is set, "oai_dc" will be used.',
+                    'info' => 'Set one set identifier and a metadata prefix by line. Separate the set and the prefix by "=". If no prefix is set, "dcterms" or "oai_dc" will be used.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'sets',

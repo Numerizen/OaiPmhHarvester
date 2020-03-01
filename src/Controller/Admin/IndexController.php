@@ -20,17 +20,20 @@ class IndexController extends AbstractActionController
     /**
      * List of managed metadata prefixes.
      *
+     * The order is used to set the default format in the second form.
+     * Full Dublin Core is preferred.
+     *
      * @var array
      */
     protected $metadataPrefixes = [
-        'oai_dc',
-        'dc',
         'oai_dcterms',
         'oai_dcq',
         'oai_qdc',
         'dcterms',
         'qdc',
         'dcq',
+        'oai_dc',
+        'dc',
         'mets',
     ];
 
@@ -61,23 +64,6 @@ class IndexController extends AbstractActionController
 
         $harvestAllRecords = !empty($post['harvest_all_records']);
 
-        // Fixes Windows and Apple copy/paste from a textarea input, then explode it.
-        $sets = [];
-        $predefinedSets = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $post['sets']))), 'strlen');
-        foreach ($predefinedSets as $set) {
-            $id = trim(strtok($set, '='));
-            if (strlen($id)) {
-                $sets[$id] = trim(strtok('=')) ?: 'oai_dc';
-            }
-        }
-
-        $predefinedSets = (bool) $predefinedSets;
-        if ($predefinedSets && !$sets) {
-            $message = $this->translate('The sets you specified are not correctly formatted.'); // @translate
-            $this->messenger()->addError($message);
-            return $this->redirect()->toRoute('admin/oaipmhharvester');
-        }
-
         $url = $endpoint . '?verb=Identify';
         $response = @\simplexml_load_file($url);
         if (!$response) {
@@ -91,6 +77,26 @@ class IndexController extends AbstractActionController
         $formats = $this->listOaiPmhFormats($endpoint);
         if (empty($formats)) {
             $message = sprintf($this->translate('The endpoint "%s" does not manage any format.'), $endpoint); // @translate
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/oaipmhharvester');
+        }
+
+        $favoriteFormat = array_intersect($this->metadataPrefixes, $formats);
+        $favoriteFormat = reset($favoriteFormat) ?: 'oai_dc';
+
+        // Fixes Windows and Apple copy/paste from a textarea input, then explode it.
+        $sets = [];
+        $predefinedSets = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $post['sets']))), 'strlen');
+        foreach ($predefinedSets as $set) {
+            $id = trim(strtok($set, '='));
+            if (strlen($id)) {
+                $sets[$id] = trim(strtok('=')) ?: $favoriteFormat;
+            }
+        }
+
+        $predefinedSets = (bool) $predefinedSets;
+        if ($predefinedSets && !$sets) {
+            $message = $this->translate('The sets you specified are not correctly formatted.'); // @translate
             $this->messenger()->addError($message);
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
@@ -125,6 +131,7 @@ class IndexController extends AbstractActionController
             'sets' => $sets,
             'harvest_all_records' => $harvestAllRecords,
             'predefined_sets' => $predefinedSets,
+            'favorite_format' => $favoriteFormat,
         ];
         $form = $this->getForm(SetsForm::class, $options);
 
