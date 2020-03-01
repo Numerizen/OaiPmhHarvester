@@ -29,6 +29,7 @@ $this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester jobs harve
             <tr>
                 <th><?= $escape($translate('Undo?')) ?></th>
                 <th><?= $escape($translate('Date')) ?></th>
+                <th><?= $escape($translate('Label')) ?></th>
                 <th><?= $escape($translate('Comment')) ?></th>
                 <th><?= $escape($translate('Results')) ?></th>
                 <th><?= $escape($translate('Status')) ?></th>
@@ -40,6 +41,8 @@ $this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester jobs harve
         <?php foreach ($harvests as $harvest): ?>
         <?php $job = $harvest->job(); ?>
         <?php $undoJob = $harvest->undoJob(); ?>
+        <?php $setSpec = $harvest->getSetSpec(); ?>
+        <?php $setName = $harvest->getSetName(); ?>
         <tr class="<?= $undoJob ? 'undone' : '' ?>">
             <td>
                 <input type="checkbox" name="jobs[]" value="<?= $job->id() ?>" <?= $undoJob ? ' disabled="disabled"' : '' ?>/>
@@ -57,6 +60,18 @@ $this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester jobs harve
                 <span class="oai-pmh-log">
                     <?= $job->link($translate('Log'), 'log', ['target' => '_blank']) ?>
                 </span>
+                <?php endif; ?>
+            </td>
+            <td>
+                <?php $setName = $harvest->getSetName(); ?>
+                <?php $setSpec = $harvest->getSetSpec(); ?>
+                <?php if (!$setName || $setName === $setSpec): ?>
+                [<span class="oai-pmh-set"><?= $escape($setSpec) ?></span>]
+                <?php else: ?>
+                <span class="oai-pmh-set"><?= $escape($setName) ?></span>
+                    <?php if ($setSpec): ?>
+                [<span class="oai-pmh-set"><?= $escape($setSpec) ?></span>]
+                    <?php endif; ?>
                 <?php endif; ?>
             </td>
             <td>
