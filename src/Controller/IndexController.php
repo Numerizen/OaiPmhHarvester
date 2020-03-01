@@ -32,7 +32,12 @@ class IndexController extends AbstractActionController
     public function setsAction()
     {
         $post = $this->params()->fromPost();
-        $baseUrl = $post['base_url'];
+        $baseUrl = @$post['base_url'];
+
+        // Avoid direct acces to the page.
+        if (empty($baseUrl)) {
+            return $this->redirect()->toRoute('admin/oaipmhharvester');
+        }
 
         $url = $baseUrl . '?verb=Identify';
         $response = @\simplexml_load_file($url);
