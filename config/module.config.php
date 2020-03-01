@@ -17,8 +17,8 @@ return [
         ],
     ],
     'controllers' => [
-        'factories' => [
-            'OaiPmhHarvester\Controller\Index' => Service\Controller\IndexControllerFactory::class,
+        'invokables' => [
+            'OaiPmhHarvester\Controller\Admin\Index' => Controller\Admin\IndexController::class,
         ],
     ],
     'view_manager' => [
@@ -35,7 +35,7 @@ return [
                         'options' => [
                             'route' => '/oaipmhharvester',
                             'defaults' => [
-                                '__NAMESPACE__' => 'OaiPmhHarvester\Controller',
+                                '__NAMESPACE__' => 'OaiPmhHarvester\Controller\Admin',
                                 'controller' => 'Index',
                                 'action' => 'index',
                             ],
@@ -47,10 +47,7 @@ return [
                                 'options' => [
                                     'route' => '/sets',
                                     'defaults' => [
-                                        '__NAMESPACE__' => 'OaiPmhHarvester\Controller',
-                                        'controller' => 'Index',
                                         'action' => 'sets',
-                                         'visible' => false,
                                     ],
                                 ],
                             ],
@@ -59,10 +56,7 @@ return [
                                 'options' => [
                                     'route' => '/harvest',
                                     'defaults' => [
-                                        '__NAMESPACE__' => 'OaiPmhHarvester\Controller',
-                                        'controller' => 'Index',
                                         'action' => 'harvest',
-                                         'visible' => false,
                                     ],
                                 ],
                             ],
@@ -71,8 +65,6 @@ return [
                                 'options' => [
                                     'route' => '/past-harvests',
                                     'defaults' => [
-                                        '__NAMESPACE__' => 'OaiPmhHarvester\Controller',
-                                        'controller' => 'Index',
                                         'action' => 'past-harvests',
                                     ],
                                 ],
@@ -88,31 +80,26 @@ return [
             [
                 'label' => 'OAI-PMH Harvester', // @translate
                 'route' => 'admin/oaipmhharvester',
-                'resource' => 'OaiPmhHarvester\Controller\Index',
+                'resource' => 'OaiPmhHarvester\Controller\Admin\Index',
                 'pages' => [
                     [
                         'label' => 'Harvest', // @translate
                         'route' => 'admin/oaipmhharvester',
-                        'resource' => 'OaiPmhHarvester\Controller\Index',
                     ],
                     [
                         'label' => 'Sets', // @translate
                         'route' => 'admin/oaipmhharvester/sets',
-                        'resource' => 'OaiPmhHarvester\Controller\Index',
                         'visible' => false,
                     ],
                     [
                         'label' => 'Harvest', // @translate
                         'route' => 'admin/oaipmhharvester/harvest',
-                        'resource' => 'OaiPmhHarvester\Controller\Index',
                         'visible' => false,
                     ],
                     [
                         'label' => 'Past Harvests', // @translate
                         'route' => 'admin/oaipmhharvester/past-harvests',
-                        'controller' => 'Index',
                         'action' => 'past-harvests',
-                        'resource' => 'OaiPmhHarvester\Controller\Index',
                     ],
                 ],
             ],

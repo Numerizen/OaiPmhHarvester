@@ -1,5 +1,5 @@
 <?php
-namespace OaiPmhHarvester\Controller;
+namespace OaiPmhHarvester\Controller\Admin;
 
 use OaiPmhHarvester\Form\HarvestForm;
 use OaiPmhHarvester\Form\SetsForm;
@@ -8,13 +8,6 @@ use Zend\View\Model\ViewModel;
 
 class IndexController extends AbstractActionController
 {
-    protected $config;
-
-    public function __construct(array $config)
-    {
-        $this->config = $config;
-    }
-
     /**
      * Main form to set the url.
      */
@@ -49,55 +42,27 @@ class IndexController extends AbstractActionController
 
         $repositoryName = (string) $response->Identify->repositoryName ?: $this->translate('[Untitled repository]'); // @translate
 
-        $formats = [];
-        $url = $baseUrl . '?verb=ListMetadataFormats';
-        $response = @\simplexml_load_file($url);
-        if ($response) {
-            foreach ($response->ListMetadataFormats->metadataFormat as $format) {
-                $prefix = (string) $format->metadataPrefix;
-                if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
-                    $formats[$prefix] = $prefix;
-                } else {
-                    $formats[$prefix] = sprintf($this->translate('%s [unmanaged]'), $prefix); // @translate
-                }
-            }
+        $formats = $this->listOaiPmhFormats($baseUrl);
+        if (empty($formats)) {
+            $message = sprintf($this->translate('The url "%s" does not manage any format.'), $baseUrl); // @translate
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
-        $sets = [];
-        $url = $baseUrl . '?verb=ListSets';
-        if (isset($response->ListSets)) {
-            $resumptionToken = false;
-            $baseListSetUrl = $url;
-            do {
-                if ($resumptionToken) {
-                    $url = $baseListSetUrl . '&resumptionToken=' . $resumptionToken;
-                }
-                /** @var \SimpleXMLElement $response */
-                $response = \simplexml_load_file($url);
-                if (!isset($response->ListSets)) {
-                    break;
-                }
+        $sets = $this->listOaiPmhSets($baseUrl);
 
-                foreach ($response->ListSets->set as $set) {
-                    $sets[(string) $set->setSpec] = (string) $set->setName;
-                }
-
-                $resumptionToken = isset($response->ListSets->resumptionToken) && $response->ListSets->resumptionToken !== ''
-                    ? (string) $response->ListSets->resumptionToken
-                    : false;
-            } while ($resumptionToken);
-        }
-
-        $form = $this->getForm(SetsForm::class, [
+        $options = [
             'base_url' => $baseUrl,
             'formats' => $formats,
             'sets' => $sets,
-        ]);
+        ];
+        $form = $this->getForm(SetsForm::class, $options);
 
         $view = new ViewModel;
-        $view->repositoryName = $repositoryName;
-        $view->form = $form;
-        return $view;
+        return $view
+            ->setVariable('form', $form)
+            ->setVariable('repositoryName', $repositoryName)
+        ;
     }
 
     /**
@@ -172,11 +137,7 @@ class IndexController extends AbstractActionController
             $this->messenger()->addSuccess('Harvesting ' . $set[0] . ' in Job ID ' . $job->getId());
         }
 
-        return $this->redirect()->toRoute('admin/oaipmhharvester/past-harvests', ['action' => 'pastHarvests'], true);
-
-        $view = new ViewModel;
-        $view->content = $this->translate('Processing job Harvest'); // @translate
-        return $view;
+        return $this->redirect()->toRoute('admin/oaipmhharvester/past-harvests');
     }
 
     public function pastHarvestsAction()
@@ -222,5 +183,67 @@ class IndexController extends AbstractActionController
             ]
         );
         return $job;
+    }
+
+    /**
+     * Prepare the list of formats of an OAI-PMH repository.
+     *
+     * @param string $baseUrl
+     * @return string[] Associative array of format prefix and name.
+     */
+    protected function listOaiPmhFormats($baseUrl)
+    {
+        $formats = [];
+
+        $url = $baseUrl . '?verb=ListMetadataFormats';
+        $response = @\simplexml_load_file($url);
+        if ($response) {
+            foreach ($response->ListMetadataFormats->metadataFormat as $format) {
+                $prefix = (string) $format->metadataPrefix;
+                if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
+                    $formats[$prefix] = $prefix;
+                } else {
+                    $formats[$prefix] = sprintf($this->translate('%s [unmanaged]'), $prefix); // @translate
+                }
+            }
+        }
+
+        return $formats;
+    }
+
+    /**
+     * Prepare the list of sets of an OAI-PMH repository.
+     *
+     * @param string $baseUrl
+     * @return string[] Associative array of set prefix and set name.
+     */
+    protected function listOaiPmhSets($baseUrl)
+    {
+        $sets = [];
+
+        $url = $baseUrl . '?verb=ListSets';
+        $baseListSetUrl = $baseUrl;
+        $resumptionToken = false;
+        do {
+            if ($resumptionToken) {
+                $url = $baseListSetUrl . '&resumptionToken=' . $resumptionToken;
+            }
+
+            /** @var \SimpleXMLElement $response */
+            $response = \simplexml_load_file($url);
+            if (!isset($response->ListSets)) {
+                break;
+            }
+
+            foreach ($response->ListSets->set as $set) {
+                $sets[(string) $set->setSpec] = (string) $set->setName;
+            }
+
+            $resumptionToken = isset($response->ListSets->resumptionToken) && $response->ListSets->resumptionToken !== ''
+                ? (string) $response->ListSets->resumptionToken
+                : false;
+        } while ($resumptionToken);
+
+        return $sets;
     }
 }
