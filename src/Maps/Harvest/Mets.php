@@ -12,7 +12,6 @@
  * @package OaipmhHarvester
  * @subpackage Models
  */
-
 class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
 {
     /*Xml schema and OAI prefix for the format represented by this class

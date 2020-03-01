@@ -196,8 +196,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
     public function isDeletedRecord($record)
     {
         if (isset($record->header->attributes()->status)
-            && $record->header->attributes()->status == 'deleted')
-        {
+            && $record->header->attributes()->status == 'deleted') {
             return true;
         }
         return false;
@@ -283,8 +282,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
             // There must be a collection name, so if there is none, like when the
             // harvest is repository-wide, set it to the base URL.
             if (!isset($metadata['elementTexts']['Dublin Core']['Title']['text']) ||
-                !$metadata['elementTexts']['Dublin Core']['Title']['text'])
-            {
+                !$metadata['elementTexts']['Dublin Core']['Title']['text']) {
                 $$metadata['elementTexts']['Dublin Core']['Title']['text'] = $this->_harvest->base_url;
             }
 
@@ -384,22 +382,22 @@ abstract class OaipmhHarvester_Harvest_Abstract
         $record,
         $elementTexts = [],
         $fileMetadata = []
-        ) {
-            // Update the item
-            $item = update_item(
-                $record->item_id,
-                ['overwriteElementTexts' => true],
-                $elementTexts,
-                $fileMetadata
-            );
+    ) {
+        // Update the item
+        $item = update_item(
+            $record->item_id,
+            ['overwriteElementTexts' => true],
+            $elementTexts,
+            $fileMetadata
+        );
 
-            // Update the datestamp stored in the database for this record.
-            $this->_updateRecord($record);
+        // Update the datestamp stored in the database for this record.
+        $this->_updateRecord($record);
 
-            // Release the Item object from memory.
-            release_object($item);
+        // Release the Item object from memory.
+        release_object($item);
 
-            return true;
+        return true;
     }
 
     /**
@@ -445,9 +443,9 @@ abstract class OaipmhHarvester_Harvest_Abstract
         $element,
         $text,
         $html = false
-        ) {
-            $elementTexts[$elementSet][$element][] = ['text' => (string) $text, 'html' => (bool) $html];
-            return $elementTexts;
+    ) {
+        $elementTexts[$elementSet][$element][] = ['text' => (string) $text, 'html' => (bool) $html];
+        return $elementTexts;
     }
 
     /**
