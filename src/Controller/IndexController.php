@@ -31,31 +31,38 @@ class IndexController extends AbstractActionController
         $post = $this->params()->fromPost();
         $base_url = $post['base_url'];
 
+        $sets = [];
         $url = $base_url . "?verb=ListSets";
-
-        $response = \simplexml_load_file($url);
-        if (isset($response->ListSets)) {
+        $response = @\simplexml_load_file($url);
+        if ($response && isset($response->ListSets)) {
             $list = "<ul>";
-            $sets = [];
-
             foreach ($response->ListSets->set as $n => $set) {
                 $sets[(string) $set->setSpec] = (string) $set->setName;
             }
             $list .= "</ul>";
         }
-        $url = $base_url . "?verb=ListMetadataFormats";
-        $response = \simplexml_load_file($url);
+
         $formats = [];
-        foreach ($response->ListMetadataFormats->metadataFormat as $idFormat => $format) {
-            $prefix = (string) $format->metadataPrefix;
-            // TODO : autres formats ?
-            if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
-                $formats[$prefix] = $prefix;
+        $url = $base_url . "?verb=ListMetadataFormats";
+        $response = @\simplexml_load_file($url);
+        if ($response) {
+            foreach ($response->ListMetadataFormats->metadataFormat as $idFormat => $format) {
+                $prefix = (string) $format->metadataPrefix;
+                // TODO : autres formats ?
+                if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
+                    $formats[$prefix] = $prefix;
+                }
             }
         }
+
+        $form = $this->getForm(SetsForm::class, [
+            'sets' => $sets,
+            'formats' => $formats,
+            'base_url' => $base_url,
+        ]);
+
         $view = new ViewModel;
         $view->content .= $this->translate('Please choose a set to import.'); // @translate
-        $form = $this->getForm(SetsForm::class, ['sets' => $sets, 'formats' => $formats, 'base_url' => $base_url]);
         $view->form = $form;
         return $view;
     }
@@ -67,7 +74,13 @@ class IndexController extends AbstractActionController
     {
         $post = $this->params()->fromPost();
 
-        $message = 'Harvesting from ' . $post['base_url'] . ' sets :  ';
+        $filters = $post['filters'];
+        // This method fixes Windows and Apple copy/paste from a textarea input,
+        // then explode it by line.
+        $filters = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $filters))), 'strlen');
+
+        $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['base_url']) // @translate
+            . ' ';
 
         // List collections and create sets
         $sets = [];
@@ -87,6 +100,7 @@ class IndexController extends AbstractActionController
             }
         }
 
+        $message = rtrim($message, '|');
         $this->messenger()->addSuccess($message);
 
         $dispatcher = $this->jobDispatcher();

@@ -11,7 +11,7 @@ class SetsForm extends Form
         $this->setAttribute('action', 'harvest');
 
         $base_url = $this->getOption('base_url');
-        $sets = $this->getOption('sets');
+        $sets = $this->getOption('sets') ?: [];
         $formats = $this->getOption('formats');
 
         $this->add([
@@ -33,7 +33,7 @@ class SetsForm extends Form
                 ],
             ]);
             $this->add([
-                'type' => 'hidden',
+                'type' => Element\Hidden::class,
                 'name' => 'setSpec['  . $id . "]",
                 'attributes' => [
                     'id' => 'setSpec'  .  $id,
