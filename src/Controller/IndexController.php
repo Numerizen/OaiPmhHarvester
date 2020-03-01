@@ -34,7 +34,14 @@ class IndexController extends AbstractActionController
         $sets = [];
         $url = $base_url . "?verb=ListSets";
         $response = @\simplexml_load_file($url);
-        if ($response && isset($response->ListSets)) {
+
+        if (!$response) {
+            $message = sprintf($this->translate('The url "%s" does not return xml.'), $base_url); // @translate
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/oaipmhharvester');
+        }
+
+        if (isset($response->ListSets)) {
             $list = "<ul>";
             foreach ($response->ListSets->set as $n => $set) {
                 $sets[(string) $set->setSpec] = (string) $set->setName;
