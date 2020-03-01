@@ -44,6 +44,23 @@ class IndexController extends AbstractActionController
 
         $harvestAllRecords = !empty($post['harvest_all_records']);
 
+        // Fixes Windows and Apple copy/paste from a textarea input, then explode it.
+        $sets = [];
+        $predefinedSets = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $post['sets']))), 'strlen');
+        foreach ($predefinedSets as $set) {
+            $id = trim(strtok($set, '='));
+            if (strlen($id)) {
+                $sets[$id] = trim(strtok('=')) ?: 'oai_dc';
+            }
+        }
+
+        $predefinedSets = (bool) $predefinedSets;
+        if ($predefinedSets && !$sets) {
+            $message = $this->translate('The sets you specified are not correctly formatted.'); // @translate
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/oaipmhharvester');
+        }
+
         $url = $endpoint . '?verb=Identify';
         $response = @\simplexml_load_file($url);
         if (!$response) {
@@ -61,9 +78,28 @@ class IndexController extends AbstractActionController
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
-        $sets = $harvestAllRecords ? ['total' => null, 'sets' => []] : $this->listOaiPmhSets($endpoint);
-        $total = $sets['total'];
-        $sets = $sets['sets'];
+        // Check if all sets have a managed format.
+        if ($sets) {
+            $checks = array_filter($formats, function ($v, $k) {
+                return $v === $k;
+            }, ARRAY_FILTER_USE_BOTH);
+            $unmanaged = array_filter($sets, function ($v) use ($checks) {
+                return !in_array($v, $checks);
+            });
+            if ($unmanaged) {
+                $message = sprintf($this->translate('The following formats are not managed: "%s".'), implode('", "', $unmanaged)); // @translate
+                $this->messenger()->addError($message);
+                return $this->redirect()->toRoute('admin/oaipmhharvester');
+            }
+        }
+
+        if ($sets) {
+            $total = null;
+        } else {
+            $sets = $harvestAllRecords ? ['total' => null, 'sets' => []] : $this->listOaiPmhSets($endpoint);
+            $total = $sets['total'];
+            $sets = $sets['sets'];
+        }
 
         $options = [
             'repository_name' => $repositoryName,
@@ -71,6 +107,7 @@ class IndexController extends AbstractActionController
             'formats' => $formats,
             'sets' => $sets,
             'harvest_all_records' => $harvestAllRecords,
+            'predefined_sets' => $predefinedSets,
         ];
         $form = $this->getForm(SetsForm::class, $options);
 

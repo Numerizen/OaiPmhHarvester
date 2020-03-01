@@ -36,6 +36,20 @@ class HarvestForm extends Form
                     'id' => 'harvest_all_records',
                 ],
             ])
+            ->add([
+                'name' => 'sets',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Skip listing of sets and harvest only these sets', // @translate
+                    'info' => 'Set one set identifier and a metadata prefix by line. Separate the set and the prefix by "=". If no prefix is set, "oai_dc" will be used.',
+                ],
+                'attributes' => [
+                    'id' => 'sets',
+                    'row' => 10,
+                    'placeholder' => 'digital:serie-alpha = mets
+humanities:serie-beta',
+                ],
+            ])
         ;
 
         $inputFilter = $this->getInputFilter();

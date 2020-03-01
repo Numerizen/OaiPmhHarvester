@@ -122,7 +122,7 @@ class Harvest extends AbstractJob
                 $url = $args['endpoint'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
             } else {
                 $url = $args['endpoint'] . "?metadataPrefix=" . $args['metadata_prefix'] . '&verb=ListRecords';
-                if ($args['set_spec']) {
+                if (strlen($args['set_spec'])) {
                     $url .= '&set=' . $args['set_spec'];
                 }
             }

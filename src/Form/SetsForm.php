@@ -15,6 +15,7 @@ class SetsForm extends Form
         $formats = $this->getOption('formats');
         $sets = $this->getOption('sets') ?: [];
         $harvestAllRecords = $this->getOption('harvest_all_records');
+        $predefinedSets = $this->getOption('predefined_sets');
 
         $this
             ->add([
@@ -64,7 +65,45 @@ class SetsForm extends Form
                 ],
             ]);
 
-        if ($sets && !$harvestAllRecords) {
+        // The predefined sets are already formatted, but have no label.
+        if ($predefinedSets) {
+            foreach ($sets as $id => $prefix) {
+                $this
+                    ->add([
+                        'type' => Element\Select::class,
+                        'name' => 'namespace[' . $id . ']',
+                        'options' => [
+                            'label' => $id,
+                            'value_options' => $formats,
+                        ],
+                        'attributes' => [
+                            'id' => 'namespace[' . $id . ']',
+                            'value' => $prefix,
+                        ],
+                    ])
+                    ->add([
+                        'type' => Element\Hidden::class,
+                        'name' => 'setSpec[' . $id . ']',
+                        'attributes' => [
+                            'id' => 'setSpec' . $id,
+                            'value' => $id,
+                        ],
+                    ])
+                    ->add([
+                        'type' => Element\Checkbox::class,
+                        'name' => 'harvest[' . $id . ']',
+                        'options' => [
+                            'label' => 'Harvest this set?', // @translate
+                            'use_hidden_element' => false,
+                        ],
+                        'attributes' => [
+                            'id' => 'harvest[' . $id . ']',
+                            'value' => true,
+                            'checked' => 'checked',
+                        ],
+                    ]);
+            }
+        } elseif ($sets && !$harvestAllRecords) {
             foreach ($sets as $id => $set) {
                 $this
                     ->add([
