@@ -20,16 +20,19 @@ uses Dublin Core.
 
 This is a simplified version of the [plugin] for [Omeka Classic], which was
 shamelessly copied whenever possible. The work consisted mainly in adapting the
-code to Omeka-S - *i.e* Zend Framework 3.
+code to Omeka-S - *i.e* Laminas (formerly Zend Framework 3).
 
 Unlike the Omeka Classic version, [CDWA Lite] is not yet supported, and some
 other features, in particular updating.
+
+Nevertheless, some feature are available, in particular preselect of sets,
+filtering of records before import, and more detailled stats.
 
 
 Installation
 ------------
 
-Uncompress files and rename module folder `OaiPmhRepository`.
+Uncompress files and rename module folder `OaiPmhHarvester`.
 
 See general end user documentation for [Installing a module] and follow the
 config instructions.
@@ -93,7 +96,7 @@ Copyright
 
 * Copyright 2008-2013 Roy Rosenzweig Center for History and New Media
 * Copyright Vincent Buard, 2017 (see [Numerizen])
-* Copyright Daniel Berthereau, 2015-2019 (see [Daniel-KM])
+* Copyright Daniel Berthereau, 2015-2020 (see [Daniel-KM])
 
 
 [OAI-PMH Harvester]: https://github.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester
