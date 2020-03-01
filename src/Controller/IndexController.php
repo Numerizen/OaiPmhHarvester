@@ -52,6 +52,8 @@ class IndexController extends AbstractActionController
                 $prefix = (string) $format->metadataPrefix;
                 if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
                     $formats[$prefix] = $prefix;
+                } else {
+                    $formats[$prefix] = sprintf($this->translate('%s [unmanaged]'), $prefix); // @translate
                 }
             }
         }

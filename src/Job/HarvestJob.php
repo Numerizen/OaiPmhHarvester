@@ -31,6 +31,9 @@ class HarvestJob extends AbstractJob
 
     protected $api;
 
+    /**
+     * @var \Zend\Log\Logger
+     */
     protected $logger;
 
     protected $hasErr = false;
@@ -70,7 +73,6 @@ class HarvestJob extends AbstractJob
             'resource_type' => $this->getArg('resource_type', 'items'),
         ];
 
-        // TODO : autres protocoles.
         $method = '';
         switch ($args['metadata_prefix']) {
             case 'mets':
@@ -85,7 +87,11 @@ class HarvestJob extends AbstractJob
                 $method = '_oaidctermsToJson';
                 break;
             default:
-                // TODO : Exception ou message d'erreur
+                $this->logger->err(sprintf(
+                    'The format "%s" is not managed by the module currently.',
+                    $args['metadata_prefix']
+                ));
+                return false;
         }
 
         $resumptionToken = false;
