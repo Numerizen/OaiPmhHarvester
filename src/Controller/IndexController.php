@@ -15,6 +15,9 @@ class IndexController extends AbstractActionController
         $this->config = $config;
     }
 
+    /**
+     * Main form to set the url.
+     */
     public function indexAction()
     {
         $view = new ViewModel;
@@ -31,28 +34,41 @@ class IndexController extends AbstractActionController
         $post = $this->params()->fromPost();
         $baseUrl = $post['base_url'];
 
-        $sets = [];
-        $url = $baseUrl . '?verb=ListSets';
+        $url = $baseUrl . '?verb=Identify';
         $response = @\simplexml_load_file($url);
-
         if (!$response) {
             $message = sprintf($this->translate('The url "%s" does not return xml.'), $baseUrl); // @translate
             $this->messenger()->addError($message);
             return $this->redirect()->toRoute('admin/oaipmhharvester');
         }
 
+        $repositoryName = (string) $response->Identify->repositoryName ?: $this->translate('[Untitled repository]'); // @translate
+
+        $formats = [];
+        $url = $baseUrl . '?verb=ListMetadataFormats';
+        $response = @\simplexml_load_file($url);
+        if ($response) {
+            foreach ($response->ListMetadataFormats->metadataFormat as $format) {
+                $prefix = (string) $format->metadataPrefix;
+                if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
+                    $formats[$prefix] = $prefix;
+                }
+            }
+        }
+
+        $sets = [];
+        $url = $baseUrl . '?verb=ListSets';
         if (isset($response->ListSets)) {
             $resumptionToken = false;
             $baseListSetUrl = $url;
             do {
-                // Don't redo the first request.
                 if ($resumptionToken) {
                     $url = $baseListSetUrl . '&resumptionToken=' . $resumptionToken;
-                    /** @var \SimpleXMLElement $response */
-                    $response = \simplexml_load_file($url);
-                    if (!isset($response->ListSets)) {
-                        break;
-                    }
+                }
+                /** @var \SimpleXMLElement $response */
+                $response = \simplexml_load_file($url);
+                if (!isset($response->ListSets)) {
+                    break;
                 }
 
                 foreach ($response->ListSets->set as $set) {
@@ -65,27 +81,14 @@ class IndexController extends AbstractActionController
             } while ($resumptionToken);
         }
 
-        $formats = [];
-        $url = $baseUrl . '?verb=ListMetadataFormats';
-        $response = @\simplexml_load_file($url);
-        if ($response) {
-            foreach ($response->ListMetadataFormats->metadataFormat as $idFormat => $format) {
-                $prefix = (string) $format->metadataPrefix;
-                // TODO : autres formats ?
-                if (in_array($prefix, ['oai_dc', 'oai_dcterms', 'dc', 'dcterms', 'mets'])) {
-                    $formats[$prefix] = $prefix;
-                }
-            }
-        }
-
         $form = $this->getForm(SetsForm::class, [
-            'sets' => $sets,
-            'formats' => $formats,
             'base_url' => $baseUrl,
+            'formats' => $formats,
+            'sets' => $sets,
         ]);
 
         $view = new ViewModel;
-        $view->content .= $this->translate('Please choose a set to import.'); // @translate
+        $view->repositoryName = $repositoryName;
         $view->form = $form;
         return $view;
     }
@@ -158,7 +161,7 @@ class IndexController extends AbstractActionController
                 'resource_type' => 'items',
                 'filters' => $filters,
             ];
-            $job = $dispatcher->dispatch('OaiPmhHarvester\Job\HarvestJob', $harvestJson);
+            $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\HarvestJob::class, $harvestJson);
             $this->messenger()->addSuccess('Harvesting ' . $set[0] . ' in Job ID ' . $job->getId());
         }
 
@@ -203,7 +206,7 @@ class IndexController extends AbstractActionController
         $response = $this->api()->search('oaipmhharvester_harvestjob', ['job_id' => $jobId]);
         $harvest = $response->getContent()[0];
         $dispatcher = $this->jobDispatcher();
-        $job = $dispatcher->dispatch('OaiPmhHarvester\Job\Undo', ['jobId' => $jobId]);
+        $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Undo::class, ['jobId' => $jobId]);
         $response = $this->api()->update(
             'oaipmhharvester_harvestjob',
             $harvest->id(),
