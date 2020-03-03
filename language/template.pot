@@ -1,0 +1,98 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-11-04 19:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/Controller/IndexController.php:57
+msgid "Please choose a set to import."
+msgstr ""
+
+#: src/Controller/IndexController.php:116
+msgid "Processing job Harvest"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/index.phtml:10
+msgid "OAI-PMH Base Page"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/index.phtml:10
+#: view/oai-pmh-harvester/index/past-harvests.phtml:12
+#: view/oai-pmh-harvester/index/sets.phtml:11
+msgid "OAI-PMH Harvester"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/index.phtml:14
+msgid "View sets"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:12
+msgid "Past Imports"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:25
+msgid "Undo?"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:26
+msgid "Job ID"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:28
+msgid "Imported content"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:47
+msgid ""
+"Problems were detected with the import. Check the job's log for details."
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:57
+msgid "Undone"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:59
+msgid "Undo in progress"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/sets.phtml:11
+msgid "Oai-Pmh Please choose sets to import"
+msgstr ""
+
+#: view/oai-pmh-harvester/index/sets.phtml:18
+msgid "Harvest"
+msgstr ""
+
+#: src/Form/HarvestForm.php:17
+msgid "Base URL"
+msgstr ""
+
+#: src/Form/HarvestForm.php:18
+msgid "The base URL of the OAI-PMH data provider."
+msgstr ""
+
+#: src/Controller/IndexController.php:130
+#, php-format
+msgid "Undo in progress in the following jobs: %s"
+msgstr ""
+
+#: config/module.config.php:99
+msgid "Sets"
+msgstr ""
+
+#: config/module.config.php:111
+msgid "Past Harvests"
+msgstr ""

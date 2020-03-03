@@ -1,13 +1,15 @@
-
 <?php
-use Zend\Debug\Debug;
-//Debug::dump($imports); 
-$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester harvests undo');
+/**
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \OaiPmhHarvester\Api\Representation\HarvestJobRepresentation[] $imports
+ */
+
+$translate = $this->plugin('translate');
 $escape = $this->plugin('escapeHtml');
-//$this->headLink()->appendStylesheet($this->assetUrl('css/csvimport.css', 'CSVImport'));
+$this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester harvests undo');
 ?>
 
-<?php echo $this->pageTitle($this->translate('Past Imports'), 1, $this->translate('Oai Pmh Harvester')); ?>
+<?php echo $this->pageTitle($translate('Past Imports'), 1, $translate('OAI-PMH Harvester')); ?>
 <?php if(empty($imports)): ?>
 
 <?php else: ?>
@@ -15,18 +17,18 @@ $escape = $this->plugin('escapeHtml');
 
 <form method='POST'>
     <fieldset id='page-actions'>
-        <input type="submit" value="<?php echo $escape($this->translate('Submit')); ?>" />
+        <input type="submit" value="<?php echo $escape($translate('Submit')); ?>" />
     </fieldset>
     <table class="tablesaw" data-tablesaw-mode="stack">
         <thead>
             <tr>
-                <th><?php echo $escape($this->translate('Undo?'));?></th>
-                <th><?php echo $this->sortLink($this->translate('Job ID'), 'id');?></th>
-                <th><?php echo $escape($this->translate('Comment'));?></th>
-                <th><?php echo $escape($this->translate('Imported content'));?></th>
-                <th><?php echo $escape($this->translate('Date'));?></th>
-                <th><?php echo $escape($this->translate('Status'));?></th>
-                <th><?php echo $escape($this->translate('Owner'));?></th>
+                <th><?php echo $escape($translate('Undo?'));?></th>
+                <th><?php echo $this->sortLink($translate('Job ID'), 'id');?></th>
+                <th><?php echo $escape($translate('Comment'));?></th>
+                <th><?php echo $escape($translate('Imported content'));?></th>
+                <th><?php echo $escape($translate('Date'));?></th>
+                <th><?php echo $escape($translate('Status'));?></th>
+                <th><?php echo $escape($translate('Owner'));?></th>
             </tr>
         </thead>
         <tbody>
@@ -42,24 +44,22 @@ $escape = $this->plugin('escapeHtml');
             <td class='comment'>
                 <?php echo $import->comment(); ?>
                 <?php if($import->hasErr()): ?>
-                    <p><?php echo $this->translate("Problems were detected with the import. Check the job's log for details."); ?></p>
+                    <p><?php echo $translate("Problems were detected with the import. Check the job's log for details."); ?></p>
                 <?php endif; ?>
             </td>
             <td>
-                <?php //echo $this->translate('Added: ') . $import->addedCount() . ' ' . $this->translate($import->resourceType()); ?>
+                <?php //echo $translate('Added: ') . $import->addedCount() . ' ' . $translate($import->resourceType()); ?>
             </td>
             <td><?php echo $escape($this->i18n()->dateFormat($job->started())); ?></td>
             <td>
             <?php if ($undoJob) {
                 if ($undoJob->ended()) {
-                    $status = $this->translate('Undone') . ' ' . $escape($this->i18n()->dateFormat($undoJob->ended()));
+                    $status = $translate('Undone') . ' ' . $escape($this->i18n()->dateFormat($undoJob->ended()));
                 } else {
-                    $status = $this->translate('Undo in progress');
+                    $status = $translate('Undo in progress');
                 }
-
-
             } else {
-                $status = $this->translate($job->status());
+                $status = $translate($job->status());
             }
             ?>
             <?php echo $status; ?>

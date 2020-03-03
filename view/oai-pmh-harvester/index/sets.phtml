@@ -1,20 +1,21 @@
 <?php
 /**
- * Admin sets view.
- * 
- * @package OaipmhHarvester
- * @subpackage Views
- * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
- * @license http://www.gnu.org/licenses/gpl-3.0.txt
+ * @var \Zend\View\Renderer\PhpRenderer $this
+ * @var \OaiPmhHarvester\Form\SetsForm $form
+ * @var string $content
  */
-echo $this->pageTitle($this->translate('Oai-Pmh Please choose sets to import'), 1, $this->translate('Oai-Pmh Harvester')); 
+
+$translate = $this->plugin('translate');
+?>
+<?php
+echo $this->pageTitle($translate('Oai-Pmh Please choose sets to import'), 1, $translate('OAI-PMH Harvester'));
 
 echo $content;
 
-echo $this->form()->openTag($form); 
+echo $this->form()->openTag($form);
 ?>
 <fieldset id='page-actions'>
-    <button type="submit"><?php echo $this->translate('Harvest'); ?></button>
+    <button type="submit"><?php echo $translate('Harvest'); ?></button>
 </fieldset>
 
 <?php echo $this->formCollection($form, false); ?>

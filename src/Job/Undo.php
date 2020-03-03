@@ -13,8 +13,8 @@ class Undo extends AbstractJob
         $harvestEntities = $response->getContent();
         if ($harvestEntities) {
             foreach ($harvestEntities as $harvestEntity) {
-                $harvestResponse = $api->delete('oaipmhharvester_entities', $harvestEntity->id());
-                $entityResponse = $api->delete($harvestEntity->resourceType(), $harvestEntity->entityId());
+                $api->delete('oaipmhharvester_entities', $harvestEntity->id());
+                $api->delete($harvestEntity->resourceType(), $harvestEntity->entityId());
             }
         }
     }

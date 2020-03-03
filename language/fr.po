@@ -1,0 +1,239 @@
+# Translation for the OaipmhHarvester plugin for Omeka.
+# Copyright (C) 2011 Roy Rosenzweig Center for History and New Media
+# This file is distributed under the same license as the Omeka package.
+# Julian Maurice <julian.maurice@biblibre.com>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OaipmhHarvester\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-07-08 00:00+0200\n"
+"PO-Revision-Date: 2019-07-08 00:00+0200\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 2.2.3\n"
+
+#: src/Controller/IndexController.php:57
+msgid "Please choose a set to import."
+msgstr "Merci de choisir un lot à importer."
+
+#: src/Controller/IndexController.php:116
+msgid "Processing job Harvest"
+msgstr "Lancement du moissonnage"
+
+#: view/oai-pmh-harvester/index/index.phtml:10
+msgid "OAI-PMH Base Page"
+msgstr "Page de base OAI-PMH"
+
+#: view/oai-pmh-harvester/index/index.phtml:10
+#: view/oai-pmh-harvester/index/past-harvests.phtml:12
+#: view/oai-pmh-harvester/index/sets.phtml:11
+msgid "OAI-PMH Harvester"
+msgstr "Moissonneur OAI-PMH"
+
+#: view/oai-pmh-harvester/index/index.phtml:14
+msgid "View sets"
+msgstr "Voir les lots"
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:12
+msgid "Past Imports"
+msgstr "Précédents imports"
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:25
+msgid "Undo?"
+msgstr "Défaire ?"
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:26
+msgid "Job ID"
+msgstr "Tâche n°"
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:28
+msgid "Imported content"
+msgstr "Contenus importés"
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:47
+msgid ""
+"Problems were detected with the import. Check the job's log for details."
+msgstr ""
+"Des problèmes ont été détectés lors de l'import. Vérifiez les logs de la "
+"tâches pour davantage de détails."
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:57
+msgid "Undone"
+msgstr "Défait"
+
+#: view/oai-pmh-harvester/index/past-harvests.phtml:59
+msgid "Undo in progress"
+msgstr "Annulation en cours"
+
+#: view/oai-pmh-harvester/index/sets.phtml:11
+msgid "Oai-Pmh Please choose sets to import"
+msgstr "OAI-PMH Merci de choisir les lots à importer."
+
+#: view/oai-pmh-harvester/index/sets.phtml:18
+msgid "Harvest"
+msgstr "Moissonnage"
+
+#: src/Form/HarvestForm.php:17
+msgid "Base URL"
+msgstr "URL de base"
+
+#: src/Form/HarvestForm.php:18
+msgid "The base URL of the OAI-PMH data provider."
+msgstr "L'URL de base du dépôt OAI-PMH."
+
+#: src/Controller/IndexController.php:130
+#, php-format
+msgid "Undo in progress in the following jobs: %s"
+msgstr "Annulation en cours pour les tâches suivantes: %s"
+
+#: config/module.config.php:99
+msgid "Sets"
+msgstr "Lots"
+
+#: config/module.config.php:111
+msgid "Past Harvests"
+msgstr "Moissonnages réalisés"
+
+#~ msgid "Oai-Pmh Harvester"
+#~ msgstr "Moissonneur OAI-PMH"
+
+#~ msgid "Oai Pmh Harvester"
+#~ msgstr "Moissonneur OAI-PMH"
+
+#~ msgid ", "
+#~ msgstr ", "
+
+#~ msgid "queued"
+#~ msgstr "en attente"
+
+#~ msgid "completed"
+#~ msgstr "terminé"
+
+#~ msgid "error"
+#~ msgstr "erreur"
+
+#~ msgid "deleted"
+#~ msgstr "terminé"
+
+#~ msgid "killed"
+#~ msgstr "tué"
+
+#~ msgid "All items created for this harvest were deleted on %s"
+#~ msgstr "Tous les contenus créés par ce moissonnage ont été supprimés le %s"
+
+#~ msgid "No records were found."
+#~ msgstr "Aucun document n'a été trouvé"
+
+#~ msgid "Received resumption token: %s"
+#~ msgstr "Jeton de reprise reçu: %s"
+
+#~ msgid "Did not receive a resumption token."
+#~ msgstr "Le jeton de reprise n'a pas été reçu."
+
+#~ msgid "The repository returned no records."
+#~ msgstr "Le dépôt n'a retourné aucun document."
+
+#~ msgid ""
+#~ "Set \"%1$s\" is being harvested using \"%2$s\". This may take a while. "
+#~ "Please check below for status."
+#~ msgstr ""
+#~ "Le set \"%1$s\" est en train d'être moissonné en utilisant \"%2$s\". Cela "
+#~ "peut prendre un moment. Merci de vérifier le statut ci-dessous."
+
+#~ msgid ""
+#~ "Repository \"%1$s\" is being harvested using \"%2$s\". This may take a "
+#~ "while. Please check below for status."
+#~ msgstr ""
+#~ "Le dépôt \"%1$s\" est en train d'être moissonné en utilisant \"%2$s\". "
+#~ "Cela peut prendre un moment. Merci de vérifier le statut ci-dessous."
+
+#~ msgid " Harvesting is continued from %s."
+#~ msgstr " Le moissonnage est poursuivi depuis %s."
+
+#~ msgid "OAI-PMH Harvester | Harvest"
+#~ msgstr "Moissonneur OAI-PMH | Moissonnage"
+
+#~ msgid "Data provider: "
+#~ msgstr "Fournisseur: "
+
+#~ msgid "Harvest the entire repository:"
+#~ msgstr "Moissonner tout le dépôt"
+
+#~ msgid "Go"
+#~ msgstr "Démarrer"
+
+#~ msgid "Harvest a set:"
+#~ msgstr "Moissonner un set:"
+
+#~ msgid "Set"
+#~ msgstr "Set"
+
+#~ msgid "Set Spec"
+#~ msgstr "Spécification du set"
+
+#~ msgid "This repository does not allow you to harvest individual sets."
+#~ msgstr "Ce dépôt n'autorise pas le moissonnage de sets individuels."
+
+#~ msgid "ID"
+#~ msgstr "ID"
+
+#~ msgid "Set Name"
+#~ msgstr "Nom du set"
+
+#~ msgid "Metadata Prefix"
+#~ msgstr "Préfixe de métadonnée"
+
+#~ msgid "Status"
+#~ msgstr "Statut"
+
+#~ msgid "Initiated"
+#~ msgstr "Démarré"
+
+#~ msgid "Completed"
+#~ msgstr "Terminé"
+
+#~ msgid "[not completed]"
+#~ msgstr "[non terminé]"
+
+#~ msgid "Status Messages"
+#~ msgstr "Messages de statut"
+
+#~ msgid "Warning:"
+#~ msgstr "Avertissement:"
+
+#~ msgid ""
+#~ "Clicking the following link will delete all items created for this "
+#~ "harvest. "
+#~ msgstr ""
+#~ "Cliquer sur le lien suivant supprimera tous les contenus créés par ce "
+#~ "moissonnage. "
+
+#~ msgid "Data Provider"
+#~ msgstr "Fournisseur"
+
+#~ msgid "There are no harvests."
+#~ msgstr "Il n'y a pas de moissonnages."
+
+#~ msgid "[Entire Repository]"
+#~ msgstr "[Dépôt entier]"
+
+#~ msgid "Re-Harvest"
+#~ msgstr "Re-moissonner"
+
+#~ msgid "Duplicate Harvested Items"
+#~ msgstr "Contenus moissonnés en doublon"
+
+#~ msgid ""
+#~ "While you will not lose the items and collections created by your "
+#~ "harvests, you will lose all harvest-specific metadata and the ability to "
+#~ "re-harvest."
+#~ msgstr ""
+#~ "Bien que vous ne perdrez pas les contenus et collections créés par vos "
+#~ "moissonnages, vous perdrez toutes les métadonnées spécifiques à ces "
+#~ "moissonnages ainsi que la capacité de re-moissonner."

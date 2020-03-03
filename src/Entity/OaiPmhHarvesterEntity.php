@@ -32,7 +32,7 @@ class OaiPmhHarvesterEntity extends AbstractEntity
      * @Column(type="string")
      */
     protected $resource_type;
-    
+
     public function getId()
     {
         return $this->id;
@@ -56,8 +56,8 @@ class OaiPmhHarvesterEntity extends AbstractEntity
     public function getJob()
     {
         return $this->job;
-    } 
-    
+    }
+
     public function setResourceType($resourceType)
     {
         $this->resource_type = $resourceType;
@@ -66,5 +66,5 @@ class OaiPmhHarvesterEntity extends AbstractEntity
     public function getResourceType()
     {
         return $this->resource_type;
-    }    
+    }
 }
