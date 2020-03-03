@@ -11,7 +11,7 @@ class EntityAdapter extends AbstractEntityAdapter
 {
     public function getEntityClass()
     {
-        return 'OaiPmhHarvester\Entity\OaiPmhHarvesterEntity';
+        return \OaiPmhHarvester\Entity\Entity::class;
     }
 
     public function getResourceName()
@@ -21,47 +21,54 @@ class EntityAdapter extends AbstractEntityAdapter
 
     public function getRepresentationClass()
     {
-        return 'OaiPmhHarvester\Api\Representation\EntityRepresentation';
+        return \OaiPmhHarvester\Api\Representation\EntityRepresentation::class;
     }
 
     public function buildQuery(QueryBuilder $qb, array $query)
     {
+        $isOldOmeka = \Omeka\Module::VERSION < 2;
+        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
+        $expr = $qb->expr();
+
         if (isset($query['job_id'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.job',
+            $qb->andWhere($expr->eq(
+                $alias . '.job',
                 $this->createNamedParameter($qb, $query['job_id']))
             );
         }
         if (isset($query['entity_id'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.entity_id',
+            $qb->andWhere($expr->eq(
+                $alias . '.entity_id',
                 $this->createNamedParameter($qb, $query['entity_id']))
             );
         }
-        
+
         if (isset($query['resource_type'])) {
-            $qb->andWhere($qb->expr()->eq(
-                $this->getEntityClass() . '.resource_type',
+            $qb->andWhere($expr->eq(
+                $alias . '.resource_type',
                 $this->createNamedParameter($qb, $query['resource_type']))
             );
-        }        
+        }
     }
 
     public function hydrate(Request $request, EntityInterface $entity,
         ErrorStore $errorStore
     ) {
         $data = $request->getContent();
-        if (isset($data['o:job']['o:id'])) {
-            $job = $this->getAdapter('jobs')->findEntity($data['o:job']['o:id']);
+
+        if (array_key_exists('o:job', $data)) {
+            $job = isset($data['o:job']['o:id'])
+                ? $this->getAdapter('jobs')->findEntity($data['o:job']['o:id'])
+                : null;
             $entity->setJob($job);
         }
 
-        if (isset($data['resource_type'])) {
-            $entity->setResourceType($data['resource_type']);
+        if (array_key_exists('o-module-oai-pmh-harvester:entity_id', $data)) {
+            $entity->setEntityId($data['o-module-oai-pmh-harvester:entity_id']);
         }
-        
-        if (isset($data['entity_id'])) {
-            $entity->setEntityId($data['entity_id']);
+
+        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
+            $entity->setResourceType($data['o-module-oai-pmh-harvester:resource_type']);
         }
     }
 }

@@ -1,55 +1,62 @@
 <?php
 namespace OaiPmhHarvester\Form;
 
+use Zend\Form\Element;
 use Zend\Form\Form;
 
 class HarvestForm extends Form
 {
-
     public function init()
     {
         $this->setAttribute('action', 'oaipmhharvester/sets');
-/*
-        $this->add([
-                'name' => 'csv',
-                'type' => 'file',
+
+        $this
+            ->add([
+                'name' => 'endpoint',
+                'type' => Element\Text::class,
                 'options' => [
-                    'label' => 'CSV file', // @translate
-                    'info' => 'The CSV file to upload', //@translate
+                    'label' => 'OAI-PMH endpoint', // @translate
+                    'info' => 'The base URL of the OAI-PMH data provider.', // @translate
                 ],
                 'attributes' => [
-                    'id' => 'csv',
-                    'required' => 'true',
+                    'id' => 'endpoint',
+                    'required' => true,
+                    // The protocol requires http, but most of repositories
+                    // support it.
+                    'placeholder' => 'https://example.org/oai-pmh-repository/request',
                 ],
-        ]);
-*/
-
-        $this->add([
-            'name' => 'base_url',
-            'type' => 'text',
-            'options' => [
-                'label' => 'Base URL', // @translate
-                'info' => 'The base URL of the OAI-PMH data provider.', //@translate
-            ],
-            'attributes' => [
-                'id' => 'base_url',
-                'required' => 'true',
-                'value' => 'http://localhost/bacasable/oai-pmh-repository/request',
-                'size' => 60,
-            ],                      
-        ]);
-        
-/*
-        $this->applyOmekaStyles();
-        $this->setAutoApplyOmekaStyles(false);
-*/
-        
+            ])
+            ->add([
+                'name' => 'harvest_all_records',
+                'type' => Element\Checkbox::class,
+                'options' => [
+                    'label' => 'Skip listing of sets and harvest all records', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'harvest_all_records',
+                ],
+            ])
+            ->add([
+                'name' => 'sets',
+                'type' => Element\Textarea::class,
+                'options' => [
+                    'label' => 'Skip listing of sets and harvest only these sets', // @translate
+                    'info' => 'Set one set identifier and a metadata prefix by line. Separate the set and the prefix by "=". If no prefix is set, "dcterms" or "oai_dc" will be used.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'sets',
+                    'row' => 10,
+                    'placeholder' => 'digital:serie-alpha = mets
+humanities:serie-beta',
+                ],
+            ])
+        ;
 
         $inputFilter = $this->getInputFilter();
-        $inputFilter->add([
-            'name' => 'base_url',
-            'required' => true,
-        ]);
+        $inputFilter
+            ->add([
+                'name' => 'endpoint',
+                'required' => true,
+            ]);
     }
-
 }
