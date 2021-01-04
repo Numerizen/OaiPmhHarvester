@@ -26,26 +26,24 @@ class EntityAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
-        $isOldOmeka = \Omeka\Module::VERSION < 2;
-        $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
         $expr = $qb->expr();
 
         if (isset($query['job_id'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.job',
+                'omeka_root.job',
                 $this->createNamedParameter($qb, $query['job_id']))
             );
         }
         if (isset($query['entity_id'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.entity_id',
+                'omeka_root.entity_id',
                 $this->createNamedParameter($qb, $query['entity_id']))
             );
         }
 
         if (isset($query['resource_type'])) {
             $qb->andWhere($expr->eq(
-                $alias . '.resource_type',
+                'omeka_root.resource_type',
                 $this->createNamedParameter($qb, $query['resource_type']))
             );
         }
