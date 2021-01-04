@@ -31,20 +31,22 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     public $__isInitialized__ = false;
 
     /**
-     * @var array properties to be lazy loaded, with keys being the property
-     *            names and values being their default values
+     * @var array<string, null> properties to be lazy loaded, indexed by property name
+     */
+    public static $lazyPropertiesNames = array (
+);
+
+    /**
+     * @var array<string, mixed> default values of properties to be lazy loaded, with keys being the property names
      *
      * @see \Doctrine\Common\Proxy\Proxy::__getLazyProperties
      */
-    public static $lazyPropertiesDefaults = [];
+    public static $lazyPropertiesDefaults = array (
+);
 
 
 
-    /**
-     * @param \Closure $initializer
-     * @param \Closure $cloner
-     */
-    public function __construct($initializer = null, $cloner = null)
+    public function __construct(?\Closure $initializer = null, ?\Closure $cloner = null)
     {
 
         $this->__initializer__ = $initializer;
@@ -82,7 +84,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
 
                 $existingProperties = get_object_vars($proxy);
 
-                foreach ($proxy->__getLazyProperties() as $property => $defaultValue) {
+                foreach ($proxy::$lazyPropertiesDefaults as $property => $defaultValue) {
                     if ( ! array_key_exists($property, $existingProperties)) {
                         $proxy->$property = $defaultValue;
                     }
@@ -165,6 +167,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      * @internal generated method: use only when explicitly handling proxy specific loading logic
+     * @deprecated no longer in use - generated code now relies on internal components rather than generated public API
      * @static
      */
     public function __getLazyProperties()
@@ -213,12 +216,12 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setUndoJob(\Omeka\Entity\Job $job)
+    public function setUndoJob(\Omeka\Entity\Job $undoJob = NULL)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUndoJob', [$job]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUndoJob', [$undoJob]);
 
-        return parent::setUndoJob($job);
+        return parent::setUndoJob($undoJob);
     }
 
     /**

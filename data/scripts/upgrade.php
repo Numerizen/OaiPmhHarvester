@@ -146,3 +146,11 @@ SET stats = "{}";
 SQL;
     $connection->exec($sql);
 }
+
+if (version_compare($oldVersion, '3.3.0.7', '<')) {
+    $sql = <<<'SQL'
+ALTER TABLE `oaipmhharvester_harvest`
+CHANGE `stats` `stats` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
+SQL;
+    $connection->exec($sql);
+}
