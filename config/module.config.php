@@ -31,7 +31,7 @@ return [
             'admin' => [
                 'child_routes' => [
                     'oaipmhharvester' => [
-                        'type' => \Zend\Router\Http\Literal::class,
+                        'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
                             'route' => '/oaipmhharvester',
                             'defaults' => [
@@ -43,7 +43,7 @@ return [
                         'may_terminate' => true,
                         'child_routes' => [
                             'sets' => [
-                                'type' => \Zend\Router\Http\Literal::class,
+                                'type' => \Laminas\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/sets',
                                     'defaults' => [
@@ -52,7 +52,7 @@ return [
                                 ],
                             ],
                             'harvest' => [
-                                'type' => \Zend\Router\Http\Literal::class,
+                                'type' => \Laminas\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/harvest',
                                     'defaults' => [
@@ -61,7 +61,7 @@ return [
                                 ],
                             ],
                             'past-harvests' => [
-                                'type' => \Zend\Router\Http\Literal::class,
+                                'type' => \Laminas\Router\Http\Literal::class,
                                 'options' => [
                                     'route' => '/past-harvests',
                                     'defaults' => [

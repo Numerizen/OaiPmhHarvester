@@ -4,8 +4,8 @@ namespace OaiPmhHarvester\Controller\Admin;
 use OaiPmhHarvester\Form\HarvestForm;
 use OaiPmhHarvester\Form\SetsForm;
 use Omeka\Stdlib\Message;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 
 class IndexController extends AbstractActionController
 {

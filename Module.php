@@ -2,7 +2,7 @@
 namespace OaiPmhHarvester;
 
 use Omeka\Module\AbstractModule;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
 
 class Module extends AbstractModule
 {

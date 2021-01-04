@@ -34,7 +34,7 @@ class Harvest extends AbstractJob
     protected $api;
 
     /**
-     * @var \Zend\Log\Logger
+     * @var \Laminas\Log\Logger
      */
     protected $logger;
 
