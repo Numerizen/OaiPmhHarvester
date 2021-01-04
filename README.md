@@ -71,7 +71,7 @@ your archives regularly so you can roll back if needed.
 Troubleshooting
 ---------------
 
-See online issues on the [module issues] page on GitHub.
+See online issues on the [module issues] page on GitLab.
 
 
 License
@@ -102,7 +102,7 @@ Copyright
 * Copyright Daniel Berthereau, 2015-2020 (see [Daniel-KM])
 
 
-[OAI-PMH Harvester]: https://github.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester
+[OAI-PMH Harvester]: https://gitlab.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester
 [Omeka S]: https://omeka.org/s
 [Omeka Classic]: https://omeka.org/classic
 [plugin]: https://github.com/omeka/plugin-OaipmhHarvester
@@ -113,8 +113,8 @@ Copyright
 [MARCXML]: http://www.loc.gov/standards/marcxml
 [RFC 1807]: http://www.ietf.org/rfc/rfc1807.txt
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
-[module issues]: https://github.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester/issues
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester/-/issues
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [Numerizen]: http://omeka.numerizen.com
 [GitLab]: https://gitlab.com/Daniel-KM
-[Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
+[Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
