@@ -54,7 +54,7 @@ class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
     /**
      * Harvest one record.
      *
-     * @param SimpleXMLIterator $record XML metadata record
+     * @param \SimpleXMLIterator $record XML metadata record
      * @return array Array of item-level, element texts and file metadata.
      */
     protected function _harvestRecord($record)
@@ -102,8 +102,8 @@ class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
      * if the structmap doesn't exist in the xml schema null
      * will be returned.
      *
-     * @param type $record
-     * @return type array/null
+     * @param \SimpleXMLElement $record
+     * @return array|null
      */
     private function _getMap($record)
     {
@@ -133,8 +133,8 @@ class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
      * Convenience funciton that returns the
      * xmls dmdSec as an Omeka ElementTexts array
      *
-     * @param type $record
-     * @return boolean/array
+     * @param \SimpleXMLElement $record
+     * @return array|null
      */
     private function _dmdSecToArray($record)
     {

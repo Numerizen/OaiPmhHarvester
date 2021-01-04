@@ -24,7 +24,7 @@ class OaipmhHarvester_Harvest_OaiDc extends OaipmhHarvester_Harvest_Abstract
 
     /**
      * Collection to insert items into.
-     * @var Collection
+     * @var \Omeka\Api\Representation\ItemSetRepresentation
      */
     protected $_collection;
 
@@ -50,7 +50,7 @@ class OaipmhHarvester_Harvest_OaiDc extends OaipmhHarvester_Harvest_Abstract
     /**
      * Harvest one record.
      *
-     * @param SimpleXMLIterator $record XML metadata record
+     * @param \SimpleXMLIterator $record XML metadata record
      * @return array Array of item-level, element texts and file metadata.
      */
     protected function _harvestRecord($record)

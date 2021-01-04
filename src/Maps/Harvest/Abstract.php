@@ -266,15 +266,14 @@ abstract class OaipmhHarvester_Harvest_Abstract
     }
 
     /**
-     * Insert a collection.
+     * Insert an item set.
      *
-     * @see insert_collection()
      * @param array $metadata
-     * @return Collection
+     * @return \Omeka\Api\Representation\ItemSetRepresentation
      */
     final protected function _insertCollection($metadata = [])
     {
-        // If collection_id is not null, use the existing collection, do not
+        // If item set is not null, use the existing collection, do not
         // create a new one.
         if (($collection_id = $this->_harvest->collection_id)) {
             $collection = get_db()->getTable('Collection')->find($collection_id);
@@ -283,7 +282,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
             // harvest is repository-wide, set it to the base URL.
             if (!isset($metadata['elementTexts']['Dublin Core']['Title']['text']) ||
                 !$metadata['elementTexts']['Dublin Core']['Title']['text']) {
-                $$metadata['elementTexts']['Dublin Core']['Title']['text'] = $this->_harvest->base_url;
+                $metadata['elementTexts']['Dublin Core']['Title']['text'] = $this->_harvest->base_url;
             }
 
             $collection = insert_collection($metadata['metadata'], $metadata['elementTexts']);
