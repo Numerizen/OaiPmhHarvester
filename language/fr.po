@@ -112,7 +112,7 @@ msgstr "Détails de la tâche"
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:80
 msgid ""
-"Problems were detected with the import. Check the job‘s log for details."
+"Problems were detected with the import. Check the job’s log for details."
 msgstr ""
 "Des problèmes ont été détectés lors de l’import. Vérifiez les journaux de la "
 "tâche pour davantage de détails."

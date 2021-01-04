@@ -109,7 +109,7 @@ msgstr ""
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:80
 msgid ""
-"Problems were detected with the import. Check the job‘s log for details."
+"Problems were detected with the import. Check the job’s log for details."
 msgstr ""
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:87
