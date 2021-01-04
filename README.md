@@ -2,7 +2,8 @@ OAI-PMH Harvester (plugin for Omeka)
 ====================================
 
 > __New versions of this module and support for Omeka S version 3.0 and above
-> are available on [GitLab], which seems to respect users and privacy better.__
+> are available on [GitLab], which seems to respect users and privacy better
+> than the previous repository.__
 
 [OAI-PMH Harvester] is a plugin for [Omeka S] that allows to import records from
 OAI-PMH data providers.
@@ -99,7 +100,7 @@ Copyright
 
 * Copyright 2008-2013 Roy Rosenzweig Center for History and New Media
 * Copyright Vincent Buard, 2017 (see [Numerizen])
-* Copyright Daniel Berthereau, 2015-2020 (see [Daniel-KM])
+* Copyright Daniel Berthereau, 2015-2021 (see [Daniel-KM])
 
 
 [OAI-PMH Harvester]: https://gitlab.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester
