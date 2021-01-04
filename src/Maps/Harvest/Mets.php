@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package OaipmhHarvester
  * @subpackage Models
@@ -33,7 +33,7 @@ class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
 
     protected $_collection;
 
-    protected function _beforeHarvest()
+    protected function _beforeHarvest(): void
     {
         $harvest = $this->_getHarvest();
 

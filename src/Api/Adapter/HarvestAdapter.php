@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace OaiPmhHarvester\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -24,7 +24,7 @@ class HarvestAdapter extends AbstractEntityAdapter
         return \OaiPmhHarvester\Api\Representation\HarvestRepresentation::class;
     }
 
-    public function buildQuery(QueryBuilder $qb, array $query)
+    public function buildQuery(QueryBuilder $qb, array $query): void
     {
         $isOldOmeka = \Omeka\Module::VERSION < 2;
         $alias = $isOldOmeka ? $this->getEntityClass() : 'omeka_root';
@@ -47,7 +47,7 @@ class HarvestAdapter extends AbstractEntityAdapter
 
     public function hydrate(Request $request, EntityInterface $entity,
         ErrorStore $errorStore
-    ) {
+    ): void {
         $data = $request->getContent();
 
         if (array_key_exists('o:job', $data)) {

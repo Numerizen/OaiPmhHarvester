@@ -1,11 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 namespace OaiPmhHarvester\Controller\Admin;
 
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\ViewModel;
 use OaiPmhHarvester\Form\HarvestForm;
 use OaiPmhHarvester\Form\SetsForm;
 use Omeka\Stdlib\Message;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
 
 class IndexController extends AbstractActionController
 {

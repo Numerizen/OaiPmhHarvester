@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @package OaipmhHarvester
  * @subpackage Models
@@ -63,7 +63,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
         $this->_harvest = $harvest;
     }
 
-    public function setOption($key, $value)
+    public function setOption($key, $value): void
     {
         $this->_options[$key] = $value;
     }
@@ -157,7 +157,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
     /**
      * @internal Bad names for all of these methods, fixme.
      */
-    private function _harvestLoop($record)
+    private function _harvestLoop($record): void
     {
         // Ignore (skip over) deleted records.
         if ($this->isDeletedRecord($record)) {
@@ -207,7 +207,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      *
      * @param Item $item The item object corresponding to the record.
      */
-    private function _insertRecord($item)
+    private function _insertRecord($item): void
     {
         $record = new OaipmhHarvester_Record;
 
@@ -225,7 +225,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      *
      * @param OaipmhHarvester_Record The model object corresponding to the record.
      */
-    private function _updateRecord(OaipmhHarvester_Record $record)
+    private function _updateRecord(OaipmhHarvester_Record $record): void
     {
         $record->datestamp = (string) $this->_record->header->datestamp;
         $record->save();
@@ -249,7 +249,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      *
      * @see self::__construct()
      */
-    protected function _beforeHarvest()
+    protected function _beforeHarvest(): void
     {
     }
 
@@ -261,7 +261,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      *
      * @see self::__construct()
      */
-    protected function _afterHarvest()
+    protected function _afterHarvest(): void
     {
     }
 
@@ -328,14 +328,12 @@ abstract class OaipmhHarvester_Harvest_Abstract
         if (isset($fileMetadata['files'])) {
 
             // The default file transfer type is URL.
-            $fileTransferType = isset($fileMetadata['file_transfer_type'])
-                ? $fileMetadata['file_transfer_type']
-                : 'Url';
+            $fileTransferType = $fileMetadata['file_transfer_type']
+                ?? 'Url';
 
             // The default option is ignore invalid files.
-            $fileOptions = isset($fileMetadata['file_ingest_options'])
-                ? $fileMetadata['file_ingest_options']
-                : ['ignore_invalid_files' => true];
+            $fileOptions = $fileMetadata['file_ingest_options']
+                ?? ['ignore_invalid_files' => true];
 
             // Prepare the files value for one-file-at-a-time iteration.
             $files = [$fileMetadata['files']];
@@ -411,7 +409,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
         $message,
         $messageCode = null,
         $delimiter = "\n\n"
-    ) {
+    ): void {
         $this->_harvest->addStatusMessage($message, $messageCode, $delimiter);
     }
 
@@ -464,7 +462,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
     /**
      * Harvest records from the OAI-PMH repository.
      */
-    final public function harvest()
+    final public function harvest(): void
     {
         try {
             $this->_harvest->status =
@@ -502,7 +500,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
         _log("[OaipmhHarvester] Peak memory usage: $peakUsage", Zend_Log::INFO);
     }
 
-    private function _stopWithError($e)
+    private function _stopWithError($e): void
     {
         $this->_addStatusMessage($e->getMessage(), self::MESSAGE_CODE_ERROR);
         $this->_harvest->status = OaipmhHarvester_Harvest::STATUS_ERROR;

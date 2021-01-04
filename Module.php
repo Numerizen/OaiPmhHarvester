@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 namespace OaiPmhHarvester;
 
-use Omeka\Module\AbstractModule;
 use Laminas\ServiceManager\ServiceLocatorInterface;
+use Omeka\Module\AbstractModule;
 
 class Module extends AbstractModule
 {
@@ -11,19 +11,19 @@ class Module extends AbstractModule
         return include __DIR__ . '/config/module.config.php';
     }
 
-    public function install(ServiceLocatorInterface $serviceLocator)
+    public function install(ServiceLocatorInterface $serviceLocator): void
     {
         $this->setServiceLocator($serviceLocator);
         $this->execSqlFromFile(__DIR__ . '/data/install/schema.sql');
     }
 
-    public function uninstall(ServiceLocatorInterface $serviceLocator)
+    public function uninstall(ServiceLocatorInterface $serviceLocator): void
     {
         $this->setServiceLocator($serviceLocator);
         $this->execSqlFromFile(__DIR__ . '/data/install/uninstall.sql');
     }
 
-    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator)
+    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator): void
     {
         $this->setServiceLocator($serviceLocator);
         require_once __DIR__ . '/data/scripts/upgrade.php';

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace OaiPmhHarvester\Job;
 
 use Omeka\Api\Exception\NotFoundException;
@@ -7,7 +7,7 @@ use Omeka\Stdlib\Message;
 
 class Undo extends AbstractJob
 {
-    public function perform()
+    public function perform(): void
     {
         // TODO Improve memory management for deletion of previous harvest and allow to stop.
 

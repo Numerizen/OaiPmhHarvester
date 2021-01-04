@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace OaiPmhHarvester\Job;
 
 use Omeka\Job\AbstractJob;
@@ -227,7 +227,7 @@ class Harvest extends AbstractJob
         ));
     }
 
-    protected function createItems($toCreate)
+    protected function createItems($toCreate): void
     {
         if (empty($toCreate)) {
             return;

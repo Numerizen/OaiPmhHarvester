@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 namespace OaiPmhHarvester\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
