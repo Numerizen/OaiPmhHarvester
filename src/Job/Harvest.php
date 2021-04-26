@@ -133,7 +133,7 @@ class Harvest extends AbstractJob
                 $url = $args['endpoint'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
             } else {
                 $url = $args['endpoint'] . "?metadataPrefix=" . $args['metadata_prefix'] . '&verb=ListRecords';
-                if (strlen($args['set_spec'])) {
+                if (isset($args['set_spec']) && strlen((string) $args['set_spec'])) {
                     $url .= '&set=' . $args['set_spec'];
                 }
             }
@@ -347,7 +347,7 @@ class Harvest extends AbstractJob
             // Extract xsi type if any.
             $attributes = iterator_to_array($value->attributes('xsi', true));
             $type = empty($attributes['type']) ? null : trim($attributes['type']);
-            $type = in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
+            $type = $type && in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
 
             $val = [
                 'property_id' => $propertyId,
