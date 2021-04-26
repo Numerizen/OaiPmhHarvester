@@ -339,7 +339,7 @@ class Harvest extends AbstractJob
         $data = [];
         $localName = $this->dcProperties[$propertyId];
         foreach ($metadata->$localName as $value) {
-            $text = trim($value);
+            $text = trim((string) $value);
             if (!mb_strlen($text)) {
                 continue;
             }
