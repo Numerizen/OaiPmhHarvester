@@ -88,9 +88,9 @@ class IndexController extends AbstractActionController
         $sets = [];
         $predefinedSets = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $post['sets']))), 'strlen');
         foreach ($predefinedSets as $set) {
-            $id = trim(strtok($set, '='));
+            $id = trim((string) strtok($set, '='));
             if (strlen($id)) {
-                $sets[$id] = trim(strtok('=')) ?: $favoriteFormat;
+                $sets[$id] = trim((string) strtok('=')) ?: $favoriteFormat;
             }
         }
 

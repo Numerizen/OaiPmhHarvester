@@ -365,7 +365,7 @@ class Harvest extends AbstractJob
                 default:
                     // Extract xml language if any.
                     $attributes = iterator_to_array($value->attributes('xml', true));
-                    $language = empty($attributes['lang']) ? null : trim($attributes['lang']);
+                    $language = empty((string) $attributes['lang']) ? null : trim((string) $attributes['lang']);
 
                     $val['@value'] = $text;
                     $val['@language'] = $language;
