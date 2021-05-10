@@ -402,7 +402,7 @@ class IndexController extends AbstractActionController
 
         return [
             'total' => $totalSets,
-            'sets' => array_slice($sets, 0, $this->maxListSets),
+            'sets' => array_slice($sets, 0, $this->maxListSets, true),
         ];
     }
 }
