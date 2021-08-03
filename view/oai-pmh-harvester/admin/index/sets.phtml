@@ -1,0 +1,39 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \OaiPmhHarvester\Form\SetsForm $form
+ * @var string $repositoryName
+ * @var int|null $total
+ * @var bool $harvestAllRecords
+ */
+
+$translate = $this->plugin('translate');
+
+$sets = $form->getOption('sets');
+?>
+
+<?= $this->pageTitle($translate('Prepare import'), 1, $translate('OAI-PMH Harvester')) ?>
+<h2><?= $repositoryName ?></h2>
+<p>
+    <?php if (is_null($total)): ?>
+        <?= $translate('This repository has an undefined number of sets.') ?>
+    <?php else: ?>
+        <?= sprintf($translate('This repository has %d sets.'), $total) ?>
+        <?php if ($total > count($sets)): ?>
+            <?= sprintf($translate('Only the first %d are displayed.'), count($sets)) ?>
+        <?php endif; ?>
+    <?php endif; ?>
+</p>
+
+<?php if (!$harvestAllRecords): ?>
+<p>
+    <?= $translate('Please choose a set to import.') ?>
+</p>
+<?php endif; ?>
+
+<?= $this->form()->openTag($form) ?>
+<fieldset id="page-actions">
+    <button type="submit"><?= $translate('Harvest') ?></button>
+</fieldset>
+<?= $this->formCollection($form, false) ?>
+<?= $this->form()->closeTag($form) ?>

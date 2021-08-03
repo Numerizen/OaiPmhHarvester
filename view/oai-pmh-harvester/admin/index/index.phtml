@@ -1,0 +1,18 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \OaiPmhHarvester\Form\HarvestForm $form
+ */
+
+$translate = $this->plugin('translate');
+?>
+
+<?php echo $this->pageTitle($translate('Set repository to harvest'), 1, $translate('OAI-PMH Harvester')); ?>
+
+<?php echo $this->form()->openTag($form); ?>
+<fieldset id='page-actions'>
+    <button type="submit"><?php echo $translate('View sets'); ?></button>
+</fieldset>
+<?php echo $this->formCollection($form, false); ?>
+
+<?php echo $this->form()->closeTag($form); ?>
