@@ -31,12 +31,15 @@ class Entity extends AbstractEntity
      *     targetEntity=\Omeka\Entity\Job::class
      * )
      * @JoinColumn(
-     *     nullable=false
+     *     nullable=false,
+     *     onDelete="CASCADE"
      * )
      */
     protected $job;
 
     /**
+     * API resource id (not necessarily an Omeka main Resource).
+     *
      * @var int
      *
      * @Column(
@@ -46,7 +49,7 @@ class Entity extends AbstractEntity
     protected $entityId;
 
     /**
-     * API resource type (not neccesarily a Resource class)
+     * API resource name (not necessarily an Omeka main Resource).
      *
      * @var string
      *
@@ -55,7 +58,7 @@ class Entity extends AbstractEntity
      *     length=190
      * )
      */
-    protected $resourceType;
+    protected $entityName;
 
     public function getId()
     {
@@ -84,14 +87,14 @@ class Entity extends AbstractEntity
         return $this->entityId;
     }
 
-    public function setResourceType(string $resourceType): self
+    public function setEntityName(string $entityName): self
     {
-        $this->resourceType = $resourceType;
+        $this->entityName = $entityName;
         return $this;
     }
 
-    public function getResourceType(): string
+    public function getEntityName(): string
     {
-        return $this->resourceType;
+        return $this->entityName;
     }
 }

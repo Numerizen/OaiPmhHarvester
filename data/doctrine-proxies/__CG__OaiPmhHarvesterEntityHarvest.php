@@ -26,7 +26,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * @var boolean flag indicating if this object was already initialized
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__isInitialized
+     * @see \Doctrine\Persistence\Proxy::__isInitialized
      */
     public $__isInitialized__ = false;
 
@@ -66,10 +66,10 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'resourceType', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
+            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'entityName', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
         }
 
-        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'resourceType', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
+        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'entityName', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
     }
 
     /**
@@ -194,7 +194,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setJob(\Omeka\Entity\Job $job)
+    public function setJob(\Omeka\Entity\Job $job): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setJob', [$job]);
@@ -205,7 +205,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getJob()
+    public function getJob(): \Omeka\Entity\Job
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getJob', []);
@@ -216,7 +216,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setUndoJob(\Omeka\Entity\Job $undoJob = NULL)
+    public function setUndoJob(?\Omeka\Entity\Job $undoJob): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setUndoJob', [$undoJob]);
@@ -227,7 +227,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getUndoJob()
+    public function getUndoJob(): ?\Omeka\Entity\Job
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUndoJob', []);
@@ -238,7 +238,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setComment($comment)
+    public function setComment(?string $comment): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setComment', [$comment]);
@@ -249,7 +249,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getComment()
+    public function getComment(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getComment', []);
@@ -260,7 +260,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setEndpoint($endpoint)
+    public function setEndpoint(string $endpoint): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEndpoint', [$endpoint]);
@@ -271,7 +271,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEndpoint', []);
@@ -282,29 +282,29 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setResourceType($resourceType)
+    public function setEntityName(string $entityName): \OaiPmhHarvester\Entity\Harvest
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResourceType', [$resourceType]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEntityName', [$entityName]);
 
-        return parent::setResourceType($resourceType);
+        return parent::setEntityName($entityName);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getResourceType()
+    public function getEntityName(): string
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResourceType', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEntityName', []);
 
-        return parent::getResourceType();
+        return parent::getEntityName();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setItemSet(\Omeka\Entity\ItemSet $itemSet = NULL)
+    public function setItemSet(?\Omeka\Entity\ItemSet $itemSet): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setItemSet', [$itemSet]);
@@ -315,7 +315,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getItemSet()
+    public function getItemSet(): ?\Omeka\Entity\ItemSet
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getItemSet', []);
@@ -326,7 +326,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setMetadataPrefix($metadataPrefix)
+    public function setMetadataPrefix($metadataPrefix): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMetadataPrefix', [$metadataPrefix]);
@@ -337,7 +337,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getMetadataPrefix()
+    public function getMetadataPrefix(): string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMetadataPrefix', []);
@@ -348,7 +348,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setSetSpec($setSpec)
+    public function setSetSpec(?string $setSpec): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetSpec', [$setSpec]);
@@ -359,7 +359,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getSetSpec()
+    public function getSetSpec(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetSpec', []);
@@ -370,7 +370,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setSetName($setName)
+    public function setSetName(?string $setName): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetName', [$setName]);
@@ -381,7 +381,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getSetName()
+    public function getSetName(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetName', []);
@@ -392,7 +392,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setSetDescription($setDescription)
+    public function setSetDescription(?string $setDescription): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSetDescription', [$setDescription]);
@@ -403,7 +403,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getSetDescription()
+    public function getSetDescription(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSetDescription', []);
@@ -414,7 +414,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setHasErr($hasErr)
+    public function setHasErr($hasErr): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setHasErr', [$hasErr]);
@@ -425,7 +425,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getHasErr()
+    public function getHasErr(): bool
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getHasErr', []);
@@ -436,7 +436,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setStats($stats)
+    public function setStats(?array $stats): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStats', [$stats]);
@@ -447,7 +447,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getStats()
+    public function getStats(): ?array
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStats', []);
@@ -458,7 +458,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setResumptionToken($resumptionToken)
+    public function setResumptionToken(?string $resumptionToken): \OaiPmhHarvester\Entity\Harvest
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResumptionToken', [$resumptionToken]);
@@ -469,7 +469,7 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getResumptionToken()
+    public function getResumptionToken(): ?string
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResumptionToken', []);

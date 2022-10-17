@@ -2,6 +2,7 @@
 
 namespace OaiPmhHarvester\Job;
 
+use Omeka\Api\Representation\AbstractRepresentation;
 use Omeka\Job\AbstractJob;
 use SimpleXMLElement;
 
@@ -42,7 +43,7 @@ class Harvest extends AbstractJob
 
     protected $hasErr = false;
 
-    protected $resource_type;
+    protected $entity_name;
 
     protected $dcProperties;
 
@@ -79,7 +80,7 @@ class Harvest extends AbstractJob
             'o:job' => ['o:id' => $this->job->getId()],
             'o:undo_job' => null,
             'o-module-oai-pmh-harvester:comment' => 'Harvesting started', // @translate
-            'o-module-oai-pmh-harvester:resource_type' => $this->getArg('resource_type', 'items'),
+            'o-module-oai-pmh-harvester:entity_name' => $this->getArg('entity_name', 'items'),
             'o-module-oai-pmh-harvester:endpoint' => $args['endpoint'],
             'o:item_set' => ['o:id' => $args['item_set_id']],
             'o-module-oai-pmh-harvester:metadata_prefix' => $args['metadata_prefix'],
@@ -380,12 +381,12 @@ class Harvest extends AbstractJob
         return $data;
     }
 
-    protected function buildImportEntity($resource)
+    protected function buildImportEntity(AbstractRepresentation $resource): array
     {
         return [
             'o:job' => ['o:id' => $this->job->getId()],
             'o-module-oai-pmh-harvester:entity_id' => $resource->id(),
-            'o-module-oai-pmh-harvester:resource_type' => $this->getArg('entity_type', 'items'),
+            'o-module-oai-pmh-harvester:entity_name' => $this->getArg('entity_name', 'items'),
         ];
     }
 }

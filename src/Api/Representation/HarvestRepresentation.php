@@ -25,7 +25,7 @@ class HarvestRepresentation extends AbstractEntityRepresentation
             'o:undo_job' => $undoJob,
             'o-module-oai-pmh-harvester:comment' => $this->comment(),
             'o-module-oai-pmh-harvester:endpoint' => $this->endpoint(),
-            'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
+            'o-module-oai-pmh-harvester:entity_name' => $this->entityName(),
             'o:item_set' => $itemSet(),
             'o-module-oai-pmh-harvester:metadata_prefix' => $this->metadataPrefix(),
             'o-module-oai-pmh-harvester:set_spec' => $this->getSetSpec(),
@@ -64,9 +64,9 @@ class HarvestRepresentation extends AbstractEntityRepresentation
         return $this->resource->getEndpoint();
     }
 
-    public function resourceType(): string
+    public function entityName(): string
     {
-        return $this->resource->getResourceType();
+        return $this->resource->getEntityName();
     }
 
     public function itemSet(): ?ItemSetRepresentation

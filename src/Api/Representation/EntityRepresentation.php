@@ -12,7 +12,7 @@ class EntityRepresentation extends AbstractEntityRepresentation
         return [
             'o:job' => $this->job()->getReference(),
             'o-module-oai-pmh-harvester:entity_id' => $this->entityId(),
-            'o-module-oai-pmh-harvester:resource_type' => $this->resourceType(),
+            'o-module-oai-pmh-harvester:entity_name' => $this->entityName(),
         ];
     }
 
@@ -32,8 +32,8 @@ class EntityRepresentation extends AbstractEntityRepresentation
         return $this->resource->getEntityId();
     }
 
-    public function resourceType(): string
+    public function entityName(): string
     {
-        return $this->resource->getResourceType();
+        return $this->resource->getEntityName();
     }
 }

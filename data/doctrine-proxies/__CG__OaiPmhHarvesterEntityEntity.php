@@ -26,7 +26,7 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     /**
      * @var boolean flag indicating if this object was already initialized
      *
-     * @see \Doctrine\Common\Persistence\Proxy::__isInitialized
+     * @see \Doctrine\Persistence\Proxy::__isInitialized
      */
     public $__isInitialized__ = false;
 
@@ -66,10 +66,10 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'job', 'entityId', 'resourceType'];
+            return ['__isInitialized__', 'id', 'job', 'entityId', 'entityName'];
         }
 
-        return ['__isInitialized__', 'id', 'job', 'entityId', 'resourceType'];
+        return ['__isInitialized__', 'id', 'job', 'entityId', 'entityName'];
     }
 
     /**
@@ -194,7 +194,7 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function setJob(\Omeka\Entity\Job $job)
+    public function setJob(\Omeka\Entity\Job $job): \OaiPmhHarvester\Entity\Entity
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setJob', [$job]);
@@ -205,7 +205,7 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function getJob()
+    public function getJob(): \Omeka\Entity\Job
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getJob', []);
@@ -216,7 +216,7 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function setEntityId($entityId)
+    public function setEntityId(int $entityId): \OaiPmhHarvester\Entity\Entity
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEntityId', [$entityId]);
@@ -227,7 +227,7 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function getEntityId()
+    public function getEntityId(): int
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEntityId', []);
@@ -238,23 +238,23 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     /**
      * {@inheritDoc}
      */
-    public function setResourceType($resourceType)
+    public function setEntityName(string $entityName): \OaiPmhHarvester\Entity\Entity
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setResourceType', [$resourceType]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEntityName', [$entityName]);
 
-        return parent::setResourceType($resourceType);
+        return parent::setEntityName($entityName);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getResourceType()
+    public function getEntityName(): string
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getResourceType', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEntityName', []);
 
-        return parent::getResourceType();
+        return parent::getEntityName();
     }
 
     /**

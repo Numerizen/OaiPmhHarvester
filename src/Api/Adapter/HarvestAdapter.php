@@ -36,10 +36,10 @@ class HarvestAdapter extends AbstractEntityAdapter
             );
         }
 
-        if (isset($query['resource_type'])) {
+        if (isset($query['entity_name'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.resource_type',
-                $this->createNamedParameter($qb, $query['resource_type']))
+                'omeka_root.entity_name',
+                $this->createNamedParameter($qb, $query['entity_name']))
             );
         }
     }
@@ -74,8 +74,8 @@ class HarvestAdapter extends AbstractEntityAdapter
             $entity->setEndpoint((string) $data['o-module-oai-pmh-harvester:endpoint']);
         }
 
-        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
-            $entity->setResourceType((string) $data['o-module-oai-pmh-harvester:resource_type']);
+        if (array_key_exists('o-module-oai-pmh-harvester:entity_name', $data)) {
+            $entity->setEntityName((string) $data['o-module-oai-pmh-harvester:entity_name']);
         }
 
         if (array_key_exists('o:item_set', $data)) {

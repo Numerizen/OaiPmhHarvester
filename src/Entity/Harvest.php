@@ -32,7 +32,8 @@ class Harvest extends AbstractEntity
      *     targetEntity=\Omeka\Entity\Job::class
      * )
      * @JoinColumn(
-     *     nullable=false
+     *     nullable=false,
+     *     onDelete="CASCADE"
      * )
      */
     protected $job;
@@ -44,7 +45,8 @@ class Harvest extends AbstractEntity
      *     targetEntity=\Omeka\Entity\Job::class
      * )
      * @JoinColumn(
-     *     nullable=true
+     *     nullable=true,
+     *     onDelete="SET NULL"
      * )
      */
     protected $undoJob;
@@ -78,7 +80,7 @@ class Harvest extends AbstractEntity
      *     length=190
      * )
      */
-    protected $resourceType;
+    protected $entityName;
 
     /**
      * @var ItemSet
@@ -214,15 +216,15 @@ class Harvest extends AbstractEntity
         return $this->endpoint;
     }
 
-    public function setResourceType(string $resourceType): self
+    public function setEntityName(string $entityName): self
     {
-        $this->resourceType = $resourceType;
+        $this->entityName = $entityName;
         return $this;
     }
 
-    public function getResourceType(): string
+    public function getEntityName(): string
     {
-        return $this->resourceType;
+        return $this->entityName;
     }
 
     public function setItemSet(?ItemSet $itemSet): self

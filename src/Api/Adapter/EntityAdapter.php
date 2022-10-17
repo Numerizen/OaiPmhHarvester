@@ -42,16 +42,18 @@ class EntityAdapter extends AbstractEntityAdapter
             );
         }
 
-        if (isset($query['resource_type'])) {
+        if (isset($query['entity_name'])) {
             $qb->andWhere($expr->eq(
-                'omeka_root.resource_type',
-                $this->createNamedParameter($qb, $query['resource_type']))
+                'omeka_root.entity_name',
+                $this->createNamedParameter($qb, $query['entity_name']))
             );
         }
     }
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
     {
+        /** @var \OaiPmhHarvester\Entity\Entity $entity */
+
         $data = $request->getContent();
 
         if (array_key_exists('o:job', $data)) {
@@ -65,8 +67,8 @@ class EntityAdapter extends AbstractEntityAdapter
             $entity->setEntityId((int) $data['o-module-oai-pmh-harvester:entity_id']);
         }
 
-        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
-            $entity->setResourceType((string) $data['o-module-oai-pmh-harvester:resource_type']);
+        if (array_key_exists('o-module-oai-pmh-harvester:entity_name', $data)) {
+            $entity->setEntityName((string) $data['o-module-oai-pmh-harvester:entity_name']);
         }
     }
 }

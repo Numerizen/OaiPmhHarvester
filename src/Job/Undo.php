@@ -33,7 +33,7 @@ class Undo extends AbstractJob
             }
             try {
                 $api->delete('oaipmhharvester_entities', $harvestEntity->id());
-                $api->delete($harvestEntity->resourceType(), $harvestEntity->entityId());
+                $api->delete($harvestEntity->entityName(), $harvestEntity->entityId());
             } catch (NotFoundException $e) {
             }
         }
