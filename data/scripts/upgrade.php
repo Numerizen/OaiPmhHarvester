@@ -159,3 +159,12 @@ CHANGE `stats` `stats` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
 SQL;
     $connection->executeStatement($sql);
 }
+
+if (version_compare($oldVersion, '3.3.0.10', '<')) {
+    $sql = <<<'SQL'
+ALTER TABLE `oaipmhharvester_harvest` CHANGE `comment` `message` LONGTEXT DEFAULT NULL;
+ALTER TABLE `oaipmhharvester_harvest` CHANGE `resource_type` `entity_name` VARCHAR(190) NOT NULL;
+ALTER TABLE `oaipmhharvester_entity` CHANGE `resource_type` `entity_name` VARCHAR(190) NOT NULL;
+SQL;
+    $connection->executeStatement($sql);
+}
