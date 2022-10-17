@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -49,9 +50,8 @@ class EntityAdapter extends AbstractEntityAdapter
         }
     }
 
-    public function hydrate(Request $request, EntityInterface $entity,
-        ErrorStore $errorStore
-    ): void {
+    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
+    {
         $data = $request->getContent();
 
         if (array_key_exists('o:job', $data)) {
@@ -62,11 +62,11 @@ class EntityAdapter extends AbstractEntityAdapter
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:entity_id', $data)) {
-            $entity->setEntityId($data['o-module-oai-pmh-harvester:entity_id']);
+            $entity->setEntityId((int) $data['o-module-oai-pmh-harvester:entity_id']);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
-            $entity->setResourceType($data['o-module-oai-pmh-harvester:resource_type']);
+            $entity->setResourceType((string) $data['o-module-oai-pmh-harvester:resource_type']);
         }
     }
 }

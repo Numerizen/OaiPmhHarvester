@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Entity;
 
 use Omeka\Entity\AbstractEntity;
@@ -13,7 +14,8 @@ use Omeka\Entity\Job;
 class Entity extends AbstractEntity
 {
     /**
-     * @var int;
+     * @var int
+     *
      * @Id
      * @Column(
      *     type="integer"
@@ -24,6 +26,7 @@ class Entity extends AbstractEntity
 
     /**
      * @var Job
+     *
      * @ManyToOne(
      *     targetEntity=\Omeka\Entity\Job::class
      * )
@@ -35,6 +38,7 @@ class Entity extends AbstractEntity
 
     /**
      * @var int
+     *
      * @Column(
      *     type="integer"
      * )
@@ -43,6 +47,9 @@ class Entity extends AbstractEntity
 
     /**
      * API resource type (not neccesarily a Resource class)
+     *
+     * @var string
+     *
      * @Column(
      *     type="string",
      *     length=190
@@ -55,56 +62,35 @@ class Entity extends AbstractEntity
         return $this->id;
     }
 
-    /**
-     * @param Job $job
-     * @return self
-     */
-    public function setJob(Job $job)
+    public function setJob(Job $job): self
     {
         $this->job = $job;
         return $this;
     }
 
-    /**
-     * @return \Omeka\Entity\Job
-     */
-    public function getJob()
+    public function getJob(): Job
     {
         return $this->job;
     }
 
-    /**
-     * @param int $entityId
-     * @return self
-     */
-    public function setEntityId($entityId)
+    public function setEntityId(int $entityId): self
     {
         $this->entityId = $entityId;
         return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getEntityId()
+    public function getEntityId(): int
     {
         return $this->entityId;
     }
 
-    /**
-     * @param string $resourceType
-     * @return self
-     */
-    public function setResourceType($resourceType)
+    public function setResourceType(string $resourceType): self
     {
         $this->resourceType = $resourceType;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getResourceType()
+    public function getResourceType(): string
     {
         return $this->resourceType;
     }

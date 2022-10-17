@@ -1,7 +1,10 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
+use Omeka\Api\Representation\ItemSetRepresentation;
+use Omeka\Api\Representation\JobRepresentation;
 
 class HarvestRepresentation extends AbstractEntityRepresentation
 {
@@ -39,119 +42,78 @@ class HarvestRepresentation extends AbstractEntityRepresentation
         return 'o:OaipmhharvesterHarvestJob';
     }
 
-    /**
-     * @return \Omeka\Api\Representation\JobRepresentation
-     */
-    public function job()
+    public function job(): JobRepresentation
     {
         return $this->getAdapter('jobs')
             ->getRepresentation($this->resource->getJob());
     }
 
-    /**
-     * @return \Omeka\Api\Representation\JobRepresentation|null
-     */
-    public function undoJob()
+    public function undoJob(): ?JobRepresentation
     {
         return $this->getAdapter('jobs')
             ->getRepresentation($this->resource->getUndoJob());
     }
 
-    /**
-     * @return string
-     */
-    public function comment()
+    public function comment(): ?string
     {
         return $this->resource->getComment();
     }
 
-    /**
-     * @return string
-     */
-    public function endpoint()
+    public function endpoint(): string
     {
         return $this->resource->getEndpoint();
     }
 
-    /**
-     * @return string
-     */
-    public function resourceType()
+    public function resourceType(): string
     {
         return $this->resource->getResourceType();
     }
 
-    /**
-     * @return \Omeka\Api\Representation\ItemSetRepresentation|null
-     */
-    public function itemSet()
+    public function itemSet(): ?ItemSetRepresentation
     {
         return $this->getAdapter('item_sets')
             ->getRepresentation($this->resource->getItemSet());
     }
 
-    /**
-     * @return string
-     */
-    public function metadataPrefix()
+    public function metadataPrefix(): string
     {
         return $this->resource->getMetadataPrefix();
     }
 
-    /**
-     * @return string
-     */
-    public function getSetSpec()
+    public function getSetSpec(): ?string
     {
         return $this->resource->getSetSpec();
     }
 
-    /**
-     * @return string
-     */
-    public function getSetName()
+    public function getSetName(): ?string
     {
         return $this->resource->getSetName();
     }
 
-    /**
-     * @return string
-     */
-    public function getSetDescription()
+    public function getSetDescription(): ?string
     {
         return $this->resource->getSetDescription();
     }
 
-    /**
-     * @return bool
-     */
-    public function hasErr()
+    public function hasErr(): bool
     {
         return $this->resource->getHasErr();
     }
 
-    /**
-     * @return array
-     */
-    public function stats()
+    public function stats(): array
     {
-        return $this->resource->getStats();
+        return $this->resource->getStats() ?? [];
     }
 
-    /**
-     * @return string
-     */
-    public function resumptionToken()
+    public function resumptionToken(): ?string
     {
         return $this->resource->getResumptionToken();
     }
 
     /**
      * Get the count of the currently imported resources.
-     *
-     * @return int
      */
-    public function totalImported()
+    public function totalImported(): int
     {
         $response = $this->getServiceLocator()->get('Omeka\ApiManager')
             ->search('oaipmhharvester_entities', [

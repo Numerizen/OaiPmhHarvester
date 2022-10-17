@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Api\Representation;
 
 use Omeka\Api\Representation\AbstractEntityRepresentation;
+use Omeka\Api\Representation\JobRepresentation;
 
 class EntityRepresentation extends AbstractEntityRepresentation
 {
@@ -19,18 +21,18 @@ class EntityRepresentation extends AbstractEntityRepresentation
         return 'o:OaiPmhHarvesterHarvesterEntity';
     }
 
-    public function job()
+    public function job(): JobRepresentation
     {
         return $this->getAdapter('jobs')
             ->getRepresentation($this->resource->getJob());
     }
 
-    public function entityId()
+    public function entityId(): int
     {
         return $this->resource->getEntityId();
     }
 
-    public function resourceType()
+    public function resourceType(): string
     {
         return $this->resource->getResourceType();
     }

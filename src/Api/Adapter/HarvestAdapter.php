@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
@@ -43,9 +44,10 @@ class HarvestAdapter extends AbstractEntityAdapter
         }
     }
 
-    public function hydrate(Request $request, EntityInterface $entity,
-        ErrorStore $errorStore
-    ): void {
+    public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
+    {
+        /** @var \OaiPmhHarvester\Entity\Harvest $entity */
+
         $data = $request->getContent();
 
         if (array_key_exists('o:job', $data)) {
@@ -63,15 +65,17 @@ class HarvestAdapter extends AbstractEntityAdapter
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:comment', $data)) {
-            $entity->setComment($data['o-module-oai-pmh-harvester:comment']);
-        }
-
-        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
-            $entity->setResourceType($data['o-module-oai-pmh-harvester:resource_type']);
+            $value = (string) $data['o-module-oai-pmh-harvester:comment'];
+            $value = $value === '' ? null : $value;
+            $entity->setComment($value);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:endpoint', $data)) {
-            $entity->setEndpoint($data['o-module-oai-pmh-harvester:endpoint']);
+            $entity->setEndpoint((string) $data['o-module-oai-pmh-harvester:endpoint']);
+        }
+
+        if (array_key_exists('o-module-oai-pmh-harvester:resource_type', $data)) {
+            $entity->setResourceType((string) $data['o-module-oai-pmh-harvester:resource_type']);
         }
 
         if (array_key_exists('o:item_set', $data)) {
@@ -82,31 +86,39 @@ class HarvestAdapter extends AbstractEntityAdapter
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:metadata_prefix', $data)) {
-            $entity->setMetadataPrefix($data['o-module-oai-pmh-harvester:metadata_prefix']);
+            $entity->setMetadataPrefix((string) $data['o-module-oai-pmh-harvester:metadata_prefix']);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:set_spec', $data)) {
-            $entity->setSetSpec($data['o-module-oai-pmh-harvester:set_spec']);
+            $value = (string) $data['o-module-oai-pmh-harvester:set_spec'];
+            $value = $value === '' ? null : $value;
+            $entity->setSetSpec($value);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:set_name', $data)) {
-            $entity->setSetName($data['o-module-oai-pmh-harvester:set_name']);
+            $value = (string) $data['o-module-oai-pmh-harvester:set_name'];
+            $value = $value === '' ? null : $value;
+            $entity->setSetName($value);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:set_description', $data)) {
-            $entity->setSetDescription($data['o-module-oai-pmh-harvester:set_description']);
+            $value = (string) $data['o-module-oai-pmh-harvester:set_description'];
+            $value = $value === '' ? null : $value;
+            $entity->setSetDescription($value);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:has_err', $data)) {
-            $entity->setHasErr($data['o-module-oai-pmh-harvester:has_err']);
+            $entity->setHasErr((bool) $data['o-module-oai-pmh-harvester:has_err']);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:stats', $data)) {
-            $entity->setStats($data['o-module-oai-pmh-harvester:stats']);
+            $entity->setStats($data['o-module-oai-pmh-harvester:stats'] ?: []);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:resumption_token', $data)) {
-            $entity->setResumptionToken($data['o-module-oai-pmh-harvester:resumption_token']);
+            $value = (string) $data['o-module-oai-pmh-harvester:resumption_token'];
+            $value = $value === '' ? null : $value;
+            $entity->setResumptionToken($value);
         }
     }
 }

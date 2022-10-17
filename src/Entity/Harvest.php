@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Entity;
 
 use Omeka\Entity\AbstractEntity;
@@ -15,6 +16,7 @@ class Harvest extends AbstractEntity
 {
     /**
      * @var int
+     *
      * @Id
      * @Column(
      *     type="integer"
@@ -25,6 +27,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var Job
+     *
      * @OneToOne(
      *     targetEntity=\Omeka\Entity\Job::class
      * )
@@ -36,6 +39,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var Job|null
+     *
      * @OneToOne(
      *     targetEntity=\Omeka\Entity\Job::class
      * )
@@ -47,6 +51,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     name="`comment`",
      *     type="text",
@@ -57,6 +62,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="string",
      *     length=190
@@ -66,6 +72,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="string",
      *     length=190
@@ -75,6 +82,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var ItemSet
+     *
      * @ManyToOne(
      *     targetEntity=\Omeka\Entity\ItemSet::class,
      *     inversedBy="itemSet"
@@ -88,6 +96,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *      type="string",
      *      length=190
@@ -97,6 +106,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="string",
      *     length=190,
@@ -107,6 +117,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="text",
      *     nullable=true
@@ -116,6 +127,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="text",
      *     nullable=true
@@ -125,6 +137,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var bool
+     *
      * @Column(
      *     type="boolean",
      *     nullable=false
@@ -134,6 +147,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var array
+     *
      * @Column(
      *     type="json"
      * )
@@ -142,6 +156,7 @@ class Harvest extends AbstractEntity
 
     /**
      * @var string
+     *
      * @Column(
      *     type="string",
      *     length=190,
@@ -155,236 +170,145 @@ class Harvest extends AbstractEntity
         return $this->id;
     }
 
-    /**
-     * @param Job $job
-     * @return self
-     */
-    public function setJob(Job $job)
+    public function setJob(Job $job): self
     {
         $this->job = $job;
         return $this;
     }
 
-    /**
-     * @return \Omeka\Entity\Job
-     */
-    public function getJob()
+    public function getJob(): Job
     {
         return $this->job;
     }
 
-    /**
-     * @param Job $undoJob
-     * @return self
-     */
-    public function setUndoJob(Job $undoJob = null)
+    public function setUndoJob(?Job $undoJob): self
     {
         $this->undoJob = $undoJob;
         return $this;
     }
 
-    /**
-     * @return \Omeka\Entity\Job|null
-     */
-    public function getUndoJob()
+    public function getUndoJob(): ?Job
     {
         return $this->undoJob;
     }
 
-    /**
-     * @param string $comment
-     * @return self
-     */
-    public function setComment($comment)
+    public function setComment(?string $comment): self
     {
         $this->comment = $comment;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getComment()
+    public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    /**
-     * @param string $endpoint
-     * @return self
-     */
-    public function setEndpoint($endpoint)
+    public function setEndpoint(string $endpoint): self
     {
         $this->endpoint = $endpoint;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getEndpoint()
+    public function getEndpoint(): string
     {
         return $this->endpoint;
     }
 
-    /**
-     * @param string $resourceType
-     * @return self
-     */
-    public function setResourceType($resourceType)
+    public function setResourceType(string $resourceType): self
     {
         $this->resourceType = $resourceType;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getResourceType()
+    public function getResourceType(): string
     {
         return $this->resourceType;
     }
 
-    /**
-     * @param ItemSet $itemSet
-     * @return self
-     */
-    public function setItemSet(ItemSet $itemSet = null)
+    public function setItemSet(?ItemSet $itemSet): self
     {
         $this->itemSet = $itemSet;
         return $this;
     }
 
-    /**
-     * @return ItemSet|null
-     */
-    public function getItemSet()
+    public function getItemSet(): ?ItemSet
     {
         return $this->itemSet;
     }
 
-    /**
-     * @param string $metadataPrefix
-     * @return self
-     */
-    public function setMetadataPrefix($metadataPrefix)
+    public function setMetadataPrefix($metadataPrefix): self
     {
         $this->metadataPrefix = $metadataPrefix;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getMetadataPrefix()
+    public function getMetadataPrefix(): string
     {
         return $this->metadataPrefix;
     }
 
-    /**
-     * @param string $setSpec
-     * @return self
-     */
-    public function setSetSpec($setSpec)
+    public function setSetSpec(?string $setSpec): self
     {
         $this->setSpec = $setSpec;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSetSpec()
+    public function getSetSpec(): ?string
     {
         return $this->setSpec;
     }
 
-    /**
-     * @param string $setName
-     * @return self
-     */
-    public function setSetName($setName)
+    public function setSetName(?string $setName): self
     {
         $this->setName = $setName;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSetName()
+    public function getSetName(): ?string
     {
         return $this->setName;
     }
 
-    /**
-     * @param string $setDescription
-     * @return self
-     */
-    public function setSetDescription($setDescription)
+    public function setSetDescription(?string $setDescription): self
     {
         $this->setDescription = $setDescription;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSetDescription()
+    public function getSetDescription(): ?string
     {
         return $this->setDescription;
     }
 
-    /**
-     * @param bool $hasErr
-     * @return self
-     */
-    public function setHasErr($hasErr)
+    public function setHasErr($hasErr): self
     {
         $this->hasErr = (bool) $hasErr;
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function getHasErr()
+    public function getHasErr(): bool
     {
         return $this->hasErr;
     }
 
-    /**
-     * @param array $stats
-     * @return self
-     */
-    public function setStats($stats)
+    public function setStats(?array $stats): self
     {
         $this->stats = $stats;
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getStats()
+    public function getStats(): ?array
     {
         return $this->stats;
     }
 
-    /**
-     * @param string $resumptionToken
-     * @return self
-     */
-    public function setResumptionToken($resumptionToken)
+    public function setResumptionToken(?string $resumptionToken): self
     {
         $this->resumptionToken = $resumptionToken;
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getResumptionToken()
+    public function getResumptionToken(): ?string
     {
         return $this->resumptionToken;
     }
