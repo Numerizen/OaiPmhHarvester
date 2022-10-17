@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Job;
 
 use Omeka\Job\AbstractJob;
@@ -6,19 +7,20 @@ use SimpleXMLElement;
 
 class Harvest extends AbstractJob
 {
-    /*Xml schema and OAI prefix for the format represented by this class
+    /*
+     * Xml schema and OAI prefix for the format represented by this class
      * These constants are required for all maps
      */
-    /** OAI-PMH metadata prefix */
+    /* OAI-PMH metadata prefix */
     const METADATA_PREFIX = 'mets';
 
-    /** XML namespace for output format */
+    /* XML namespace for output format */
     const METS_NAMESPACE = 'http://www.loc.gov/METS/';
 
-    /** XML schema for output format */
+    /* XML schema for output format */
     const METADATA_SCHEMA = 'http://www.loc.gov/standards/mets/mets.xsd';
 
-    /** XML namespace for unqualified Dublin Core */
+    /* XML namespace for unqualified Dublin Core */
     const DUBLIN_CORE_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
     const DCTERMS_NAMESPACE = 'http://purl.org/dc/terms/';
 
@@ -46,8 +48,9 @@ class Harvest extends AbstractJob
 
     public function perform()
     {
-        $this->logger = $this->getServiceLocator()->get('Omeka\Logger');
-        $this->api = $this->getServiceLocator()->get('Omeka\ApiManager');
+        $services = $this->getServiceLocator();
+        $this->logger = $services->get('Omeka\Logger');
+        $this->api = $services->get('Omeka\ApiManager');
 
         // Set Dc Properties for mapping
         $dcProperties = $this->api->search('properties', ['vocabulary_id' => 1], ['responseContent' => 'resource'])->getContent();
@@ -173,7 +176,7 @@ class Harvest extends AbstractJob
             foreach ($records->record as $record) {
                 ++$stats['harvested'];
                 if ($whitelist || $blacklist) {
-                    // Use xml instead of string because some format may use
+                    // Use xml instead of string because some formats may use
                     // attributes for data.
                     $recordString = $record->asXML();
                     foreach ($whitelist as $string) {

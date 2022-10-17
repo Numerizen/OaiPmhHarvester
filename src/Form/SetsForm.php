@@ -48,7 +48,7 @@ class SetsForm extends Form
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Filters (whitelist)', // @translate
-                    'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+                    'info' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'filters_whitelist',
@@ -59,7 +59,7 @@ class SetsForm extends Form
                 'type' => Element\Textarea::class,
                 'options' => [
                     'label' => 'Filters (blacklist)', // @translate
-                    'infos' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+                    'info' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
                 ],
                 'attributes' => [
                     'id' => 'filters_blacklist',

@@ -1,7 +1,14 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester;
 
 return [
+    'api_adapters' => [
+        'invokables' => [
+            'oaipmhharvester_entities' => Api\Adapter\EntityAdapter::class,
+            'oaipmhharvester_harvests' => Api\Adapter\HarvestAdapter::class,
+        ],
+    ],
     'entity_manager' => [
         'mapping_classes_paths' => [
             dirname(__DIR__) . '/src/Entity',
@@ -10,20 +17,20 @@ return [
             dirname(__DIR__) . '/data/doctrine-proxies',
         ],
     ],
-    'api_adapters' => [
+    'view_manager' => [
+        'template_path_stack' => [
+            dirname(__DIR__) . '/view',
+        ],
+    ],
+    'form_elements' => [
         'invokables' => [
-            'oaipmhharvester_entities' => Api\Adapter\EntityAdapter::class,
-            'oaipmhharvester_harvests' => Api\Adapter\HarvestAdapter::class,
+            Form\HarvestForm::class => Form\HarvestForm::class,
+            Form\SetsForm::class => Form\SetsForm::class,
         ],
     ],
     'controllers' => [
         'invokables' => [
             'OaiPmhHarvester\Controller\Admin\Index' => Controller\Admin\IndexController::class,
-        ],
-    ],
-    'view_manager' => [
-        'template_path_stack' => [
-            dirname(__DIR__) . '/view',
         ],
     ],
     'router' => [

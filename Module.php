@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester;
 
 use Laminas\ServiceManager\ServiceLocatorInterface;
@@ -11,20 +12,21 @@ class Module extends AbstractModule
         return include __DIR__ . '/config/module.config.php';
     }
 
-    public function install(ServiceLocatorInterface $serviceLocator): void
+    public function install(ServiceLocatorInterface $services): void
     {
-        $this->setServiceLocator($serviceLocator);
+        $this->setServiceLocator($services);
         $this->execSqlFromFile(__DIR__ . '/data/install/schema.sql');
     }
 
-    public function uninstall(ServiceLocatorInterface $serviceLocator): void
+    public function uninstall(ServiceLocatorInterface $services): void
     {
-        $this->setServiceLocator($serviceLocator);
+        $this->setServiceLocator($services);
         $this->execSqlFromFile(__DIR__ . '/data/install/uninstall.sql');
     }
 
-    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $serviceLocator): void
+    public function upgrade($oldVersion, $newVersion, ServiceLocatorInterface $services): void
     {
+        $serviceLocator = $services;
         $this->setServiceLocator($serviceLocator);
         require_once __DIR__ . '/data/scripts/upgrade.php';
     }
@@ -40,6 +42,10 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $connection = $services->get('Omeka\Connection');
         $sql = file_get_contents($filepath);
-        return $connection->exec($sql);
+        $sqls = array_filter(array_map('trim', explode(";\n", $sql)));
+        foreach ($sqls as $sql) {
+            $result = $connection->executeStatement($sql);
+        }
+        return $result;
     }
 }

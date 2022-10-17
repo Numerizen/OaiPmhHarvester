@@ -1,10 +1,12 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Controller\Admin;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OaiPmhHarvester\Form\HarvestForm;
 use OaiPmhHarvester\Form\SetsForm;
+use Omeka\Entity\Job;
 use Omeka\Stdlib\Message;
 
 class IndexController extends AbstractActionController
@@ -42,10 +44,10 @@ class IndexController extends AbstractActionController
      */
     public function indexAction()
     {
-        $view = new ViewModel;
         $form = $this->getForm(HarvestForm::class);
-        $view->form = $form;
-        return $view;
+        return new ViewModel([
+            'form' => $form,
+        ]);
     }
 
     /**
@@ -138,13 +140,12 @@ class IndexController extends AbstractActionController
         ];
         $form = $this->getForm(SetsForm::class, $options);
 
-        $view = new ViewModel;
-        return $view
-            ->setVariable('form', $form)
-            ->setVariable('repositoryName', $repositoryName)
-            ->setVariable('total', $total)
-            ->setVariable('harvestAllRecords', $harvestAllRecords)
-        ;
+        return new ViewModel([
+            'form' => $form,
+            'repositoryName' => $repositoryName,
+            'total' => $total,
+            'harvestAllRecords' => $harvestAllRecords,
+        ]);
     }
 
     /**
@@ -234,12 +235,18 @@ class IndexController extends AbstractActionController
         $this->messenger()->addSuccess($message);
 
         if ($filters['whitelist']) {
-            $message = sprintf($this->translate('These whitelist filters are used: "%s".'), implode('", "', $filters['whitelist']));
+            $message = new Message(
+                $this->translate('These whitelist filters are used: "%s".'), // @translate
+                implode('", "', $filters['whitelist']
+            ));
             $this->messenger()->addSuccess($message);
         }
 
         if ($filters['blacklist']) {
-            $message = sprintf($this->translate('These blacklist filters are used: "%s".'), implode('", "', $filters['blacklist']));
+            $message = new Message(
+                $this->translate('These blacklist filters are used: "%s".'), // @translate
+                implode('", "', $filters['blacklist']
+            ));
             $this->messenger()->addSuccess($message);
         }
 
@@ -256,29 +263,32 @@ class IndexController extends AbstractActionController
                 'endpoint' => $endpoint,
                 'set_spec' => $setSpec,
                 'item_set_id' => $set['item_set_id'],
-                'has_err' => 0,
+                'has_err' => false,
                 'metadata_prefix' => $set['metadata_prefix'],
                 'resource_type' => 'items',
                 'filters' => $filters,
             ] + $set;
             $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Harvest::class, $args);
 
+            $urlHelper = $this->url();
+            // TODO Don't use PsrMessage for now to fix issues with Doctrine and inexisting file to remove.
             $message = new Message(
-                vsprintf($this->translate('Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). This may take a while.'), // @translate
-                [
-                    $set['set_name'],
-                    sprintf(
-                        '<a href="%s">',
-                        htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
-                    ),
-                    $job->getId(),
-                    '</a>',
-                    sprintf(
-                        '<a href="%s">',
-                        htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'action' => 'log', 'id' => $job->getId()]))
-                    ),
-                ]
-            ));
+                'Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). This may take a while.', // @translate
+                $set['set_name'],
+                sprintf(
+                    '<a href="%s">',
+                    htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                ),
+                $job->getId(),
+                '</a>',
+                sprintf(
+                    '<a href="%s">',
+                    // Check if module Log is enabled (avoid issue when disabled).
+                    htmlspecialchars(class_exists(\Log\Stdlib\PsrMessage::class)
+                        ? $urlHelper->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
+                        : $urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+                ))
+            );
             $message->setEscapeHtml(false);
             $this->messenger()->addSuccess($message);
         }
@@ -301,7 +311,6 @@ class IndexController extends AbstractActionController
             ));
         }
 
-        $view = new ViewModel;
         $page = $this->params()->fromQuery('page', 1);
         $query = $this->params()->fromQuery() + [
             'page' => $page,
@@ -311,33 +320,36 @@ class IndexController extends AbstractActionController
         $response = $this->api()->search('oaipmhharvester_harvests', $query);
 
         $this->paginator($response->getTotalResults(), $page);
-        $view->setVariable('harvests', $response->getContent());
-        return $view;
+
+        return new ViewModel([
+            'harvests' => $response->getContent(),
+        ]);
     }
 
-    protected function undoJob($jobId)
+    protected function undoJob($jobId): Job
     {
-        $response = $this->api()->search('oaipmhharvester_harvests', ['job_id' => $jobId]);
-        $harvest = $response->getContent()[0];
-        $dispatcher = $this->jobDispatcher();
-        $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Undo::class, ['jobId' => $jobId]);
-        $response = $this->api()->update(
+        $harvest = $this->api()->read('oaipmhharvester_harvests', ['job' => $jobId])->getContent();
+
+        $args = ['jobId' => $jobId];
+        $job = $this->jobDispatcher()->dispatch(\OaiPmhHarvester\Job\Undo::class, $args);
+
+        $this->api()->update(
             'oaipmhharvester_harvests',
             $harvest->id(),
             [
                 'o:undo_job' => ['o:id' => $job->getId() ],
             ]
         );
+
         return $job;
     }
 
     /**
      * Prepare the list of formats of an OAI-PMH repository.
      *
-     * @param string $endpoint
      * @return string[] Associative array of format prefix and name.
      */
-    protected function listOaiPmhFormats($endpoint)
+    protected function listOaiPmhFormats(string $endpoint): array
     {
         $formats = [];
 
@@ -359,11 +371,8 @@ class IndexController extends AbstractActionController
 
     /**
      * Prepare the list of sets of an OAI-PMH repository.
-     *
-     * @param string $endpoint
-     * @return array
      */
-    protected function listOaiPmhSets($endpoint)
+    protected function listOaiPmhSets(string $endpoint): array
     {
         $sets = [];
 

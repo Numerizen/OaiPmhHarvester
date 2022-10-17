@@ -1,4 +1,5 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester;
 
 /**
@@ -9,16 +10,20 @@ namespace OaiPmhHarvester;
  *
  * @var \Doctrine\DBAL\Connection $connection
  * @var \Doctrine\ORM\EntityManager $entityManager
+ * @var \Omeka\View\Helper\Url $url
  * @var \Omeka\Api\Manager $api
+ * @var \Omeka\Settings\Settings $settings
+ * @var \Omeka\Mvc\Controller\Plugin\Messenger $messenger
  */
 $services = $serviceLocator;
-$settings = $services->get('Omeka\Settings');
-$config = require dirname(__DIR__, 2) . '/config/module.config.php';
-$connection = $services->get('Omeka\Connection');
-$entityManager = $services->get('Omeka\EntityManager');
 $plugins = $services->get('ControllerPluginManager');
-$api = $plugins->get('api');
-$space = strtolower(__NAMESPACE__);
+$url = $services->get('ViewHelperManager')->get('url');
+// $api = $plugins->get('api');
+// $config = require dirname(dirname(__DIR__)) . '/config/module.config.php';
+$settings = $services->get('Omeka\Settings');
+$connection = $services->get('Omeka\Connection');
+$messenger = $plugins->get('messenger');
+// $entityManager = $services->get('Omeka\EntityManager');
 
 if (version_compare($oldVersion, '3.0.3', '<')) {
     $sql = <<<'SQL'
@@ -55,7 +60,7 @@ ALTER TABLE oai_pmh_harvester_entity ADD CONSTRAINT FK_EEA09D7FBE04EA9 FOREIGN K
 DROP INDEX idx_84d382f4be04ea9 ON oai_pmh_harvester_entity;
 CREATE INDEX IDX_EEA09D7FBE04EA9 ON oai_pmh_harvester_entity (job_id);
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 }
 
 if (version_compare($oldVersion, '3.0.6', '<')) {
@@ -95,7 +100,7 @@ ALTER TABLE oaipmhharvester_harvest ADD CONSTRAINT FK_929CA732960278D7 FOREIGN K
 ALTER TABLE oaipmhharvester_entity ADD CONSTRAINT FK_FE902C0EBE04EA9 FOREIGN KEY (job_id) REFERENCES job (id);
 SQL;
 
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 
     $sql = <<<'SQL'
 SET FOREIGN_KEY_CHECKS=0;
@@ -105,7 +110,7 @@ SELECT id, job_id, undo_job_id, collection_id, `comment`, base_url, resource_typ
 FROM oai_pmh_harvester_harvest_job;
 SET FOREIGN_KEY_CHECKS=1;
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 
     $sql = <<<'SQL'
 SET FOREIGN_KEY_CHECKS=0;
@@ -115,7 +120,7 @@ SELECT id, job_id, entity_id, resource_type
 FROM oai_pmh_harvester_entity;
 SET FOREIGN_KEY_CHECKS=1;
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 
     $sql = <<<'SQL'
 SET FOREIGN_KEY_CHECKS=0;
@@ -123,14 +128,14 @@ DROP TABLE IF EXISTS oai_pmh_harvester_harvest_job;
 DROP TABLE IF EXISTS oai_pmh_harvester_entity;
 SET FOREIGN_KEY_CHECKS=1;
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 
     $sql = <<<'SQL'
 UPDATE job
 SET class="OaiPmhHarvester\\Job\\Harvest"
 WHERE class="OaiPmhHarvester\\Job\\HarvestJob";
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 }
 
 if (version_compare($oldVersion, '3.0.6.1', '<')) {
@@ -138,13 +143,13 @@ if (version_compare($oldVersion, '3.0.6.1', '<')) {
 ALTER TABLE oaipmhharvester_harvest
     ADD stats LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)' AFTER has_err ;
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 
     $sql = <<<'SQL'
 UPDATE oaipmhharvester_harvest
 SET stats = "{}";
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 }
 
 if (version_compare($oldVersion, '3.3.0.7', '<')) {
@@ -152,5 +157,5 @@ if (version_compare($oldVersion, '3.3.0.7', '<')) {
 ALTER TABLE `oaipmhharvester_harvest`
 CHANGE `stats` `stats` LONGTEXT NOT NULL COMMENT '(DC2Type:json)';
 SQL;
-    $connection->exec($sql);
+    $connection->executeStatement($sql);
 }

@@ -14,19 +14,20 @@
  */
 class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
 {
-    /*Xml schema and OAI prefix for the format represented by this class
+    /*
+     * Xml schema and OAI prefix for the format represented by this class
      * These constants are required for all maps
      */
-    /** OAI-PMH metadata prefix */
+    /* OAI-PMH metadata prefix */
     const METADATA_PREFIX = 'mets';
 
-    /** XML namespace for output format */
+    /* XML namespace for output format */
     const METS_NAMESPACE = 'http://www.loc.gov/METS/';
 
-    /** XML schema for output format */
+    /* XML schema for output format */
     const METADATA_SCHEMA = 'http://www.loc.gov/standards/mets/mets.xsd';
 
-    /** XML namespace for unqualified Dublin Core */
+    /* XML namespace for unqualified Dublin Core */
     const DUBLIN_CORE_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
 
     const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
@@ -44,9 +45,9 @@ class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
             ],
         ];
         $collectionMetadata['elementTexts']['Dublin Core']['Title'][]
-        = ['text' => (string) $harvest->set_name, 'html' => false];
+            = ['text' => (string) $harvest->set_name, 'html' => false];
         $collectionMetadata['elementTexts']['Dublin Core']['Description'][]
-        = ['text' => (string) $harvest->set_Description, 'html' => false];
+            = ['text' => (string) $harvest->set_Description, 'html' => false];
 
         $this->_collection = $this->_insertCollection($collectionMetadata);
     }
