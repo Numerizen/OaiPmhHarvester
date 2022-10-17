@@ -31,7 +31,7 @@ $this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester jobs harve
                 <th><?= $escape($translate('Undo?')) ?></th>
                 <th><?= $escape($translate('Date')) ?></th>
                 <th><?= $escape($translate('Label')) ?></th>
-                <th><?= $escape($translate('Comment')) ?></th>
+                <th><?= $escape($translate('Message')) ?></th>
                 <th><?= $escape($translate('Results')) ?></th>
                 <th><?= $escape($translate('Status')) ?></th>
                 <th><?= $escape($translate('Owner')) ?></th>
@@ -76,7 +76,7 @@ $this->htmlElement('body')->appendAttribute('class', 'oaipmhharvester jobs harve
                 <?php endif; ?>
             </td>
             <td>
-                <?= $translate($harvest->comment()) ?>
+                <?= $translate($harvest->message()) ?>
                 <?php if ($harvest->hasErr()): ?>
                     <p><?= $translate('Problems were detected with the import. Check the job’s log for details.') ?></p>
                 <?php endif; ?>

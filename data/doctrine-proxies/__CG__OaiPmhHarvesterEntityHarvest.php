@@ -66,10 +66,10 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'entityName', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
+            return ['__isInitialized__', 'id', 'job', 'undoJob', 'message', 'endpoint', 'entityName', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
         }
 
-        return ['__isInitialized__', 'id', 'job', 'undoJob', 'comment', 'endpoint', 'entityName', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
+        return ['__isInitialized__', 'id', 'job', 'undoJob', 'message', 'endpoint', 'entityName', 'itemSet', 'metadataPrefix', 'setSpec', 'setName', 'setDescription', 'hasErr', 'stats', 'resumptionToken'];
     }
 
     /**
@@ -238,23 +238,23 @@ class Harvest extends \OaiPmhHarvester\Entity\Harvest implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setComment(?string $comment): \OaiPmhHarvester\Entity\Harvest
+    public function setMessage(?string $message): \OaiPmhHarvester\Entity\Harvest
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setComment', [$comment]);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMessage', [$message]);
 
-        return parent::setComment($comment);
+        return parent::setMessage($message);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function getComment(): ?string
+    public function getMessage(): ?string
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getComment', []);
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMessage', []);
 
-        return parent::getComment();
+        return parent::getMessage();
     }
 
     /**

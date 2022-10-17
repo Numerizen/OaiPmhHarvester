@@ -55,12 +55,11 @@ class Harvest extends AbstractEntity
      * @var string
      *
      * @Column(
-     *     name="`comment`",
      *     type="text",
      *     nullable=true
      * )
      */
-    protected $comment;
+    protected $message;
 
     /**
      * @var string
@@ -194,15 +193,15 @@ class Harvest extends AbstractEntity
         return $this->undoJob;
     }
 
-    public function setComment(?string $comment): self
+    public function setMessage(?string $message): self
     {
-        $this->comment = $comment;
+        $this->message = $message;
         return $this;
     }
 
-    public function getComment(): ?string
+    public function getMessage(): ?string
     {
-        return $this->comment;
+        return $this->message;
     }
 
     public function setEndpoint(string $endpoint): self

@@ -3,7 +3,7 @@ CREATE TABLE `oaipmhharvester_harvest` (
     `job_id` INT NOT NULL,
     `undo_job_id` INT DEFAULT NULL,
     `item_set_id` INT DEFAULT NULL,
-    `comment` LONGTEXT DEFAULT NULL,
+    `message` LONGTEXT DEFAULT NULL,
     `endpoint` VARCHAR(190) NOT NULL,
     `entity_name` VARCHAR(190) NOT NULL,
     `metadata_prefix` VARCHAR(190) NOT NULL,

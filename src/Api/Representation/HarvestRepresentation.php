@@ -23,7 +23,7 @@ class HarvestRepresentation extends AbstractEntityRepresentation
         return [
             'o:job' => $this->job()->getReference(),
             'o:undo_job' => $undoJob,
-            'o-module-oai-pmh-harvester:comment' => $this->comment(),
+            'o-module-oai-pmh-harvester:message' => $this->message(),
             'o-module-oai-pmh-harvester:endpoint' => $this->endpoint(),
             'o-module-oai-pmh-harvester:entity_name' => $this->entityName(),
             'o:item_set' => $itemSet(),
@@ -54,9 +54,9 @@ class HarvestRepresentation extends AbstractEntityRepresentation
             ->getRepresentation($this->resource->getUndoJob());
     }
 
-    public function comment(): ?string
+    public function message(): ?string
     {
-        return $this->resource->getComment();
+        return $this->resource->getMessage();
     }
 
     public function endpoint(): string

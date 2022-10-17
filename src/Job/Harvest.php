@@ -67,7 +67,7 @@ class Harvest extends AbstractJob
 
         $args = $this->job->getArgs();
 
-        $comment = null;
+        $message = null;
         $stats = [
             'records' => null, // @translate
             'harvested' => 0, // @translate
@@ -79,7 +79,7 @@ class Harvest extends AbstractJob
         $harvestData = [
             'o:job' => ['o:id' => $this->job->getId()],
             'o:undo_job' => null,
-            'o-module-oai-pmh-harvester:comment' => 'Harvesting started', // @translate
+            'o-module-oai-pmh-harvester:message' => 'Harvesting started', // @translate
             'o-module-oai-pmh-harvester:entity_name' => $this->getArg('entity_name', 'items'),
             'o-module-oai-pmh-harvester:endpoint' => $args['endpoint'],
             'o:item_set' => ['o:id' => $args['item_set_id']],
@@ -146,7 +146,7 @@ class Harvest extends AbstractJob
             $response = \simplexml_load_file($url);
             if (!$response) {
                 $this->hasErr = true;
-                $comment = 'Error.'; // @translate
+                $message = 'Error.'; // @translate
                 $this->logger->err(sprintf(
                     'Error: the harvester does not list records with url %s.', // @translate
                     $url
@@ -156,7 +156,7 @@ class Harvest extends AbstractJob
 
             if (!$response->ListRecords) {
                 $this->hasErr = true;
-                $comment = 'Error.'; // @translate
+                $message = 'Error.'; // @translate
                 $this->logger->err(sprintf(
                     'Error: the harvester does not list records with url %s.', // @translate
                     $url
@@ -207,7 +207,7 @@ class Harvest extends AbstractJob
 
             // Update job.
             $harvestData = [
-                'o-module-oai-pmh-harvester:comment' => 'Processing', // @translate
+                'o-module-oai-pmh-harvester:message' => 'Processing', // @translate
                 'o-module-oai-pmh-harvester:has_err' => $this->hasErr,
                 'o-module-oai-pmh-harvester:stats' => $stats,
             ];
@@ -215,11 +215,11 @@ class Harvest extends AbstractJob
         } while ($resumptionToken);
 
         // Update job.
-        if (empty($comment)) {
-            $comment = 'Harvest ended.'; // @translate
+        if (empty($message)) {
+            $message = 'Harvest ended.'; // @translate
         }
         $harvestData = [
-            'o-module-oai-pmh-harvester:comment' => $comment,
+            'o-module-oai-pmh-harvester:message' => $message,
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr,
             'o-module-oai-pmh-harvester:stats' => $stats,
         ];

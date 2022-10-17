@@ -64,10 +64,10 @@ class HarvestAdapter extends AbstractEntityAdapter
             $entity->setUndoJob($job);
         }
 
-        if (array_key_exists('o-module-oai-pmh-harvester:comment', $data)) {
-            $value = (string) $data['o-module-oai-pmh-harvester:comment'];
+        if (array_key_exists('o-module-oai-pmh-harvester:message', $data)) {
+            $value = (string) $data['o-module-oai-pmh-harvester:message'];
             $value = $value === '' ? null : $value;
-            $entity->setComment($value);
+            $entity->setMessage($value);
         }
 
         if (array_key_exists('o-module-oai-pmh-harvester:endpoint', $data)) {
