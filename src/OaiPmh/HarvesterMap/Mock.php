@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
-class OaipmhHarvester_Harvest_Mock extends OaipmhHarvester_Harvest_Abstract
+namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
+
+class Mock extends AbstractHarvesterMap
 {
     const METADATA_PREFIX = 'mock';
     const METADATA_SCHEMA = 'mock.schema';

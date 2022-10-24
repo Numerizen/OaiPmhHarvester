@@ -5,14 +5,12 @@
  * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
+namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
 
 /**
  * Metadata format map for the required oai_dc Dublin Core format
- *
- * @package OaipmhHarvester
- * @subpackage Models
  */
-class OaipmhHarvester_Harvest_OaiDc extends OaipmhHarvester_Harvest_Abstract
+class OaiDc extends AbstractHarvesterMap
 {
     /*
      * XML schema and OAI prefix for the format represented by this class.
@@ -28,7 +26,7 @@ class OaipmhHarvester_Harvest_OaiDc extends OaipmhHarvester_Harvest_Abstract
      * Collection to insert items into.
      * @var \Omeka\Api\Representation\ItemSetRepresentation
      */
-    protected $_collection;
+    protected $_itemSet;
 
     /**
      * Actions to be carried out before the harvest of any items begins.
@@ -58,7 +56,7 @@ class OaipmhHarvester_Harvest_OaiDc extends OaipmhHarvester_Harvest_Abstract
     protected function _harvestRecord($record)
     {
         $itemMetadata = [
-            'collection_id' => $this->_collection->id,
+            'collection_id' => $this->_collection->id(),
             'public' => $this->getOption('public'),
             'featured' => $this->getOption('featured'),
         ];

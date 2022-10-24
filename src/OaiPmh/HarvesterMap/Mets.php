@@ -5,14 +5,12 @@
  * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
+namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
 
 /**
  * Metadata format map for the required Mets Dublin Core format
- *
- * @package OaipmhHarvester
- * @subpackage Models
  */
-class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
+class Mets extends AbstractHarvesterMap
 {
     /*
      * Xml schema and OAI prefix for the format represented by this class
@@ -32,7 +30,7 @@ class OaipmhHarvester_Harvest_Mets extends OaipmhHarvester_Harvest_Abstract
 
     const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
 
-    protected $_collection;
+    protected $_itemSet;
 
     protected function _beforeHarvest(): void
     {

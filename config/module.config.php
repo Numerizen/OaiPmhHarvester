@@ -3,6 +3,11 @@
 namespace OaiPmhHarvester;
 
 return [
+    'service_manager' => [
+        'factories' => [
+            OaiPmh\HarvesterMapManager::class => Service\OaiPmh\HarvesterMapManagerFactory::class,
+        ],
+    ],
     'api_adapters' => [
         'invokables' => [
             'oaipmhharvester_entities' => Api\Adapter\EntityAdapter::class,
@@ -120,6 +125,17 @@ return [
                 'pattern' => '%s.mo',
                 'text_domain' => null,
             ],
+        ],
+    ],
+    'oaipmh_harvester_maps' => [
+        'invokables' => [
+            // Let oai_dc first, the only required format.
+            'oai_dc' => OaiPmh\HarvesterMap\OaiDc::class,
+            'mets' => OaiPmh\HarvesterMap\Mets::class,
+            // 'mock' => OaiPmh\HarvesterMap\Mock::class,
+        ],
+        'aliases' => [
+            'dc' => 'oai_dc',
         ],
     ],
 ];

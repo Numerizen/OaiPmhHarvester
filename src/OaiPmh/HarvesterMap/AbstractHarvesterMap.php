@@ -5,14 +5,22 @@
  * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
+namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
+
+use Doctrine\Inflector\InflectorFactory;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use OaiPmhHarvester\Entity\Entity;
+use OaiPmhHarvester\Entity\Harvest;
+use Omeka\Entity\Item;
+use Omeka\Entity\Job;
+use Omeka\Mvc\Exception\RuntimeException;
+use SimpleXMLIterator;
+use Traversable;
 
 /**
- * Abstract class on which all other metadata format maps are based.
- *
- * @package OaipmhHarvester
- * @subpackage Models
+ * Abstract class on which all other metadata format harvests are based.
  */
-abstract class OaipmhHarvester_Harvest_Abstract
+abstract class AbstractHarvesterMap implements HarvesterMapInterface
 {
     /**
      * Notice message code, used for status messages.
@@ -32,9 +40,9 @@ abstract class OaipmhHarvester_Harvest_Abstract
     const OAI_DATE_FORMAT = 'Y-m-d';
 
     /**
-     * @var OaipmhHarvester_Harvest The OaipmhHarvester_Harvest object model.
+     * @var \Laminas\ServiceManager\ServiceLocatorInterface;
      */
-    private $_harvest;
+    protected $services;
 
     /**
      * @var SimpleXMLIterator The current, cached SimpleXMLIterator record object.
@@ -50,17 +58,18 @@ abstract class OaipmhHarvester_Harvest_Abstract
      * Class constructor.
      *
      * Prepares the harvest process.
-     *
-     * @param OaipmhHarvester_Harvest $harvest The OaipmhHarvester_Harvest object
-     * model
      */
-    public function __construct($harvest)
+    public function __construct()
     {
         // Set an error handler method to record run-time warnings (non-fatal
         // errors).
         set_error_handler([$this, 'errorHandler'], E_WARNING);
+    }
 
-        $this->_harvest = $harvest;
+    public function setServiceLocator(ServiceLocatorInterface $services): self
+    {
+        $this->services = $services;
+        return $this;
     }
 
     public function setOption($key, $value): void
@@ -68,9 +77,9 @@ abstract class OaipmhHarvester_Harvest_Abstract
         $this->_options[$key] = $value;
     }
 
-    public function getOption($key)
+    public function getOption($key, $default = null)
     {
-        return $this->_options[$key];
+        return $this->_options[$key] ?? $default;
     }
 
     /**
@@ -85,7 +94,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      * returns the record if it does.
      *
      * @param SimpleXMLIterator record to be harvested
-     * @return OaipmhHarvester_Record|false The model object of the record,
+     * @return Entity|false The model object of the record,
      *      if it exists, or false otherwise.
      */
     private function _recordExists($xml)
@@ -205,11 +214,11 @@ abstract class OaipmhHarvester_Harvest_Abstract
     /**
      * Insert a record into the database.
      *
-     * @param Item $item The item object corresponding to the record.
+     * @param Entity $item The item object corresponding to the record.
      */
     private function _insertRecord($item): void
     {
-        $record = new OaipmhHarvester_Record;
+        $record = new Item();
 
         $record->harvest_id = $this->_harvest->id;
         $record->item_id = $item->id;
@@ -225,7 +234,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      *
      * @param OaipmhHarvester_Record The model object corresponding to the record.
      */
-    private function _updateRecord(OaipmhHarvester_Record $record): void
+    private function _updateRecord(Entity $record): void
     {
         $record->datestamp = (string) $this->_record->header->datestamp;
         $record->save();
@@ -275,9 +284,8 @@ abstract class OaipmhHarvester_Harvest_Abstract
     {
         // If item set is not null, use the existing collection, do not
         // create a new one.
-        if (($collection_id = $this->_harvest->collection_id)) {
-            $collection = get_db()->getTable('Collection')->find($collection_id);
-        } else {
+        $itemSet = $this->_harvest->itemSet();
+        if (!$itemSet) {
             // There must be a collection name, so if there is none, like when the
             // harvest is repository-wide, set it to the base URL.
             if (!isset($metadata['elementTexts']['Dublin Core']['Title']['text']) ||
@@ -285,7 +293,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
                 $metadata['elementTexts']['Dublin Core']['Title']['text'] = $this->_harvest->base_url;
             }
 
-            $collection = insert_collection($metadata['metadata'], $metadata['elementTexts']);
+            $itemSet = insert_collection($metadata['metadata'], $metadata['elementTexts']);
 
             // Remember to set the harvest's collection ID once it has been saved.
             $this->_harvest->collection_id = $collection->id;
@@ -370,7 +378,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
      *
      * @see insert_item()
      * @see insert_files_for_item()
-     * @param OaipmhHarvester_Record $itemId ID of item to update
+     * @param Entity $itemId ID of item to update
      * @param mixed $elementTexts The item's element texts
      * @param mixed $fileMetadata The item's file metadata
      * @return true
@@ -415,9 +423,9 @@ abstract class OaipmhHarvester_Harvest_Abstract
     /**
      * Return this instance's OaipmhHarvester_Harvest object.
      *
-     * @return OaipmhHarvester_Harvest
+     * @return Harvest
      */
-    final protected function _getHarvest()
+    final protected function _getHarvest(): Harvest
     {
         return $this->_harvest;
     }
@@ -455,7 +463,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
         if (!error_reporting()) {
             return false;
         }
-        throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        throw new RuntimeException($errstr, 0, $errno, $errfile, $errline);
     }
 
     /**
@@ -464,8 +472,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
     final public function harvest(): void
     {
         try {
-            $this->_harvest->status =
-            OaipmhHarvester_Harvest::STATUS_IN_PROGRESS;
+            $this->_harvest->status = Job::STATUS_IN_PROGRESS;
             $this->_harvest->save();
 
             $this->_beforeHarvest();
@@ -476,33 +483,31 @@ abstract class OaipmhHarvester_Harvest_Abstract
             // must be valid resumption tokens.
             if ($resumptionToken === true) {
                 $this->_afterHarvest();
-                $this->_harvest->status =
-                OaipmhHarvester_Harvest::STATUS_COMPLETED;
+                $this->_harvest->status = Job::STATUS_COMPLETED;
                 $this->_harvest->completed = $this->_getCurrentDateTime();
                 $this->_harvest->resumption_token = null;
             } else {
                 $this->_harvest->resumption_token = $resumptionToken;
-                $this->_harvest->status =
-                OaipmhHarvester_Harvest::STATUS_QUEUED;
+                $this->_harvest->status = Job::STATUS_STARTING;
             }
 
             $this->_harvest->save();
-        } catch (Zend_Http_Client_Exception $e) {
+        } catch (\Laminas\Http\Client\Exception\ExceptionInterface $e) {
             $this->_stopWithError($e);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->_stopWithError($e);
             // For real errors need to be logged and debugged.
-            _log($e, Zend_Log::ERR);
+            $this->services->get('Omeka\Logger')->err($e);
         }
 
         $peakUsage = memory_get_peak_usage();
-        _log("[OaipmhHarvester] Peak memory usage: $peakUsage", Zend_Log::INFO);
+        $this->services->get('Omeka\Logger')->info("[OaiPmhHarvester] Peak memory usage: $peakUsage");
     }
 
     private function _stopWithError($e): void
     {
         $this->_addStatusMessage($e->getMessage(), self::MESSAGE_CODE_ERROR);
-        $this->_harvest->status = OaipmhHarvester_Harvest::STATUS_ERROR;
+        $this->_harvest->status = Job::STATUS_ERROR;
         // Reset the harvest start_from time if an error occurs during
         // processing. Since there's no way to know exactly when the
         // error occured, re-harvests need to start from the beginning.
@@ -512,7 +517,7 @@ abstract class OaipmhHarvester_Harvest_Abstract
 
     public static function factory($harvest)
     {
-        $classSuffix = Inflector::camelize($harvest->metadata_prefix);
+        $classSuffix = InflectorFactory::create()->build()->camelize($harvest->metadata_prefix);
         $class = 'OaipmhHarvester_Harvest_' . $classSuffix;
         require_once OAIPMH_HARVESTER_MAPS_DIRECTORY . "/$classSuffix.php";
 
