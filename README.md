@@ -42,8 +42,8 @@ See general end user documentation for [Installing a module] and follow the
 config instructions.
 
 
-Instructions
-------------
+Usage
+-----
 
 ### Performing a harvest
 
@@ -58,6 +58,12 @@ Instructions
 * Click the **Harvest** button.
 * A task should be created. The module creates a collection for each fetched set
   and then proceeds to harvest the content.
+
+
+TODO
+----
+
+- [ ] Check harvest of a repository without sets.
 
 
 Warning
