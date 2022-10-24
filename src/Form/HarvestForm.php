@@ -67,6 +67,29 @@ humanities:serie-beta',
             ])
 
             ->add([
+                'name' => 'filters_whitelist',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Filters on each record (whitelist)', // @translate
+                    'info' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'filters_whitelist',
+                ],
+            ])
+            ->add([
+                'name' => 'filters_blacklist',
+                'type' => OmekaElement\ArrayTextarea::class,
+                'options' => [
+                    'label' => 'Filters on each record (blacklist)', // @translate
+                    'info' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
+                ],
+                'attributes' => [
+                    'id' => 'filters_blacklist',
+                ],
+            ])
+
+            ->add([
                 'type' => Element\Hidden::class,
                 'name' => 'step',
                 'attributes' => [
