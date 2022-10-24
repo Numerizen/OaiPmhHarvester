@@ -10,6 +10,20 @@ use Omeka\Stdlib\ErrorStore;
 
 class EntityAdapter extends AbstractEntityAdapter
 {
+    protected $sortFields = [
+        'id' => 'id',
+        'job_id' => 'job',
+        'entity_id' => 'entityId',
+        'entity_name' => 'entityName',
+    ];
+
+    protected $scalarFields = [
+        'id' => 'id',
+        'job_id' => 'job',
+        'entity_id' => 'entityId',
+        'entity_name' => 'entityName',
+    ];
+
     public function getEntityClass()
     {
         return \OaiPmhHarvester\Entity\Entity::class;

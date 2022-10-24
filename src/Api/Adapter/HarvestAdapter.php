@@ -10,6 +10,40 @@ use Omeka\Stdlib\ErrorStore;
 
 class HarvestAdapter extends AbstractEntityAdapter
 {
+    protected $sortFields = [
+        'id' => 'id',
+        'job' => 'job',
+        'undo_job' => 'undoJob',
+        'message' => 'message',
+        'endpoint' => 'endpoint',
+        'entity_name' => 'entityName',
+        'item_set' => 'itemSet',
+        'metadata_prefix' => 'metadataPrefix',
+        'set_spec' => 'setSpec',
+        'set_name' => 'setName',
+        'set_description' => 'setDescription',
+        'has_err' => 'hasErr',
+        'stats' => 'stats',
+        'resumption_token' => 'resumptionToken',
+    ];
+
+    protected $scalarFields = [
+        'id' => 'id',
+        'job' => 'job',
+        'undo_job' => 'undoJob',
+        'message' => 'message',
+        'endpoint' => 'endpoint',
+        'entity_name' => 'entityName',
+        'item_set' => 'itemSet',
+        'metadata_prefix' => 'metadataPrefix',
+        'set_spec' => 'setSpec',
+        'set_name' => 'setName',
+        'set_description' => 'setDescription',
+        'has_err' => 'hasErr',
+        'stats' => 'stats',
+        'resumption_token' => 'resumptionToken',
+    ];
+
     public function getEntityClass()
     {
         return \OaiPmhHarvester\Entity\Harvest::class;
