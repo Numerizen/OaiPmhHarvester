@@ -29,13 +29,20 @@ return [
     ],
     'form_elements' => [
         'invokables' => [
-            Form\HarvestForm::class => Form\HarvestForm::class,
             Form\SetsForm::class => Form\SetsForm::class,
+        ],
+        'factories' => [
+            Form\HarvestForm::class => Service\Form\HarvestFormFactory::class,
         ],
     ],
     'controllers' => [
         'invokables' => [
             'OaiPmhHarvester\Controller\Admin\Index' => Controller\Admin\IndexController::class,
+        ],
+    ],
+    'controller_plugins' => [
+        'factories' => [
+            'oaiPmhRepository' => Service\ControllerPlugin\OaiPmhRepositoryFactory::class,
         ],
     ],
     'router' => [
@@ -45,7 +52,7 @@ return [
                     'oaipmhharvester' => [
                         'type' => \Laminas\Router\Http\Literal::class,
                         'options' => [
-                            'route' => '/oaipmhharvester',
+                            'route' => '/oai-pmh-harvester',
                             'defaults' => [
                                 '__NAMESPACE__' => 'OaiPmhHarvester\Controller\Admin',
                                 'controller' => 'Index',
@@ -54,30 +61,15 @@ return [
                         ],
                         'may_terminate' => true,
                         'child_routes' => [
-                            'sets' => [
-                                'type' => \Laminas\Router\Http\Literal::class,
+                            'default' => [
+                                'type' => \Laminas\Router\Http\Segment::class,
                                 'options' => [
-                                    'route' => '/sets',
+                                    'route' => '/:action',
+                                    'constraints' => [
+                                        'action' => 'index|sets|harvest|past-harvests',
+                                    ],
                                     'defaults' => [
                                         'action' => 'sets',
-                                    ],
-                                ],
-                            ],
-                            'harvest' => [
-                                'type' => \Laminas\Router\Http\Literal::class,
-                                'options' => [
-                                    'route' => '/harvest',
-                                    'defaults' => [
-                                        'action' => 'harvest',
-                                    ],
-                                ],
-                            ],
-                            'past-harvests' => [
-                                'type' => \Laminas\Router\Http\Literal::class,
-                                'options' => [
-                                    'route' => '/past-harvests',
-                                    'defaults' => [
-                                        'action' => 'past-harvests',
                                     ],
                                 ],
                             ],
@@ -96,21 +88,24 @@ return [
                 'pages' => [
                     [
                         'label' => 'Harvest', // @translate
-                        'route' => 'admin/oaipmhharvester',
+                        'route' => 'admin/oaipmhharvester/default',
+                        'action' => 'index',
                     ],
                     [
                         'label' => 'Sets', // @translate
-                        'route' => 'admin/oaipmhharvester/sets',
+                        'route' => 'admin/oaipmhharvester/default',
+                        'action' => 'sets',
                         'visible' => false,
                     ],
                     [
                         'label' => 'Harvest', // @translate
-                        'route' => 'admin/oaipmhharvester/harvest',
+                        'route' => 'admin/oaipmhharvester/default',
+                        'action' => 'harvest',
                         'visible' => false,
                     ],
                     [
                         'label' => 'Past Harvests', // @translate
-                        'route' => 'admin/oaipmhharvester/past-harvests',
+                        'route' => 'admin/oaipmhharvester/default',
                         'action' => 'past-harvests',
                     ],
                 ],

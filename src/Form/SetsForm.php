@@ -1,30 +1,30 @@
 <?php declare(strict_types=1);
+
 namespace OaiPmhHarvester\Form;
 
 use Laminas\Form\Element;
 use Laminas\Form\Form;
+use Omeka\Form\Element as OmekaElement;
 
 class SetsForm extends Form
 {
+    public function __construct($name = null, $options = [])
+    {
+        is_array($name)
+            ? parent::__construct($name['name'] ?? null, $name)
+            : parent::__construct($name, $options);
+    }
+
     public function init(): void
     {
-        $this->setAttribute('action', 'harvest');
-
-        $repositoryName = $this->getOption('repository_name');
-        $endpoint = $this->getOption('endpoint');
-        $formats = $this->getOption('formats');
-        $sets = $this->getOption('sets') ?: [];
-        $harvestAllRecords = $this->getOption('harvest_all_records');
-        $predefinedSets = $this->getOption('predefined_sets');
-        $favoriteFormat = $this->getOption('favorite_format');
-
         $this
+            ->setAttribute('id', 'harvest-list-sets')
+
             ->add([
                 'type' => Element\Hidden::class,
                 'name' => 'repository_name',
                 'attributes' => [
                     'id' => 'repository_name',
-                    'value' => $repositoryName,
                 ],
             ])
             ->add([
@@ -32,7 +32,6 @@ class SetsForm extends Form
                 'name' => 'endpoint',
                 'attributes' => [
                     'id' => 'endpoint',
-                    'value' => $endpoint,
                 ],
             ])
             ->add([
@@ -40,12 +39,19 @@ class SetsForm extends Form
                 'name' => 'harvest_all_records',
                 'attributes' => [
                     'id' => 'harvest_all_records',
-                    'value' => $harvestAllRecords,
                 ],
             ])
             ->add([
+                'type' => Element\Hidden::class,
+                'name' => 'predefined_sets',
+                'attributes' => [
+                    'id' => 'predefined_sets',
+                ],
+            ])
+
+            ->add([
                 'name' => 'filters_whitelist',
-                'type' => Element\Textarea::class,
+                'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Filters (whitelist)', // @translate
                     'info' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
@@ -56,7 +62,7 @@ class SetsForm extends Form
             ])
             ->add([
                 'name' => 'filters_blacklist',
-                'type' => Element\Textarea::class,
+                'type' => OmekaElement\ArrayTextarea::class,
                 'options' => [
                     'label' => 'Filters (blacklist)', // @translate
                     'info' => 'Add strings to filter the input, for example to import only some articles of a journal.', // @translate
@@ -64,78 +70,110 @@ class SetsForm extends Form
                 'attributes' => [
                     'id' => 'filters_blacklist',
                 ],
-            ]);
+            ])
+
+            ->add([
+                'type' => Element\Hidden::class,
+                'name' => 'step',
+                'attributes' => [
+                    'id' => 'step',
+                    'value' => 'harvest-list-sets',
+                ],
+            ])
+
+            ->appendSets()
+
+            ->appendSetsInputFilter();
+    }
+
+    /**
+     * This form is dynamic, so allows to append elements.
+     */
+    public function appendSets(
+        ?bool $harvestAllRecords = null,
+        ?array $formats = null,
+        ?string $favoriteFormat = null,
+        ?array $sets = null,
+        ?bool $hasPredefinedSets = null
+    ): self {
+        $harvestAllRecords = $harvestAllRecords ?? $this->getOption('harvest_all_records', false);
+        $formats = $formats ?? $this->getOption('formats', ['oai_dc']);
+        $favoriteFormat = $favoriteFormat ?? $this->getOption('favorite_format', 'oai_dc');
+        $sets = $sets ?? $this->getOption('sets', []);
+        $hasPredefinedSets = $hasPredefinedSets ?? $this->getOption('has_predefined_sets', []);
+
+        // TODO Normalize sets form with collection, fieldsets and better names.
 
         // The predefined sets are already formatted, but have no label.
-        if ($predefinedSets) {
-            foreach ($sets as $id => $prefix) {
+        if ($hasPredefinedSets) {
+            foreach ($sets as $setSpec => $prefix) {
                 $this
                     ->add([
                         'type' => Element\Select::class,
-                        'name' => 'namespace[' . $id . ']',
+                        'name' => 'namespace[' . $setSpec . ']',
                         'options' => [
-                            'label' => $id,
+                            'label' => $setSpec,
                             'value_options' => $formats,
                         ],
                         'attributes' => [
-                            'id' => 'namespace[' . $id . ']',
+                            'id' => 'namespace[' . $setSpec . ']',
                             'value' => $prefix,
                         ],
                     ])
                     ->add([
                         'type' => Element\Hidden::class,
-                        'name' => 'setSpec[' . $id . ']',
+                        'name' => 'setSpec[' . $setSpec . ']',
                         'attributes' => [
-                            'id' => 'setSpec' . $id,
-                            'value' => $id,
+                            'id' => 'setSpec' . $setSpec,
+                            'value' => $setSpec,
                         ],
                     ])
                     ->add([
                         'type' => Element\Checkbox::class,
-                        'name' => 'harvest[' . $id . ']',
+                        'name' => 'harvest[' . $setSpec . ']',
                         'options' => [
                             'label' => 'Harvest this set?', // @translate
                             'use_hidden_element' => false,
                         ],
                         'attributes' => [
-                            'id' => 'harvest[' . $id . ']',
+                            'id' => 'harvest[' . $setSpec . ']',
                             'value' => true,
                             'checked' => 'checked',
                         ],
                     ]);
             }
         } elseif ($sets && !$harvestAllRecords) {
-            foreach ($sets as $id => $set) {
+            foreach ($sets as $setSpec => $set) {
                 $this
                     ->add([
                         'type' => Element\Select::class,
-                        'name' => 'namespace[' . $id . ']',
+                        'name' => 'namespace[' . $setSpec . ']',
                         'options' => [
-                            'label' => strip_tags($set) . " ($id)",
+                            'label' => strip_tags($set) . " ($setSpec)",
                             'value_options' => $formats,
                         ],
                         'attributes' => [
-                            'id' => 'namespace[' . $id . ']',
+                            'id' => 'namespace-' . $setSpec,
                             'value' => $favoriteFormat,
                         ],
                     ])
                     ->add([
                         'type' => Element\Hidden::class,
-                        'name' => 'setSpec[' . $id . ']',
+                        'name' => 'setSpec[' . $setSpec . ']',
                         'attributes' => [
-                            'id' => 'setSpec' . $id,
+                            'id' => 'setSpec-' . $setSpec,
                             'value' => strip_tags($set),
                         ],
                     ])
                     ->add([
                         'type' => Element\Checkbox::class,
-                        'name' => 'harvest[' . $id . ']',
+                        'name' => 'harvest[' . $setSpec . ']',
                         'options' => [
-                            'label' => 'Harvest this set?', // @translate
+                            'label' => 'Harvest this set', // @translate
                             'use_hidden_element' => false,
                         ],
                         'attributes' => [
-                            'id' => 'harvest[' . $id . ']',
+                            'id' => 'harvest-' . $setSpec,
                         ],
                     ]);
             }
@@ -149,11 +187,34 @@ class SetsForm extends Form
                         'value_options' => $formats,
                     ],
                     'attributes' => [
-                        'id' => 'namespace[0]',
+                        'id' => 'namespace-0',
                         'value' => $favoriteFormat,
                     ],
                 ])
             ;
         }
+
+        return $this;
+    }
+
+    public function appendSetsInputFilter(): self
+    {
+        $inputFilters = $this->getInputFilter();
+
+        foreach ($this->getElements() as $element) {
+            $elementName = $element->getName();
+            if (strpos($elementName, 'namespace[') === 0
+                || strpos($elementName, 'setSpec[') === 0
+                || strpos($elementName, 'harvest[') === 0
+            ) {
+                $inputFilters
+                    ->add([
+                        'name' => $elementName,
+                        'required' => false,
+                    ]);
+            }
+        }
+
+        return $this;
     }
 }

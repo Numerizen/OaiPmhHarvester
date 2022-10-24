@@ -7,8 +7,9 @@
 $translate = $this->plugin('translate');
 ?>
 
-<?= $this->pageTitle($translate('Set repository to harvest'), 1, $translate('OAI-PMH Harvester')) ?>
+<?= $this->pageTitle($translate('Harvester'), 1, $translate('OAI-PMH')) ?>
 
+<h3><?= $translate('Set repository to harvest') ?></h3>
 <?= $this->form()->openTag($form) ?>
 <fieldset id='page-actions'>
     <button type="submit"><?= $translate('View sets') ?></button>

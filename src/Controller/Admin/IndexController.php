@@ -15,36 +15,41 @@ class IndexController extends AbstractActionController
      * A standard php server allows only 1000 fields, and there are three fields
      * by set (prefix, hidden, harvest).
      *
+     * TODO Add a js to return a json and avoid limit of 250 repository sets to harvest.
+     *
+     * Warning: the repository Calames used for tests is wrong: setSpec are not unique.
+     * @link http://www.calames.abes.fr/oai/oai2.aspx?verb=ListSets
+     *
      * @var int
      */
-    protected $maxListSets = 200;
-
-    /**
-     * List of managed metadata prefixes.
-     *
-     * The order is used to set the default format in the second form.
-     * Full Dublin Core is preferred.
-     *
-     * @var array
-     */
-    protected $metadataPrefixes = [
-        'oai_dcterms',
-        'oai_dcq',
-        'oai_qdc',
-        'dcterms',
-        'qdc',
-        'dcq',
-        'oai_dc',
-        'dc',
-        'mets',
-    ];
+    protected $maxListSets = 250;
 
     /**
      * Main form to set the url.
      */
     public function indexAction()
     {
+        /** @var \OaiPmhHarvester\Form\HarvestForm $form */
         $form = $this->getForm(HarvestForm::class);
+
+        if ($this->getRequest()->isPost()) {
+            $params = $this->params()->fromRoute();
+            $hasError = !empty($params['has_error']);
+            $post = $this->params()->fromPost();
+            $step = $post['step'] ?? null;
+            if (!$hasError && $step === 'harvest-repository') {
+                $form->setData($post);
+                if ($form->isValid()) {
+                    $params = $this->params()->fromRoute();
+                    $params['action'] = 'sets';
+                    $params['prev_action'] = 'index';
+                    return $this->forward()->dispatch(__CLASS__, $params);
+                } else {
+                    $this->messenger()->addFormErrors($form);
+                }
+            }
+        }
+
         return new ViewModel([
             'form' => $form,
         ]);
@@ -55,95 +60,104 @@ class IndexController extends AbstractActionController
      */
     public function setsAction()
     {
-        // FIXME Validate post.
+        // Avoid direct access to the page.
+        if (!$this->getRequest()->isPost()) {
+            return $this->redirect()->toRoute('admin/default', ['controller' => 'oai-pmh-harvester', 'action' => 'index']);
+        }
+
+        // Check if the post come from index or sets.
+        $params = $this->params()->fromRoute();
         $post = $this->params()->fromPost();
-        $endpoint = @$post['endpoint'];
 
-        // Avoid direct acces to the page.
-        if (empty($endpoint)) {
-            return $this->redirect()->toRoute('admin/oaipmhharvester');
-        }
+        $step = $post['step'] ?? 'harvest-repository';
+        $prevAction = $params['prev_action'] ?? null;
+        $hasError = !empty($params['has_error']);
+        unset($post['step'], $params['prev_action'], $params['has_error']);
 
-        $harvestAllRecords = !empty($post['harvest_all_records']);
-
-        $url = $endpoint . '?verb=Identify';
-        $response = @\simplexml_load_file($url);
-        if (!$response) {
-            $message = sprintf($this->translate('The endpoint "%s" does not return xml.'), $endpoint); // @translate
-            $this->messenger()->addError($message);
-            return $this->redirect()->toRoute('admin/oaipmhharvester');
-        }
-
-        $repositoryName = (string) $response->Identify->repositoryName ?: $this->translate('[Untitled repository]'); // @translate
-
-        $formats = $this->listOaiPmhFormats($endpoint);
-        if (empty($formats)) {
-            $message = sprintf($this->translate('The endpoint "%s" does not manage any format.'), $endpoint); // @translate
-            $this->messenger()->addError($message);
-            return $this->redirect()->toRoute('admin/oaipmhharvester');
-        }
-
-        $favoriteFormat = array_intersect($this->metadataPrefixes, $formats);
-        $favoriteFormat = reset($favoriteFormat) ?: 'oai_dc';
-
-        // Fixes Windows and Apple copy/paste from a textarea input, then explode it.
-        $sets = [];
-        $predefinedSets = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $post['sets']))), 'strlen');
-        foreach ($predefinedSets as $set) {
-            $id = trim((string) strtok($set, '='));
-            if (strlen($id)) {
-                $sets[$id] = trim((string) strtok('=')) ?: $favoriteFormat;
+        if ($step === 'harvest-repository' || $prevAction === 'index') {
+            /** @var \OaiPmhHarvester\Form\HarvestForm $form */
+            $form = $this->getForm(HarvestForm::class);
+            $form->setData($post);
+            if (!$form->isValid()) {
+                $params['action'] = 'index';
+                $params['has_error'] = true;
+                return $this->forward()->dispatch(__CLASS__, $params);
             }
-        }
-
-        $predefinedSets = (bool) $predefinedSets;
-        if ($predefinedSets && !$sets) {
-            $message = $this->translate('The sets you specified are not correctly formatted.'); // @translate
-            $this->messenger()->addError($message);
-            return $this->redirect()->toRoute('admin/oaipmhharvester');
-        }
-
-        // Check if all sets have a managed format.
-        if ($sets) {
-            $checks = array_filter($formats, function ($v, $k) {
-                return $v === $k;
-            }, ARRAY_FILTER_USE_BOTH);
-            $unmanaged = array_filter($sets, function ($v) use ($checks) {
-                return !in_array($v, $checks);
-            });
-            if ($unmanaged) {
-                $message = sprintf(
-                    $this->translate('The following formats are not managed: "%s".'), // @translate
-                    implode('", "', $unmanaged)
-                );
-                $this->messenger()->addError($message);
-                return $this->redirect()->toRoute('admin/oaipmhharvester');
+            $data = $form->getData();
+        } elseif ($step === 'harvest-list-sets') {
+            if ($hasError) {
+                return $this->redirect()->toRoute('admin/default', ['controller' => 'oai-pmh-harvester', 'action' => 'index']);
             }
-        }
-
-        if ($sets) {
-            $total = null;
+            // The first time, the check is already done.
+            // The full check on the full form is done below.
+            $data = $post;
         } else {
-            $sets = $harvestAllRecords ? ['total' => null, 'sets' => []] : $this->listOaiPmhSets($endpoint);
-            $total = $sets['total'];
-            $sets = $sets['sets'];
+            return $this->redirect()->toRoute('admin/default', ['controller' => 'oai-pmh-harvester', 'action' => 'index']);
         }
 
-        $options = [
-            'repository_name' => $repositoryName,
-            'endpoint' => $endpoint,
-            'formats' => $formats,
-            'sets' => $sets,
-            'harvest_all_records' => $harvestAllRecords,
-            'predefined_sets' => $predefinedSets,
-            'favorite_format' => $favoriteFormat,
-        ];
-        $form = $this->getForm(SetsForm::class, $options);
+        // Process Harvest form.
+        // Most of checks are done via the form in the first step.
 
+        $endpoint = $data['endpoint'];
+        $harvestAllRecords = !empty($data['harvest_all_records']);
+        $predefinedSets = $data['predefined_sets'] ?? [];
+        // In the second form, predefined sets are hdden.
+        if (!is_array($predefinedSets)) {
+            $predefinedSets = @json_decode($predefinedSets, true) ?: [];
+        }
+        $data['predefined_sets'] = $predefinedSets;
+
+        // TODO Move last checks to form.
+        $optionsData = $this->dataFromEndpoint($endpoint, $harvestAllRecords, $predefinedSets);
+        if (!empty($optionsData['message'])) {
+            $this->messenger()->addError($optionsData['message']);
+            $params['action'] = $optionsData['redirect'] ?? 'sets';
+            $params['has_error'] = true;
+            return $this->forward()->dispatch(__CLASS__, $params);
+        }
+
+        $optionsData = [
+            'step' => 'harvest-list-sets',
+        ] + $data + $optionsData;
+
+        // The form for sets is dynamic.
+        $form = $this->getForm(SetsForm::class, $optionsData)
+            ->setAttribute('action', $this->url()->fromRoute('admin/default', ['controller' => 'oai-pmh-harvester', 'action' => 'sets']));
+        $optionsData['predefined_sets'] = json_encode($predefinedSets, 320);
+        $form
+            ->setData($optionsData);
+
+        // Don't check validity if the previous form was the repository one.
+        if ($prevAction === 'index') {
+            return new ViewModel([
+                'form' => $form,
+                'repositoryName' => $optionsData['repository_name'],
+                'total' => $optionsData['total'],
+                'harvestAllRecords' => $harvestAllRecords,
+            ]);
+        }
+
+        if (!$harvestAllRecords && !$predefinedSets && empty($data['harvest'])) {
+            $this->messenger()->addError('At least one repository should be selected.'); // @translate
+            return new ViewModel([
+                'form' => $form,
+                'repositoryName' => $optionsData['repository_name'],
+                'total' => $optionsData['total'],
+                'harvestAllRecords' => $harvestAllRecords,
+            ]);
+        }
+
+        if ($form->isValid()) {
+            $params['action'] = 'harvest';
+            return $this->forward()->dispatch(__CLASS__, $params);
+        }
+
+        $this->messenger()->addFormErrors($form);
+        $params['has_error'] = true;
         return new ViewModel([
             'form' => $form,
-            'repositoryName' => $repositoryName,
-            'total' => $total,
+            'repositoryName' => $optionsData['repository_name'],
+            'total' => $optionsData['total'],
             'harvestAllRecords' => $harvestAllRecords,
         ]);
     }
@@ -153,29 +167,74 @@ class IndexController extends AbstractActionController
      */
     public function harvestAction()
     {
-        $post = $this->params()->fromPost();
-
-        $filters = [];
-        $filters['whitelist'] = $post['filters_whitelist'];
-        $filters['blacklist'] = $post['filters_blacklist'];
-        // This method fixes Windows and Apple copy/paste from a textarea input,
-        // then explode it by line.
-        foreach ($filters as &$filter) {
-            $filter = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\n\r", "\r"], ["\n", "\n", "\n"], $filter))), 'strlen');
+        // Avoid direct access to the page.
+        if (!$this->getRequest()->isPost()) {
+            return $this->redirect()->toRoute('admin/default', ['controller' => 'oai-pmh-harvester', 'action' => 'index']);
         }
 
-        $message = sprintf($this->translate('Harvesting from "%s" sets:'), $post['endpoint']) // @translate
-            . ' ';
+        // Check if the post come from index or sets.
+        $params = $this->params()->fromRoute();
+        $post = $this->params()->fromPost();
+        $step = $post['step'] ?? 'harvest-repository';
 
-        $repositoryName = $post['repository_name'];
+        if ($step !== 'harvest-list-sets') {
+            $params['action'] = 'index';
+            $params['has_error'] = true;
+            return $this->forward()->dispatch(__CLASS__, $params);
+        }
+
+        // Pass a filtered post as params.
+        $endpoint = $post['endpoint'];
         $harvestAllRecords = !empty($post['harvest_all_records']);
+        $predefinedSets  = $post['predefined_sets'] ?? [];
+        // In the second form, predefined sets are hdden.
+        if (!is_array($predefinedSets)) {
+            $predefinedSets = @json_decode($predefinedSets, true) ?: [];
+        }
+        $optionsData = $this->dataFromEndpoint($endpoint, $harvestAllRecords, $predefinedSets);
+        $form = $this->getForm(SetsForm::class, $optionsData);
+        $form->setData($post);
+        if (!$form->isValid()) {
+            $params['action'] = 'sets';
+            return $this->forward()->dispatch(__CLASS__, $params);
+        }
+
+        // Process List Sets form.
+        $data = $form->getData();
+
+        // TODO Fix get data for namespace. Use fieldset/collection.
+        $data['namespace'] = $post['namespace'];
+        $data['setSpec'] = $post['setSpec'];
+        $data['harvest'] = $post['harvest'];
+        foreach (array_keys($data) as $k) {
+            if (strpos($k, 'namespace[') === 0
+                || strpos($k, 'setSpec[') === 0
+                || strpos($k, 'harvest[') === 0
+            ) {
+                unset($data[$k]);
+            }
+        }
+
+        $filters = [
+            'whitelist' => $data['filters_whitelist'] ?? [],
+            'blacklist' => $data['filters_blacklist'] ?? [],
+        ];
+
+        $message = new Message(
+            $this->translate('Harvesting from "%s" sets'), // @translate
+            $data['endpoint']
+        );
+        $message .= ': ';
+
+        $repositoryName = $data['repository_name'];
+        $harvestAllRecords = !empty($data['harvest_all_records']);
 
         // List item sets and create oai-pmh harvesting sets.
         // FIXME Check if the item sets exist.
         // TODO Append description of sets, if any.
         $sets = [];
         if ($harvestAllRecords) {
-            $prefix = $post['namespace'][0];
+            $prefix = $data['namespace'][0];
             $message .= $repositoryName;
             $toCreate = [
                 // dctype:Collection.
@@ -188,7 +247,7 @@ class IndexController extends AbstractActionController
                 'dcterms:isFormatOf' => [[
                     'type' => 'uri',
                     'property_id' => 37,
-                    '@id' => $post['endpoint'],
+                    '@id' => $data['endpoint'],
                     'o:label' => 'OAI-PMH repository',
                 ]],
             ];
@@ -199,9 +258,9 @@ class IndexController extends AbstractActionController
                 'item_set_id' => $itemSet->id(),
             ];
         } else {
-            foreach (array_keys($post['harvest']) as $id) {
-                $prefix = $post['namespace'][$id];
-                $label = $post['setSpec'][$id];
+            foreach (array_keys($data['harvest'] ?? []) as $setSpec) {
+                $prefix = $data['namespace'][$setSpec];
+                $label = $data['setSpec'][$setSpec];
                 $message .= sprintf(
                     $this->translate('%s as %s'), // @translate
                     $label,
@@ -218,12 +277,12 @@ class IndexController extends AbstractActionController
                     'dcterms:isFormatOf' => [[
                         'type' => 'uri',
                         'property_id' => 37,
-                        '@id' => $post['endpoint'],
+                        '@id' => $data['endpoint'],
                         'o:label' => 'OAI-PMH repository',
                     ]],
                 ];
                 $itemSet = $this->api()->create('item_sets', $toCreate)->getContent();
-                $sets[$id] = [
+                $sets[$setSpec] = [
                     'set_name' => $label,
                     'metadata_prefix' => $prefix,
                     'item_set_id' => $itemSet->id(),
@@ -231,7 +290,7 @@ class IndexController extends AbstractActionController
             }
         }
 
-        $message = rtrim($message, '| ') . '.';
+        $message = trim($message, ':| ') . '.';
         $this->messenger()->addSuccess($message);
 
         if ($filters['whitelist']) {
@@ -250,12 +309,10 @@ class IndexController extends AbstractActionController
             $this->messenger()->addSuccess($message);
         }
 
-        $dispatcher = $this->jobDispatcher();
-
         $urlHelper = $this->url();
         foreach ($sets as $setSpec => $set) {
             //  . "?metadataPrefix=" . $set[1] . "&verb=ListRecords&set=" . $setSpec
-            $endpoint = $post['endpoint'];
+            $endpoint = $data['endpoint'];
             // TODO : job harvest / job item creation ?
             // TODO : toutes les propriétés (prefix, resumption, etc.)
             $args = [
@@ -268,7 +325,7 @@ class IndexController extends AbstractActionController
                 'entity_name' => 'items',
                 'filters' => $filters,
             ] + $set;
-            $job = $dispatcher->dispatch(\OaiPmhHarvester\Job\Harvest::class, $args);
+            $job = $this->jobDispatcher()->dispatch(\OaiPmhHarvester\Job\Harvest::class, $args);
 
             $urlHelper = $this->url();
             // TODO Don't use PsrMessage for now to fix issues with Doctrine and inexisting file to remove.
@@ -293,7 +350,7 @@ class IndexController extends AbstractActionController
             $this->messenger()->addSuccess($message);
         }
 
-        return $this->redirect()->toRoute('admin/oaipmhharvester/past-harvests');
+        return $this->redirect()->toRoute('admin/default', ['controller' => 'oai-pmh-harvester', 'action' => 'past-harvests']);
     }
 
     public function pastHarvestsAction()
@@ -305,7 +362,7 @@ class IndexController extends AbstractActionController
                 $undoJob = $this->undoJob($jobId);
                 $undoJobIds[] = $undoJob->getId();
             }
-            $this->messenger()->addSuccess(sprintf(
+            $this->messenger()->addSuccess(new Message(
                 'Undo in progress in the following jobs: %s', // @translate
                 implode(', ', $undoJobIds)
             ));
@@ -345,73 +402,97 @@ class IndexController extends AbstractActionController
     }
 
     /**
-     * Prepare the list of formats of an OAI-PMH repository.
+     * Get data for the setsForm.
      *
-     * @return string[] Associative array of format prefix and name.
+     * The endpoint should be checked.
      */
-    protected function listOaiPmhFormats(string $endpoint): array
+    protected function dataFromEndpoint($endpoint, $harvestAllRecords, $predefinedSets): array
     {
-        $formats = [];
+        $harvestAllRecords = (bool) $harvestAllRecords;
+        $hasPredefinedSets = !empty($predefinedSets);
+        $result = [
+            'repository_name' => '',
+            'endpoint' => '',
+            'harvest_all_records' => false,
+            'predefined_sets' => $predefinedSets,
+            'formats' => [],
+            'favorite_format' => '',
+            'sets' => [],
+            'has_predefined_sets' => $hasPredefinedSets,
+            'message' => null,
+        ];
 
-        $url = $endpoint . '?verb=ListMetadataFormats';
-        $response = @\simplexml_load_file($url);
-        if ($response) {
-            foreach ($response->ListMetadataFormats->metadataFormat as $format) {
-                $prefix = (string) $format->metadataPrefix;
-                if (in_array($prefix, $this->metadataPrefixes)) {
-                    $formats[$prefix] = $prefix;
-                } else {
-                    $formats[$prefix] = sprintf($this->translate('%s [unmanaged]'), $prefix); // @translate
+        if (!$endpoint) {
+            $result['message'] = $this->translate('Missing endpoint.'); // @translate
+            return $result;
+        }
+
+        $message = null;
+
+        $oaiPmhRepository = $this->oaiPmhRepository($endpoint);
+        $repositoryName = $oaiPmhRepository->getRepositoryName()
+            ?: $this->translate('[Untitled repository]'); // @translate
+
+        $formats = $oaiPmhRepository->listOaiPmhFormats();
+
+        $favoriteFormat = array_intersect($oaiPmhRepository->listManagedPrefixes(), $formats);
+        $favoriteFormat = reset($favoriteFormat) ?: 'oai_dc';
+
+        // TODO Move the next checks of oai-pmh sets to the helper.
+
+        if ($hasPredefinedSets) {
+            $originalPredefinedSets = $predefinedSets;
+            foreach ($predefinedSets as $setSpec => $format) {
+                if (!$setSpec) {
+                    unset($predefinedSets[$setSpec]);
+                } elseif (!$format) {
+                    $predefinedSets[$setSpec] = $favoriteFormat;
                 }
+            }
+
+            if ($hasPredefinedSets && count($originalPredefinedSets) !== count($predefinedSets)) {
+                $result['message'] = $this->translate('The sets you specified are not correctly formatted.'); // @translate
+                $result['redirect'] = 'index';
+                return $result;
+            }
+
+            // Check if all sets have a managed format.
+            $checks = array_filter($formats, function ($v, $k) {
+                return $v === $k;
+            }, ARRAY_FILTER_USE_BOTH);
+            $unmanaged = array_filter($predefinedSets, function ($v) use ($checks) {
+                return !in_array($v, $checks);
+            });
+            if ($unmanaged) {
+                $result['message'] = new Message(
+                    $this->translate('The following formats are not managed: "%s".'), // @translate
+                    implode('", "', $unmanaged)
+                );
+                return $result;
             }
         }
 
-        return $formats;
-    }
+        if ($harvestAllRecords) {
+            $total = null;
+            $sets = [];
+        } else {
+            $setsTotals = $oaiPmhRepository->listOaiPmhSets();
+            $total = $setsTotals['total'];
+            $sets = $predefinedSets ?: array_slice($setsTotals['sets'], 0, $this->maxListSets, true);
+        }
 
-    /**
-     * Prepare the list of sets of an OAI-PMH repository.
-     */
-    protected function listOaiPmhSets(string $endpoint): array
-    {
-        $sets = [];
-
-        $baseListSetUrl = $endpoint . '?verb=ListSets';
-        $resumptionToken = false;
-        $totalSets = null;
-        do {
-            $url = $baseListSetUrl;
-            if ($resumptionToken) {
-                $url = $baseListSetUrl . '&resumptionToken=' . $resumptionToken;
-            }
-
-            /** @var \SimpleXMLElement $response */
-            $response = \simplexml_load_file($url);
-            if (!$response || !isset($response->ListSets)) {
-                break;
-            }
-
-            if (is_null($totalSets)) {
-                $totalSets = isset($response->ListRecords->resumptionToken)
-                    ? (int) $response->ListSets->resumptionToken['completeListSize']
-                    : count($response->ListSets->set);
-            }
-
-            foreach ($response->ListSets->set as $set) {
-                $sets[(string) $set->setSpec] = (string) $set->setName;
-                if (count($sets) >= $this->maxListSets) {
-                    break 2;
-                }
-            }
-
-            $resumptionToken = isset($response->ListSets->resumptionToken) && $response->ListSets->resumptionToken !== ''
-                ? (string) $response->ListSets->resumptionToken
-                : false;
-        } while ($resumptionToken && count($sets) <= $this->maxListSets);
-
+        // TODO Normalize sets form with fieldsets and better names.
         return [
-            'total' => $totalSets,
-            'sets' => array_slice($sets, 0, $this->maxListSets, true),
+            'repository_name' => $repositoryName,
+            'endpoint' => $endpoint,
+            'harvest_all_records' => $harvestAllRecords,
+            'predefined_sets' => $predefinedSets,
+            'formats' => $formats,
+            'favorite_format' => $favoriteFormat,
+            'sets' => $sets,
+            'has_predefined_sets' => $hasPredefinedSets,
+            'total' => $total,
+            'message' => $message,
         ];
     }
 }

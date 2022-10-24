@@ -350,7 +350,7 @@ class Harvest extends AbstractJob
 
             // Extract xsi type if any.
             $attributes = iterator_to_array($value->attributes('xsi', true));
-            $type = empty($attributes['type']) ? null : trim($attributes['type']);
+            $type = empty($attributes['type']) ? null : trim((string) $attributes['type']);
             $type = $type && in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
 
             $val = [
