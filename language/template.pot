@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-26 00:00+0000\n"
+"POT-Creation-Date: 2022-10-31 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,260 +17,349 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/Controller/Admin/IndexController.php:70
+#: src/Controller/Admin/IndexController.php:235
 #, php-format
-msgid "The endpoint \"%s\" does not return xml."
+msgid "Harvesting from \"%s\" sets"
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:75
-msgid "[Untitled repository]"
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:79
-#, php-format
-msgid "The endpoint \"%s\" does not manage any format."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:99
-msgid "The sets you specified are not correctly formatted."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:114
-#, php-format
-msgid "The following formats are not managed: \"%s\"."
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:166
-#, php-format
-msgid "Harvesting from \"%s\" sets:"
-msgstr ""
-
-#: src/Controller/Admin/IndexController.php:205
+#: src/Controller/Admin/IndexController.php:281
 #, php-format
 msgid "%s as %s"
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:237
+#: src/Controller/Admin/IndexController.php:318
 #, php-format
 msgid "These whitelist filters are used: \"%s\"."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:242
+#: src/Controller/Admin/IndexController.php:326
 #, php-format
 msgid "These blacklist filters are used: \"%s\"."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:267
-#, php-format
-msgid ""
-"Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). "
-"This may take a while."
+#: src/Controller/Admin/IndexController.php:445
+msgid "Missing endpoint."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:352
+#: src/Controller/Admin/IndexController.php:453
+msgid "[Untitled repository]"
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:473
+msgid "The sets you specified are not correctly formatted."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:487
+#, php-format
+msgid "The following formats are not managed: \"%s\"."
+msgstr ""
+
+#: src/Form/HarvestForm.php:113
+msgid "The endpoint \"%value%\" should not have a query."
+msgstr ""
+
+#: src/Form/HarvestForm.php:122
+msgid "The endpoint \"%value%\" does not return xml."
+msgstr ""
+
+#: src/Form/HarvestForm.php:131
+msgid "The endpoint \"%value%\" does not manage any format."
+msgstr ""
+
+#: src/Mvc/Controller/Plugin/OaiPmhRepository.php:142
 #, php-format
 msgid "%s [unmanaged]"
 msgstr ""
 
 #: view/oai-pmh-harvester/admin/index/index.phtml:10
-msgid "Set repository to harvest"
+msgid "Harvester"
 msgstr ""
 
 #: view/oai-pmh-harvester/admin/index/index.phtml:10
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:15
-#: view/oai-pmh-harvester/admin/index/sets.phtml:15
-msgid "OAI-PMH Harvester"
+msgid "OAI-PMH"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/index.phtml:14
+#: view/oai-pmh-harvester/admin/index/index.phtml:12
+msgid "Set repository to harvest"
+msgstr ""
+
+#: view/oai-pmh-harvester/admin/index/index.phtml:15
 msgid "View sets"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:15
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:16
 msgid "Past Imports"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:18
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:16
+#: view/oai-pmh-harvester/admin/index/sets.phtml:16
+msgid "OAI-PMH Harvester"
+msgstr ""
+
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:19
 msgid "There are no harvests currently."
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:30
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:31
 msgid "Undo?"
 msgstr ""
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:34
+msgid "Message"
+msgstr ""
+
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:35
 msgid "Results"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:56
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:105
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:57
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:106
 msgid "Job details"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:80
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:81
 msgid ""
 "Problems were detected with the import. Check the job’s log for details."
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:87
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:88
 #, php-format
 msgid "%s: %s"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:92
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:93
 #, php-format
 msgid "Imported: %d %s"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:99
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:100
 msgid "Undone"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:101
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:102
 msgid "Undo in progress"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/sets.phtml:15
+#: view/oai-pmh-harvester/admin/index/sets.phtml:16
 msgid "Prepare import"
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/sets.phtml:19
-msgid "This repository has an undefined number of sets."
-msgstr ""
-
-#: view/oai-pmh-harvester/admin/index/sets.phtml:21
+#: view/oai-pmh-harvester/admin/index/sets.phtml:20
 #, php-format
-msgid "This repository has %d sets."
+msgid "The repository %1$s (%2$s) has an undefined number of sets."
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/sets.phtml:23
+#: view/oai-pmh-harvester/admin/index/sets.phtml:22
+#, php-format
+msgid "The repository %1$s (%2$s) has %3$d sets."
+msgstr ""
+
+#: view/oai-pmh-harvester/admin/index/sets.phtml:24
 #, php-format
 msgid "Only the first %d are displayed."
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/sets.phtml:30
+#: view/oai-pmh-harvester/admin/index/sets.phtml:31
 msgid "Please choose a set to import."
 msgstr ""
 
-#: view/oai-pmh-harvester/admin/index/sets.phtml:36
+#: view/oai-pmh-harvester/admin/index/sets.phtml:37
 msgid "Harvest"
 msgstr ""
 
-#: src/Form/SetsForm.php:50
+#: src/Form/SetsForm.php:56
 msgid "Filters (whitelist)"
 msgstr ""
 
-#: src/Form/SetsForm.php:51 src/Form/SetsForm.php:62
+#: src/Form/SetsForm.php:57 src/Form/SetsForm.php:68
+#: src/Form/HarvestForm.php:74 src/Form/HarvestForm.php:85
 msgid ""
 "Add strings to filter the input, for example to import only some articles of "
 "a journal."
 msgstr ""
 
-#: src/Form/SetsForm.php:61
+#: src/Form/SetsForm.php:67
 msgid "Filters (blacklist)"
 msgstr ""
 
-#: src/Form/SetsForm.php:97 src/Form/SetsForm.php:134
+#: src/Form/SetsForm.php:135
 msgid "Harvest this set?"
 msgstr ""
 
-#: src/Form/SetsForm.php:148
+#: src/Form/SetsForm.php:172
+msgid "Harvest this set"
+msgstr ""
+
+#: src/Form/SetsForm.php:186
 msgid "Whole repository"
 msgstr ""
 
-#: src/Form/HarvestForm.php:18
+#: src/Form/HarvestForm.php:29
 msgid "OAI-PMH endpoint"
 msgstr ""
 
-#: src/Form/HarvestForm.php:19
+#: src/Form/HarvestForm.php:30
 msgid "The base URL of the OAI-PMH data provider."
 msgstr ""
 
-#: src/Form/HarvestForm.php:33
+#: src/Form/HarvestForm.php:46
 msgid "Skip listing of sets and harvest all records"
 msgstr ""
 
-#: src/Form/HarvestForm.php:43
+#: src/Form/HarvestForm.php:57
 msgid "Skip listing of sets and harvest only these sets"
 msgstr ""
 
-#: src/Form/HarvestForm.php:44
+#: src/Form/HarvestForm.php:58
 msgid ""
 "Set one set identifier and a metadata prefix by line. Separate the set and "
 "the prefix by \"=\". If no prefix is set, \"dcterms\" or \"oai_dc\" will be "
 "used."
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:166
-msgid "endpoint"
+#: src/Form/HarvestForm.php:73
+msgid "Filters on each record (whitelist)"
 msgstr ""
 
-#: src/Controller/Admin/IndexController.php:299
+#: src/Form/HarvestForm.php:84
+msgid "Filters on each record (blacklist)"
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:135
+msgid ""
+"This repository has duplicate identifiers for sets, so they are not all "
+"displayed. You may warn the admin of the repository."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:150
+msgid "At least one repository should be selected."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:352
+#, php-format
+msgid ""
+"Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). "
+"This may take a while."
+msgstr ""
+
+#: src/Controller/Admin/IndexController.php:385
 #, php-format
 msgid "Undo in progress in the following jobs: %s"
 msgstr ""
 
-#: src/Job/Undo.php:28
+#: src/Service/OaiPmh/HarvesterMapManagerFactory.php:21
+msgid "Missing harvest configuration"
+msgstr ""
+
+#: src/Job/Undo.php:29
 #, php-format
 msgid "The job \"Undo\" was stopped: %d/%d resources processed."
 msgstr ""
 
-#: src/Job/Harvest.php:68
+#: src/Job/Harvest.php:47
 msgid "records"
 msgstr ""
 
-#: src/Job/Harvest.php:69
+#: src/Job/Harvest.php:48
 msgid "harvested"
 msgstr ""
 
-#: src/Job/Harvest.php:70
+#: src/Job/Harvest.php:49
 msgid "whitelisted"
 msgstr ""
 
-#: src/Job/Harvest.php:71
+#: src/Job/Harvest.php:50
 msgid "blacklisted"
 msgstr ""
 
-#: src/Job/Harvest.php:72
+#: src/Job/Harvest.php:51
+msgid "medias"
+msgstr ""
+
+#: src/Job/Harvest.php:52
 msgid "imported"
 msgstr ""
 
-#: src/Job/Harvest.php:78
+#: src/Job/Harvest.php:53
+msgid "errors"
+msgstr ""
+
+#: src/Job/Harvest.php:59
 msgid "Harvesting started"
 msgstr ""
 
-#: src/Job/Harvest.php:123 src/Job/Harvest.php:225
+#: src/Job/Harvest.php:78
+#, php-format
+msgid "The format \"%s\" is not managed by the module currently."
+msgstr ""
+
+#: src/Job/Harvest.php:96 src/Job/Harvest.php:211
 #, php-format
 msgid ""
 "Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, "
-"blacklisted = %4$d, imported = %5$d."
+"blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d."
 msgstr ""
 
-#: src/Job/Harvest.php:127
+#: src/Job/Harvest.php:100
 msgid "The job was stopped."
 msgstr ""
 
-#: src/Job/Harvest.php:145 src/Job/Harvest.php:155
+#: src/Job/Harvest.php:117 src/Job/Harvest.php:127
 msgid "Error."
 msgstr ""
 
-#: src/Job/Harvest.php:147 src/Job/Harvest.php:157
+#: src/Job/Harvest.php:119 src/Job/Harvest.php:129
 #, php-format
 msgid "Error: the harvester does not list records with url %s."
 msgstr ""
 
-#: src/Job/Harvest.php:206
+#: src/Job/Harvest.php:190
 msgid "Processing"
 msgstr ""
 
-#: src/Job/Harvest.php:215
+#: src/Job/Harvest.php:199
 msgid "Harvest ended."
 msgstr ""
 
-#: config/module.config.php:90
+#: src/Job/Harvest.php:217
+msgid "Imports of medias should be checked separately."
+msgstr ""
+
+#: src/Job/Harvest.php:223
+msgid ""
+"Some records were not imported, probably related to issue on media. You may "
+"check the main logs."
+msgstr ""
+
+#: src/Job/Harvest.php:257
+#, php-format
+msgid "%1$d resource created from oai record %2$s: #%3$s."
+msgstr ""
+
+#: src/Job/Harvest.php:262
+#, php-format
+msgid "%1$d resources created from oai record %2$s: #%3$s."
+msgstr ""
+
+#: src/Job/Harvest.php:268
+#, php-format
+msgid "Only %1$d/%2$d resources created from oai record %3$s: #%4$s."
+msgstr ""
+
+#: src/Job/Harvest.php:273
+#, php-format
+msgid "No resource created from oai record %s."
+msgstr ""
+
+#: src/Job/Harvest.php:279
+#, php-format
+msgid "No resource created from oai record %s, according to its metadata."
+msgstr ""
+
+#: config/module.config.php:95
 msgid "Sets"
 msgstr ""
 
-#: config/module.config.php:100
+#: config/module.config.php:107
 msgid "Past Harvests"
 msgstr ""
