@@ -50,6 +50,7 @@ class Harvest extends AbstractJob
             'blacklisted' => 0, // @translate
             'medias' => 0, // @translate
             'imported' => 0, // @translate
+            'errors' => 0, // @translate
         ];
 
         $harvestData = [
@@ -92,8 +93,8 @@ class Harvest extends AbstractJob
         do {
             if ($this->shouldStop()) {
                 $this->logger->notice(new Message(
-                    'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d.', // @translate
-                    $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias']
+                    'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d.', // @translate
+                    $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias'], $stats['errors']
                 ));
                 $this->logger->warn(new Message(
                     'The job was stopped.' // @translate
@@ -169,7 +170,8 @@ class Harvest extends AbstractJob
                 }
             }
 
-            $this->createItems($toInsert);
+            $totalCreated = $this->createItems($toInsert);
+            $stats['errors'] += count($toInsert) - $totalCreated;
 
             $resumptionToken = isset($response->ListRecords->resumptionToken) && $response->ListRecords->resumptionToken <> ''
                 ? $response->ListRecords->resumptionToken
@@ -198,24 +200,36 @@ class Harvest extends AbstractJob
         $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
 
         $this->logger->notice(new Message(
-            'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d.', // @translate
-            $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias']
+            'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d.', // @translate
+            $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias'], $stats['errors']
         ));
 
         if ($stats['medias']) {
             $this->logger->notice(new Message(
-                'Imports of media should be checked separately.' // @translate
+                'Imports of medias should be checked separately.' // @translate
+            ));
+        }
+
+        if ($stats['errors']) {
+            $this->logger->err(new Message(
+                'Some records were not imported, probably related to issue on media. You may check the main logs.' // @translate
             ));
         }
     }
 
-    protected function createItems(array $toCreate): void
+    protected function createItems(array $toCreate): int
     {
         // TODO The length should be related to the size of the repository output?
+        $total = 0;
         foreach (array_chunk($toCreate, self::BATCH_CREATE_SIZE, true) as $chunk) {
             $response = $this->api->batchCreate('items', $chunk, [], ['continueOnError' => true]);
+            // TODO The batch create does not return the total of results in Omeka 3.
+            // $totalResults = $response->getTotalResults();
+            $totalResults = count($response->getContent());
+            $total += $totalResults;
             $this->createRollback($response->getContent());
         }
+        return $total;
     }
 
     protected function createRollback($resources)
