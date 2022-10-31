@@ -168,3 +168,29 @@ ALTER TABLE `oaipmhharvester_entity` CHANGE `resource_type` `entity_name` VARCHA
 SQL;
     $connection->executeStatement($sql);
 }
+
+if (version_compare($oldVersion, '3.3.0.12', '<')) {
+    // Fix keys on some database.
+    $sql = <<<'SQL'
+ALTER TABLE `oaipmhharvester_harvest` DROP FOREIGN KEY FK_929CA7324C276F75;
+ALTER TABLE `oaipmhharvester_harvest` DROP FOREIGN KEY FK_929CA732BE04EA9;
+ALTER TABLE `oaipmhharvester_harvest` ADD CONSTRAINT FK_929CA7324C276F75 FOREIGN KEY (`undo_job_id`) REFERENCES `job` (`id`) ON DELETE SET NULL;
+ALTER TABLE `oaipmhharvester_harvest` ADD CONSTRAINT FK_929CA732BE04EA9 FOREIGN KEY (`job_id`) REFERENCES `job` (`id`) ON DELETE CASCADE;
+ALTER TABLE `oaipmhharvester_entity` DROP FOREIGN KEY FK_FE902C0EBE04EA9;
+ALTER TABLE `oaipmhharvester_entity` ADD CONSTRAINT FK_FE902C0EBE04EA9 FOREIGN KEY (`job_id`) REFERENCES `job` (`id`) ON DELETE CASCADE;
+SQL;
+    try {
+        $connection->executeStatement($sql);
+    } catch (\Exception $e) {
+        // Nothing.
+    }
+
+    $sql = <<<'SQL'
+ALTER TABLE `oaipmhharvester_entity`
+    ADD `identifier` LONGTEXT NOT NULL AFTER `entity_name`,
+    ADD `created` DATETIME DEFAULT CURRENT_TIMESTAMP AFTER `identifier`;
+ALTER TABLE `oaipmhharvester_entity` CHANGE `created` `created` DATETIME NOT NULL AFTER `identifier`;
+CREATE INDEX identifier_idx ON `oaipmhharvester_entity` (`identifier`(767));
+SQL;
+    $connection->executeStatement($sql);
+}
