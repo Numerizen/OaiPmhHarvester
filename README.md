@@ -5,32 +5,21 @@ OAI-PMH Harvester (plugin for Omeka)
 > are available on [GitLab], which seems to respect users and privacy better
 > than the previous repository.__
 
-[OAI-PMH Harvester] is a plugin for [Omeka S] that allows to import records from
+[OAI-PMH Harvester] is a module for [Omeka S] that allows to import records from
 OAI-PMH data providers.
 
-Some online repositories expose their metadata through the [Open Archives
-Initiative Protocol for Metadata Harvesting] (OAI-PMH). This plugin makes it
-possible to harvest that metadata, mapping it to the Omeka data model. The
-plugin can be used for one-time data transfers, or to keep up-to-date with
-changes to an online repository.
+Some online repositories expose their metadata through the [Open Archives Initiative Protocol for Metadata Harvesting]
+(OAI-PMH). This module makes it possible to harvest that metadata, mapping it to
+the Omeka data model. The module can be used for one-time data transfers, or to
+keep up-to-date with changes to an online repository (not yet implemented).
 
-Currently the plugin is able to import [Dublin Core], and [METS] if the profile
+Currently the module is able to import [Dublin Core], and [METS] if the profile
 uses Dublin Core.
 
 * Dublin Core is an internationally recognized standard for describing any
   resource. Every OAI-PMH data provider should implement this standard.
 * METS is the Metadata Encoding and Transmission Standard and is mainly designed
   for digitalized items, as books, journals, manuscripts, video and audio.
-
-This is a simplified version of the [plugin] for [Omeka Classic], which was
-shamelessly copied whenever possible. The work consisted mainly in adapting the
-code to Omeka-S - *i.e* Laminas (formerly Zend Framework 3).
-
-Unlike the Omeka Classic version, [CDWA Lite] is not yet supported, and some
-other features, in particular updating.
-
-Nevertheless, some feature are available, in particular preselect of sets,
-filtering of records before import, and more detailled stats.
 
 
 Installation
@@ -63,7 +52,11 @@ Usage
 TODO
 ----
 
+- [ ] Add a search field in the advanced search.
 - [ ] Check harvest of a repository without sets.
+- [ ] Original plugins shows details with duplicates of harvested entities.
+- [ ] Allow to update and check deletion.
+- [ ] Integrate more formats ([CDWA Lite], Ead, etc.).
 
 
 Warning
@@ -84,7 +77,7 @@ See online issues on the [module issues] page on GitLab.
 License
 -------
 
-This plugin is published under [GNU/GPL] v3.
+This module is published under [GNU/GPL] v3.
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -106,13 +99,17 @@ Copyright
 
 * Copyright 2008-2013 Roy Rosenzweig Center for History and New Media
 * Copyright Vincent Buard, 2017 (see [Numerizen])
-* Copyright Daniel Berthereau, 2015-2021 (see [Daniel-KM])
+* Copyright Daniel Berthereau, 2014-2022 (see [Daniel-KM])
+
+This module has first been built by [Numerizen] as a simplified version of the
+[plugin] for [Omeka Classic], shamelessly copied whenever possible: the work
+consisted mainly in adapting the code to Omeka-S - *i.e* Laminas (formerly Zend Framework 3).
+It was improved for the [Bibliothèque nationale universiaire de Strasbourg] for
+the digital library [Numistral].
 
 
 [OAI-PMH Harvester]: https://gitlab.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester
 [Omeka S]: https://omeka.org/s
-[Omeka Classic]: https://omeka.org/classic
-[plugin]: https://github.com/omeka/plugin-OaipmhHarvester
 [Open Archives Initiative Protocol for Metadata Harvesting]: http://www.openarchives.org/pmh
 [Dublin Core]: http://dublincore.org/documents/dces
 [CDWA Lite]: http://www.getty.edu/research/conducting_research/standards/cdwa/cdwalite.html
@@ -122,6 +119,10 @@ Copyright
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/#installing-modules
 [module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-OaiPmhHarvester/-/issues
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
+[Omeka Classic]: https://omeka.org/classic
+[plugin]: https://github.com/omeka/plugin-OaipmhHarvester
+[Bibliothèque nationale universiaire de Strasbourg]: https://www.bnu.fr
+[Numistral]: https://numistral.fr
 [Numerizen]: http://omeka.numerizen.com
 [GitLab]: https://gitlab.com/Daniel-KM
 [Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"
