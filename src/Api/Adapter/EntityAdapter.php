@@ -15,6 +15,8 @@ class EntityAdapter extends AbstractEntityAdapter
         'job_id' => 'job',
         'entity_id' => 'entityId',
         'entity_name' => 'entityName',
+        'identifier' => 'identifier',
+        'created' => 'created',
     ];
 
     protected $scalarFields = [
@@ -22,6 +24,8 @@ class EntityAdapter extends AbstractEntityAdapter
         'job_id' => 'job',
         'entity_id' => 'entityId',
         'entity_name' => 'entityName',
+        'identifier' => 'identifier',
+        'created' => 'created',
     ];
 
     public function getEntityClass()
@@ -62,6 +66,13 @@ class EntityAdapter extends AbstractEntityAdapter
                 $this->createNamedParameter($qb, $query['entity_name']))
             );
         }
+
+        if (isset($query['identifier'])) {
+            $qb->andWhere($expr->eq(
+                'omeka_root.identifier',
+                $this->createNamedParameter($qb, $query['identifier']))
+            );
+        }
     }
 
     public function hydrate(Request $request, EntityInterface $entity, ErrorStore $errorStore): void
@@ -83,6 +94,14 @@ class EntityAdapter extends AbstractEntityAdapter
 
         if (array_key_exists('o-module-oai-pmh-harvester:entity_name', $data)) {
             $entity->setEntityName((string) $data['o-module-oai-pmh-harvester:entity_name']);
+        }
+
+        if (array_key_exists('o-module-oai-pmh-harvester:identifier', $data)) {
+            $entity->setIdentifier((string) $data['o-module-oai-pmh-harvester:identifier']);
+        }
+
+        if (Request::CREATE === $request->getOperation()) {
+            $entity->setCreated(new \DateTime('now'));
         }
     }
 }

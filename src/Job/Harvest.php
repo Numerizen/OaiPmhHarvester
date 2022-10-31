@@ -260,7 +260,7 @@ class Harvest extends AbstractJob
 
         $importEntities = [];
         foreach ($resources as $resource) {
-            $importEntities[] = $this->buildImportEntity($resource);
+            $importEntities[] = $this->buildImportEntity($resource, '');
         }
         $this->api->batchCreate('oaipmhharvester_entities', $importEntities, [], ['continueOnError' => true]);
     }
@@ -380,12 +380,13 @@ class Harvest extends AbstractJob
         return $data;
     }
 
-    protected function buildImportEntity(AbstractRepresentation $resource): array
+    protected function buildImportEntity(AbstractRepresentation $resource, $identifier): array
     {
         return [
             'o:job' => ['o:id' => $this->job->getId()],
             'o-module-oai-pmh-harvester:entity_id' => $resource->id(),
             'o-module-oai-pmh-harvester:entity_name' => $this->getArg('entity_name', 'items'),
+            'o-module-oai-pmh-harvester:identifier' => (string) $identifier,
         ];
     }
 }

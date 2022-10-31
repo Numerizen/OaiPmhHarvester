@@ -23,7 +23,10 @@ CREATE TABLE `oaipmhharvester_entity` (
     `job_id` INT NOT NULL,
     `entity_id` INT NOT NULL,
     `entity_name` VARCHAR(190) NOT NULL,
+    `identifier` LONGTEXT NOT NULL,
+    `created` DATETIME NOT NULL,
     INDEX IDX_FE902C0EBE04EA9 (`job_id`),
+    INDEX identifier_idx (`identifier`(767)),
     PRIMARY KEY(`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB;
 ALTER TABLE `oaipmhharvester_harvest` ADD CONSTRAINT FK_929CA732BE04EA9 FOREIGN KEY (`job_id`) REFERENCES `job` (`id`) ON DELETE CASCADE;

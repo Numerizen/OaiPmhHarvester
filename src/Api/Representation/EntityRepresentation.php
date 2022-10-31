@@ -13,6 +13,11 @@ class EntityRepresentation extends AbstractEntityRepresentation
             'o:job' => $this->job()->getReference(),
             'o-module-oai-pmh-harvester:entity_id' => $this->entityId(),
             'o-module-oai-pmh-harvester:entity_name' => $this->entityName(),
+            'o-module-oai-pmh-harvester:identifier' => $this->identifier(),
+            'o:created' =>[
+                '@value' => $this->getDateTime($this->created()),
+                '@type' => 'http://www.w3.org/2001/XMLSchema#dateTime',
+            ],
         ];
     }
 
@@ -35,5 +40,15 @@ class EntityRepresentation extends AbstractEntityRepresentation
     public function entityName(): string
     {
         return $this->resource->getEntityName();
+    }
+
+    public function identifier(): string
+    {
+        return $this->resource->getIdentifier();
+    }
+
+    public function created()
+    {
+        return $this->resource->getCreated();
     }
 }

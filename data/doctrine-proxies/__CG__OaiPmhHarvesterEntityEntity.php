@@ -66,10 +66,10 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return ['__isInitialized__', 'id', 'job', 'entityId', 'entityName'];
+            return ['__isInitialized__', 'id', 'job', 'entityId', 'entityName', 'identifier', 'created'];
         }
 
-        return ['__isInitialized__', 'id', 'job', 'entityId', 'entityName'];
+        return ['__isInitialized__', 'id', 'job', 'entityId', 'entityName', 'identifier', 'created'];
     }
 
     /**
@@ -255,6 +255,50 @@ class Entity extends \OaiPmhHarvester\Entity\Entity implements \Doctrine\ORM\Pro
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getEntityName', []);
 
         return parent::getEntityName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setIdentifier(string $identifier): \OaiPmhHarvester\Entity\Entity
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setIdentifier', [$identifier]);
+
+        return parent::setIdentifier($identifier);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getIdentifier(): string
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getIdentifier', []);
+
+        return parent::getIdentifier();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setCreated(\DateTime $created): \OaiPmhHarvester\Entity\Entity
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCreated', [$created]);
+
+        return parent::setCreated($created);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreated(): \DateTime
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreated', []);
+
+        return parent::getCreated();
     }
 
     /**

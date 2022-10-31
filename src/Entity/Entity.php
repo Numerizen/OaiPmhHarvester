@@ -2,13 +2,17 @@
 
 namespace OaiPmhHarvester\Entity;
 
+use DateTime;
 use Omeka\Entity\AbstractEntity;
 use Omeka\Entity\Job;
 
 /**
  * @Entity
  * @Table(
- *     name="oaipmhharvester_entity"
+ *     name="oaipmhharvester_entity",
+ *     indexes={
+ *         @Index(name="identifier_idx", columns={"identifier"}, options={"lengths": {767}})
+ *     }
  * )
  */
 class Entity extends AbstractEntity
@@ -60,6 +64,25 @@ class Entity extends AbstractEntity
      */
     protected $entityName;
 
+    /**
+     * @var string
+     *
+     * @Column(
+     *     type="text",
+     *     nullable=false
+     * )
+     */
+    protected $identifier;
+
+    /**
+     * @var DateTime
+     *
+     * @Column(
+     *     type="datetime"
+     * )
+     */
+    protected $created;
+
     public function getId()
     {
         return $this->id;
@@ -96,5 +119,27 @@ class Entity extends AbstractEntity
     public function getEntityName(): string
     {
         return $this->entityName;
+    }
+
+    public function setIdentifier(string $identifier): self
+    {
+        $this->identifier = $identifier;
+        return $this;
+    }
+
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    public function getCreated(): DateTime
+    {
+        return $this->created;
     }
 }
