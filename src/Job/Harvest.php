@@ -134,12 +134,11 @@ class Harvest extends AbstractJob
             }
 
             if ($resumptionToken) {
-                $url = $args['endpoint'] . "?resumptionToken=$resumptionToken&verb=ListRecords";
+                $url = $args['endpoint'] . "?verb=ListRecords&resumptionToken=$resumptionToken";
             } else {
-                $url = $args['endpoint'] . "?metadataPrefix=" . $args['metadata_prefix'] . '&verb=ListRecords';
-                if (isset($args['set_spec']) && strlen((string) $args['set_spec'])) {
-                    $url .= '&set=' . $args['set_spec'];
-                }
+                $url = $args['endpoint'] . '?verb=ListRecords'
+                    . (isset($args['set_spec']) && strlen((string) $args['set_spec']) ? '&set=' . $args['set_spec'] : '')
+                    . '&metadataPrefix=' . $args['metadata_prefix'];
             }
 
             /** @var \SimpleXMLElement $response */

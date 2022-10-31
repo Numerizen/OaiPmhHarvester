@@ -116,6 +116,8 @@ class IndexController extends AbstractActionController
             return $this->forward()->dispatch(__CLASS__, $params);
         }
 
+        // TODO Add list of existing item sets, taking care of the metadata prefix. Or set it inside the select.
+
         $optionsData = [
             'step' => 'harvest-list-sets',
         ] + $data + $optionsData;
@@ -237,7 +239,8 @@ class IndexController extends AbstractActionController
         if ($harvestAllRecords) {
             $prefix = $data['namespace'][0];
             $message .= $repositoryName;
-            $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 1, 'type' => 'eq', 'text' => $repositoryName]]])->getContent();
+            $uniqueUri = $data['endpoint'] . "?verb=ListRecords&metadataPrefix=$prefix";
+            $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 37, 'type' => 'eq', 'text' => $uniqueUri]]])->getContent();
             if (!$itemSet) {
                 $toCreate = [
                     // dctype:Collection.
@@ -250,7 +253,7 @@ class IndexController extends AbstractActionController
                     'dcterms:isFormatOf' => [[
                         'type' => 'uri',
                         'property_id' => 37,
-                        '@id' => $data['endpoint'],
+                        '@id' => $uniqueUri,
                         'o:label' => 'OAI-PMH repository',
                     ]],
                 ];
@@ -270,7 +273,8 @@ class IndexController extends AbstractActionController
                     $label,
                     $prefix
                 ) . ' | ';
-                $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 1, 'type' => 'eq', 'text' => $label]]])->getContent();
+                $uniqueUri = $data['endpoint'] . "?verb=ListRecords&set=$setSpec&metadataPrefix=$prefix";
+                $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 37, 'type' => 'eq', 'text' => $uniqueUri]]])->getContent();
                 if (!$itemSet) {
                     $toCreate = [
                         // dctype:Collection.
@@ -283,7 +287,7 @@ class IndexController extends AbstractActionController
                         'dcterms:isFormatOf' => [[
                             'type' => 'uri',
                             'property_id' => 37,
-                            '@id' => $data['endpoint'],
+                            '@id' => $uniqueUri,
                             'o:label' => 'OAI-PMH repository',
                         ]],
                     ];
@@ -318,7 +322,6 @@ class IndexController extends AbstractActionController
 
         $urlHelper = $this->url();
         foreach ($sets as $setSpec => $set) {
-            //  . "?metadataPrefix=" . $set[1] . "&verb=ListRecords&set=" . $setSpec
             $endpoint = $data['endpoint'];
             // TODO : job harvest / job item creation ?
             // TODO : toutes les propriétés (prefix, resumption, etc.)
