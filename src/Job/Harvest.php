@@ -161,10 +161,17 @@ class Harvest extends AbstractJob
                         }
                     }
                 }
-                // A record can be mapped to multiple resources, cf. ead.
+                // The oai identifier is not part of the resource.
+                // The oai identifier should not be included in the resouce.
+                // The oai identifier does not depend on the metadata prefix.
+                // To make identifier really unique, the endpoint from the
+                // harvest may be used.
+                // A record can be mapped to multiple resources: cf. ead.
+                $identifier = (string) $record->header->identifier;
+                $toInsert[$identifier] = [];
                 $resources = $harvesterMap->mapRecord($record);
                 foreach ($resources as $resource) {
-                    $toInsert[] = $resource;
+                    $toInsert[$identifier][] = $resource;
                     $stats['medias'] += !empty($resource['o:media']) ? count($resource['o:media']) : 0;
                     ++$stats['imported'];
                 }
@@ -217,22 +224,65 @@ class Harvest extends AbstractJob
         }
     }
 
+    /**
+     * @param array $toCreate Array of array with resources related to each
+     *   record source identifier in order to store the identifier when a record
+     *   create multiple resources.
+     */
     protected function createItems(array $toCreate): int
     {
         // TODO The length should be related to the size of the repository output?
         $total = 0;
-        foreach (array_chunk($toCreate, self::BATCH_CREATE_SIZE, true) as $chunk) {
-            $response = $this->api->batchCreate('items', $chunk, [], ['continueOnError' => true]);
-            // TODO The batch create does not return the total of results in Omeka 3.
-            // $totalResults = $response->getTotalResults();
-            $totalResults = count($response->getContent());
-            $total += $totalResults;
-            $this->createRollback($response->getContent());
+        $getId = function ($v) {
+            return $v->id();
+        };
+        foreach ($toCreate as $identifier => $resources) {
+            if (count($resources)) {
+                $identifierIds = [];
+                foreach (array_chunk($resources, self::BATCH_CREATE_SIZE, true) as $chunk) {
+                    $response = $this->api->batchCreate('items', $chunk, [], ['continueOnError' => true]);
+                    // TODO The batch create does not return the total of results in Omeka 3.
+                    // $totalResults = $response->getTotalResults();
+                    $currentResults = $response->getContent();
+                    $total += count($currentResults);
+                    $identifierIds = array_merge($identifierIds, array_map($getId, array_values($currentResults)));
+                    $this->createRollback($currentResults, $identifier);
+                }
+                $identifierTotal = count($identifierIds);
+                if ($identifierTotal === count($resources)) {
+                    if ($identifierTotal === 1) {
+                        $this->logger->info(new Message(
+                            '%1$d resource created from oai record %2$s: #%3$s.', // @translate
+                            1, $identifier, reset($identifierIds)
+                        ));
+                    } else {
+                        $this->logger->info(new Message(
+                            '%1$d resources created from oai record %2$s: #%3$s.', // @translate
+                            $identifierTotal, $identifier, implode('#, ', $identifierIds)
+                        ));
+                    }
+                } elseif ($identifierTotal && $identifierTotal !== count($resources)) {
+                        $this->logger->warn(new Message(
+                            'Only %1$d/%2$d resources created from oai record %3$s: #%4$s.', // @translate
+                            $identifierTotal, count($resources) - $identifierTotal, $identifier, implode('#, ', $identifierIds)
+                        ));
+                } else {
+                    $this->logger->warn(new Message(
+                        'No resource created from oai record %s.', // @translate
+                        $identifier
+                    ));
+                }
+            } else {
+                $this->logger->warn(new Message(
+                    'No resource created from oai record %s, according to its metadata.', // @translate
+                    $identifier
+                ));
+            }
         }
         return $total;
     }
 
-    protected function createRollback($resources)
+    protected function createRollback(array $resources, $identifier)
     {
         if (empty($resources)) {
             return null;
@@ -240,18 +290,18 @@ class Harvest extends AbstractJob
 
         $importEntities = [];
         foreach ($resources as $resource) {
-            $importEntities[] = $this->buildImportEntity($resource, '');
+            $importEntities[] = $this->buildImportEntity($resource, $identifier);
         }
         $this->api->batchCreate('oaipmhharvester_entities', $importEntities, [], ['continueOnError' => true]);
     }
 
-    protected function buildImportEntity(AbstractRepresentation $resource, string $identifier): array
+    protected function buildImportEntity(AbstractRepresentation $resource, $identifier): array
     {
         return [
             'o:job' => ['o:id' => $this->job->getId()],
             'o-module-oai-pmh-harvester:entity_id' => $resource->id(),
             'o-module-oai-pmh-harvester:entity_name' => $this->getArg('entity_name', 'items'),
-            'o-module-oai-pmh-harvester:identifier' => $identifier,
+            'o-module-oai-pmh-harvester:identifier' => (string) $identifier,
         ];
     }
 }
