@@ -229,29 +229,33 @@ class IndexController extends AbstractActionController
         $repositoryName = $data['repository_name'];
         $harvestAllRecords = !empty($data['harvest_all_records']);
 
-        // List item sets and create oai-pmh harvesting sets.
-        // FIXME Check if the item sets exist.
+        // List item sets and create oai-pmh harvesting sets if needed.
+        $api = $this->api();
+
         // TODO Append description of sets, if any.
         $sets = [];
         if ($harvestAllRecords) {
             $prefix = $data['namespace'][0];
             $message .= $repositoryName;
-            $toCreate = [
-                // dctype:Collection.
-                'o:resource_class' => ['o:id' => 23],
-                'dcterms:title' => [[
-                    'type' => 'literal',
-                    'property_id' => 1,
-                    '@value' => $repositoryName,
-                ]],
-                'dcterms:isFormatOf' => [[
-                    'type' => 'uri',
-                    'property_id' => 37,
-                    '@id' => $data['endpoint'],
-                    'o:label' => 'OAI-PMH repository',
-                ]],
-            ];
-            $itemSet = $this->api()->create('item_sets', $toCreate)->getContent();
+            $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 1, 'type' => 'eq', 'text' => $repositoryName]]])->getContent();
+            if (!$itemSet) {
+                $toCreate = [
+                    // dctype:Collection.
+                    'o:resource_class' => ['o:id' => 23],
+                    'dcterms:title' => [[
+                        'type' => 'literal',
+                        'property_id' => 1,
+                        '@value' => $repositoryName,
+                    ]],
+                    'dcterms:isFormatOf' => [[
+                        'type' => 'uri',
+                        'property_id' => 37,
+                        '@id' => $data['endpoint'],
+                        'o:label' => 'OAI-PMH repository',
+                    ]],
+                ];
+                $itemSet = $api->create('item_sets', $toCreate)->getContent();
+            }
             $sets[''] = [
                 'set_name' => $repositoryName,
                 'metadata_prefix' => $prefix,
@@ -266,22 +270,25 @@ class IndexController extends AbstractActionController
                     $label,
                     $prefix
                 ) . ' | ';
-                $toCreate = [
-                    // dctype:Collection.
-                    'o:resource_class' => ['o:id' => 23],
-                    'dcterms:title' => [[
-                        '@value' => $label,
-                        'type' => 'literal',
-                        'property_id' => 1,
-                    ]],
-                    'dcterms:isFormatOf' => [[
-                        'type' => 'uri',
-                        'property_id' => 37,
-                        '@id' => $data['endpoint'],
-                        'o:label' => 'OAI-PMH repository',
-                    ]],
-                ];
-                $itemSet = $this->api()->create('item_sets', $toCreate)->getContent();
+                $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 1, 'type' => 'eq', 'text' => $label]]])->getContent();
+                if (!$itemSet) {
+                    $toCreate = [
+                        // dctype:Collection.
+                        'o:resource_class' => ['o:id' => 23],
+                        'dcterms:title' => [[
+                            '@value' => $label,
+                            'type' => 'literal',
+                            'property_id' => 1,
+                        ]],
+                        'dcterms:isFormatOf' => [[
+                            'type' => 'uri',
+                            'property_id' => 37,
+                            '@id' => $data['endpoint'],
+                            'o:label' => 'OAI-PMH repository',
+                        ]],
+                    ];
+                    $itemSet = $api->create('item_sets', $toCreate)->getContent();
+                }
                 $sets[$setSpec] = [
                     'set_name' => $label,
                     'metadata_prefix' => $prefix,
