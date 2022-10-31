@@ -1,92 +1,61 @@
 <?php declare(strict_types=1);
+
 /**
- * @package OaipmhHarvester
- * @subpackage Models
  * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
+ * @copyright Daniel Berthereau, 2014-2022
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
+
+use SimpleXMLElement;
 
 /**
  * Metadata format map for the required oai_dc Dublin Core format
  */
 class OaiDc extends AbstractHarvesterMap
 {
-    /*
-     * XML schema and OAI prefix for the format represented by this class.
-     * These constants are required for all maps.
-     */
-    const METADATA_SCHEMA = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
     const METADATA_PREFIX = 'oai_dc';
-
-    const OAI_DC_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
-    const DUBLIN_CORE_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
-
-    /**
-     * Collection to insert items into.
-     * @var \Omeka\Api\Representation\ItemSetRepresentation
-     */
-    protected $_itemSet;
+    const NAMESPACE_OAI_DC = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
+    const NAMESPACE_DUBLIN_CORE = 'http://purl.org/dc/elements/1.1/';
 
     /**
-     * Actions to be carried out before the harvest of any items begins.
-     */
-    protected function _beforeHarvest(): void
-    {
-        $harvest = $this->_getHarvest();
-
-        $collectionMetadata = [
-            'metadata' => [
-                'public' => $this->getOption('public'),
-                'featured' => $this->getOption('featured'),
-            ],
-        ];
-        $collectionMetadata['elementTexts']['Dublin Core']['Title'][] = ['text' => (string) $harvest->set_name, 'html' => false];
-        $collectionMetadata['elementTexts']['Dublin Core']['Description'][] = ['text' => (string) $harvest->set_Description, 'html' => false];
-
-        $this->_collection = $this->_insertCollection($collectionMetadata);
-    }
-
-    /**
-     * Harvest one record.
+     * Dublin Core lower case elements without prefix.
      *
-     * @param \SimpleXMLIterator $record XML metadata record
-     * @return array Array of item-level, element texts and file metadata.
+     * The key is the static id in the omeka database.
+     * The order is the official one, used in Omeka and oai_dc.
+     *
+     * @var array
      */
-    protected function _harvestRecord($record)
+    const DUBLIN_CORE_ELEMENTS = [
+        1 => 'title',
+        2 => 'creator',
+        3 => 'subject',
+        4 => 'description',
+        5 => 'publisher',
+        6 => 'contributor',
+        7 => 'date',
+        8 => 'type',
+        9 => 'format',
+        10 => 'identifier',
+        11 => 'source',
+        12 => 'language',
+        13 => 'relation',
+        14 => 'coverage',
+        15 => 'rights',
+    ];
+
+    protected function mapRecordSingle(SimpleXMLElement $record, array $resource): array
     {
-        $itemMetadata = [
-            'collection_id' => $this->_collection->id(),
-            'public' => $this->getOption('public'),
-            'featured' => $this->getOption('featured'),
-        ];
-
-        $dcMetadata = $record
+        $metadata = $record
             ->metadata
-            ->children(self::OAI_DC_NAMESPACE)
-            ->children(self::DUBLIN_CORE_NAMESPACE);
+            ->children(self::NAMESPACE_OAI_DC)
+            ->children(self::NAMESPACE_DUBLIN_CORE);
 
-        $elementTexts = [];
-        $elements = [
-            'contributor', 'coverage', 'creator',
-            'date', 'description', 'format',
-            'identifier', 'language', 'publisher',
-            'relation', 'rights', 'source',
-            'subject', 'title', 'type',
-        ];
-        foreach ($elements as $element) {
-            if (isset($dcMetadata->$element)) {
-                foreach ($dcMetadata->$element as $rawText) {
-                    $text = trim($rawText);
-                    $elementTexts['Dublin Core'][ucwords($element)][] = ['text' => (string) $text, 'html' => false];
-                }
+        foreach (self::DUBLIN_CORE_ELEMENTS as $localName) {
+            if (isset($metadata->$localName)) {
+                $resource["dcterms:$localName"] = $this->extractValues($metadata, "dcterms:$localName");
             }
         }
-
-        return [
-            'itemMetadata' => $itemMetadata,
-            'elementTexts' => $elementTexts,
-            'fileMetadata' => [],
-        ];
+        return $resource;
     }
 }

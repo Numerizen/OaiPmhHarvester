@@ -1,54 +1,25 @@
 <?php declare(strict_types=1);
 /**
- * @package OaipmhHarvester
- * @subpackage Models
  * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
+ * @copyright Daniel Berthereau, 2014-2022
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
 
+use SimpleXMLElement;
+
 /**
- * Metadata format map for the required Mets Dublin Core format
+ * Metadata format map for Dublin Core via Mets.
+ *
+ * Mets may have multple profile with various schema. The Dublin Core is the
+ * most common, but some other are used, in particular mods.
+ * @todo Manage profile Mets for mods.
  */
 class Mets extends AbstractHarvesterMap
 {
-    /*
-     * Xml schema and OAI prefix for the format represented by this class
-     * These constants are required for all maps
-     */
-    /* OAI-PMH metadata prefix */
     const METADATA_PREFIX = 'mets';
-
-    /* XML namespace for output format */
-    const METS_NAMESPACE = 'http://www.loc.gov/METS/';
-
-    /* XML schema for output format */
-    const METADATA_SCHEMA = 'http://www.loc.gov/standards/mets/mets.xsd';
-
-    /* XML namespace for unqualified Dublin Core */
-    const DUBLIN_CORE_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
-
-    const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
-
-    protected $_itemSet;
-
-    protected function _beforeHarvest(): void
-    {
-        $harvest = $this->_getHarvest();
-
-        $collectionMetadata = [
-            'metadata' => [
-                'public' => $this->getOption('public'),
-                'featured' => $this->getOption('featured'),
-            ],
-        ];
-        $collectionMetadata['elementTexts']['Dublin Core']['Title'][]
-            = ['text' => (string) $harvest->set_name, 'html' => false];
-        $collectionMetadata['elementTexts']['Dublin Core']['Description'][]
-            = ['text' => (string) $harvest->set_Description, 'html' => false];
-
-        $this->_collection = $this->_insertCollection($collectionMetadata);
-    }
+    const NAMESPACE_METS = 'http://www.loc.gov/METS/';
+    const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
 
     /**
      * Harvest one record.
@@ -128,46 +99,29 @@ class Mets extends AbstractHarvesterMap
 
         return $map;
     }
-    /**
-     * Convenience funciton that returns the
-     * xmls dmdSec as an Omeka ElementTexts array
-     *
-     * @param \SimpleXMLElement $record
-     * @return array|null
-     */
-    private function _dmdSecToArray($record)
+
+    protected function mapRecordSingle(SimpleXMLElement $record, array $resource): array
     {
-        $mets = $record->metadata->mets->children(self::METS_NAMESPACE);
-        $meta = null;
-        foreach ($mets->dmdSec as $k) {
-            $dcMetadata = $k
+        $mets = $record
+            ->metadata
+            ->mets
+            ->children(self::NAMESPACE_METS);
+
+        foreach ([
+            'dc' => OaiDc::NAMESPACE_DUBLIN_CORE,
+            'dcterms' => OaiDcterms::NAMESPACE_DCTERMS,
+        ] as $prefix => $namespace) foreach ($mets->dmdSec as $k) {
+            $metadata = $k
                 ->mdWrap
                 ->xmlData
-                ->children(self::DUBLIN_CORE_NAMESPACE);
-            $elementTexts = [];
-            $elements = [
-                'contributor', 'coverage', 'creator',
-                'date', 'description', 'format',
-                'identifier', 'language', 'publisher',
-                'relation', 'rights', 'source',
-                'subject', 'title', 'type',
-            ];
-
-            foreach ($elements as $element) {
-                if (isset($dcMetadata->$element)) {
-                    foreach ($dcMetadata->$element as $rawText) {
-                        $text = trim($rawText);
-                        $elementTexts['Dublin Core'][ucwords($element)][] = ['text' => (string) $text, 'html' => false];
-                    }
+                ->children($namespace);
+            foreach ($this->getLocalNamesByIdForVocabulary($prefix) as $localName) {
+                if (isset($metadata->$localName)) {
+                    $resource["dcterms:$localName"] = $this->extractValues($metadata, "dcterms:$localName");
                 }
-            }
-            if (count($this->_getMap($record)) == 0) {
-                $meta = $elementTexts;
-            } else {
-                $meta[(string) $k->attributes()] = $elementTexts;
             }
         }
 
-        return $meta;
+        return $resource;
     }
 }

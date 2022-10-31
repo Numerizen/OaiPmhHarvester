@@ -4,36 +4,22 @@ namespace OaiPmhHarvester\Job;
 
 use Omeka\Api\Representation\AbstractRepresentation;
 use Omeka\Job\AbstractJob;
-use SimpleXMLElement;
+use Omeka\Stdlib\Message;
 
 class Harvest extends AbstractJob
 {
-    /*
-     * Xml schema and OAI prefix for the format represented by this class
-     * These constants are required for all maps
+    /**
+     * Date format for OAI-PMH requests.
+     * Only use day-level granularity for maximum compatibility with
+     * repositories.
      */
-    /* OAI-PMH metadata prefix */
-    const METADATA_PREFIX = 'mets';
+    const OAI_DATE_FORMAT = 'Y-m-d';
 
-    /* XML namespace for output format */
-    const METS_NAMESPACE = 'http://www.loc.gov/METS/';
+    const BATCH_CREATE_SIZE = 20;
 
-    /* XML schema for output format */
-    const METADATA_SCHEMA = 'http://www.loc.gov/standards/mets/mets.xsd';
-
-    /* XML namespace for unqualified Dublin Core */
-    const DUBLIN_CORE_NAMESPACE = 'http://purl.org/dc/elements/1.1/';
-    const DCTERMS_NAMESPACE = 'http://purl.org/dc/terms/';
-
-    const OAI_DC_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
-    const OAI_DCTERMS_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dcterms/';
-    const OAI_QDC_NAMESPACE = 'qdc="http://www.bl.uk/namespaces/oai_dcq/';
-    const QDC_NAMESPACE = 'http://worldcat.org/xmlschemas/qdc-1.0/';
-
-    const XLINK_NAMESPACE = 'http://www.w3.org/1999/xlink';
-
-    const OAI_DC_SCHEMA = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
-
+    /**
+     * @var \Omeka\Api\Manager
+     */
     protected $api;
 
     /**
@@ -43,29 +29,18 @@ class Harvest extends AbstractJob
 
     protected $hasErr = false;
 
-    protected $entity_name;
-
-    protected $dcProperties;
-
     public function perform()
     {
         $services = $this->getServiceLocator();
         $this->logger = $services->get('Omeka\Logger');
         $this->api = $services->get('Omeka\ApiManager');
 
-        // Set Dc Properties for mapping
-        $dcProperties = $this->api->search('properties', ['vocabulary_id' => 1], ['responseContent' => 'resource'])->getContent();
-        $elements = [];
-        foreach ($dcProperties as $property) {
-            $elements[$property->getId()] = $property->getLocalName();
-        }
-        $this->dcProperties = $elements;
-
-        $filters = $this->getArg('filters', ['whitelist' => [], 'blacklist' => []]);
-        $whitelist = &$filters['whitelist'];
-        $blacklist = &$filters['blacklist'];
+        $harvesterMapManager = $services->get(\OaiPmhHarvester\OaiPmh\HarvesterMapManager::class);
 
         $args = $this->job->getArgs();
+        $itemSetId = empty($args['item_set_id']) ? null : (int) $args['item_set_id'];
+        $whitelist = $args['filters']['whitelist'] ?? [];
+        $blacklist = $args['filters']['blacklist'] ?? [];
 
         $message = null;
         $stats = [
@@ -86,50 +61,42 @@ class Harvest extends AbstractJob
             'o-module-oai-pmh-harvester:metadata_prefix' => $args['metadata_prefix'],
             'o-module-oai-pmh-harvester:set_spec' => $args['set_spec'],
             'o-module-oai-pmh-harvester:set_name' => $args['set_name'],
-            'o-module-oai-pmh-harvester:set_description' => @$args['set_description'],
+            'o-module-oai-pmh-harvester:set_description' => $args['set_description'] ?? null,
             'o-module-oai-pmh-harvester:has_err' => false,
             'o-module-oai-pmh-harvester:stats' => $stats,
         ];
 
-        $response = $this->api->create('oaipmhharvester_harvests', $harvestData);
-        $harvestId = $response->getContent()->id();
+        /** @var \OaiPmhHarvester\Api\Representation\HarvestRepresentation $harvest */
+        $harvest = $this->api->create('oaipmhharvester_harvests', $harvestData)->getContent();
+        $harvestId = $harvest->id();
 
-        $method = '';
-        switch ($args['metadata_prefix']) {
-            case 'mets':
-                $method = '_dmdSecToJson';
-                break;
-            case 'oai_dc':
-            case 'dc':
-                $method = '_oaidcToJson';
-                break;
-            case 'oai_dcterms':
-            case 'oai_dcq':
-            case 'oai_qdc':
-            case 'dcterms':
-            case 'qdc':
-            case 'dcq':
-                $method = '_anyDctermsToJson';
-                break;
-            default:
-                $this->logger->err(sprintf(
-                    'The format "%s" is not managed by the module currently.',
-                    $args['metadata_prefix']
-                ));
-                $this->api->update('oaipmhharvester_harvests', $harvestId, ['o-module-oai-pmh-harvester:has_err' => true]);
-                return false;
+        $metadataPrefix = $args['metadata_prefix'] ?? null;
+        if (!$metadataPrefix || !$harvesterMapManager->has($metadataPrefix)) {
+            $this->logger->err(sprintf(
+                'The format "%s" is not managed by the module currently.', // @translate
+                $metadataPrefix
+            ));
+            $this->api->update('oaipmhharvester_harvests', $harvestId, ['o-module-oai-pmh-harvester:has_err' => true]);
+            return false;
         }
+
+        /** @var \OaiPmhHarvester\OaiPmh\HarvesterMap\HarvesterMapInterface $harvesterMap */
+        $harvesterMap = $harvesterMapManager->get($metadataPrefix);
+        $harvesterMap->setOptions([
+            'o:is_public' => !$services->get('Omeka\Settings')->get('default_to_private', false),
+            'o:item_set' => $itemSetId ? [['o:id' => $itemSetId]] : [],
+        ]);
 
         $resumptionToken = false;
         do {
             if ($this->shouldStop()) {
-                $this->logger->notice(sprintf(
+                $this->logger->notice(new Message(
                     'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
                     $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported']
                 ));
-                $this->logger->warn(
+                $this->logger->warn(new Message(
                     'The job was stopped.' // @translate
-                );
+                ));
                 return false;
             }
 
@@ -138,15 +105,15 @@ class Harvest extends AbstractJob
             } else {
                 $url = $args['endpoint'] . '?verb=ListRecords'
                     . (isset($args['set_spec']) && strlen((string) $args['set_spec']) ? '&set=' . $args['set_spec'] : '')
-                    . '&metadataPrefix=' . $args['metadata_prefix'];
+                    . "&metadataPrefix=$metadataPrefix";
             }
 
             /** @var \SimpleXMLElement $response */
-            $response = \simplexml_load_file($url);
+            $response = simplexml_load_file($url);
             if (!$response) {
                 $this->hasErr = true;
                 $message = 'Error.'; // @translate
-                $this->logger->err(sprintf(
+                $this->logger->err(new Message(
                     'Error: the harvester does not list records with url %s.', // @translate
                     $url
                 ));
@@ -156,7 +123,7 @@ class Harvest extends AbstractJob
             if (!$response->ListRecords) {
                 $this->hasErr = true;
                 $message = 'Error.'; // @translate
-                $this->logger->err(sprintf(
+                $this->logger->err(new Message(
                     'Error: the harvester does not list records with url %s.', // @translate
                     $url
                 ));
@@ -192,13 +159,15 @@ class Harvest extends AbstractJob
                         }
                     }
                 }
-                $toInsert[] = $this->{$method}($record, $args['item_set_id']);
-                ++$stats['imported'];
+                // A record can be mapped to multiple resources, cf. ead.
+                $resources = $harvesterMap->mapRecord($record);
+                foreach ($resources as $resource) {
+                    $toInsert[] = $resource;
+                    ++$stats['imported'];
+                }
             }
 
-            if ($toInsert) {
-                $this->createItems($toInsert);
-            }
+            $this->createItems($toInsert);
 
             $resumptionToken = isset($response->ListRecords->resumptionToken) && $response->ListRecords->resumptionToken <> ''
                 ? $response->ListRecords->resumptionToken
@@ -217,39 +186,28 @@ class Harvest extends AbstractJob
         if (empty($message)) {
             $message = 'Harvest ended.'; // @translate
         }
+
         $harvestData = [
             'o-module-oai-pmh-harvester:message' => $message,
             'o-module-oai-pmh-harvester:has_err' => $this->hasErr,
             'o-module-oai-pmh-harvester:stats' => $stats,
         ];
+
         $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
 
-        $this->logger->notice(sprintf(
+        $this->logger->notice(new Message(
             'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
             $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported']
         ));
     }
 
-    protected function createItems($toCreate): void
+    protected function createItems(array $toCreate): void
     {
-        if (empty($toCreate)) {
-            return;
+        // TODO The length should be related to the size of the repository output?
+        foreach (array_chunk($toCreate, self::BATCH_CREATE_SIZE, true) as $chunk) {
+            $response = $this->api->batchCreate('items', $chunk, [], ['continueOnError' => true]);
+            $this->createRollback($response->getContent());
         }
-
-        $insertData = [];
-        foreach ($toCreate as $index => $item) {
-            $insertData[] = $item;
-            if ($index % 20 == 0) {
-                $response = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
-                $this->createRollback($response->getContent());
-                $insertData = [];
-            }
-        }
-
-        // Remaining resources.
-        $response = $this->api->batchCreate('items', $insertData, [], ['continueOnError' => true]);
-
-        $this->createRollback($response->getContent());
     }
 
     protected function createRollback($resources)
@@ -265,128 +223,13 @@ class Harvest extends AbstractJob
         $this->api->batchCreate('oaipmhharvester_entities', $importEntities, [], ['continueOnError' => true]);
     }
 
-    /**
-     * Convenience function that returns the
-     * xmls dmdSec as an Omeka ElementTexts array
-     *
-     * @param SimpleXMLElement $record
-     * @param int $itemSetId
-     * @return array|null
-     */
-    private function _dmdSecToJson(SimpleXMLElement $record, $itemSetId)
-    {
-        $mets = $record->metadata->mets->children(self::METS_NAMESPACE);
-        $meta = null;
-        foreach ($mets->dmdSec as $k) {
-            $dcMetadata = $k
-                ->mdWrap
-                ->xmlData
-                ->children(self::DUBLIN_CORE_NAMESPACE);
-
-            $elementTexts = [];
-            foreach ($this->dcProperties as $propertyId => $localName) {
-                if (isset($dcMetadata->$localName)) {
-                    $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
-                }
-            }
-            $meta = $elementTexts;
-            $meta['o:item_set'] = ['o:id' => $itemSetId];
-        }
-        return $meta;
-    }
-
-    private function _oaidcToJson(SimpleXMLElement $record, $itemSetId)
-    {
-        $dcMetadata = $record
-            ->metadata
-            ->children(self::OAI_DC_NAMESPACE)
-            ->children(self::DUBLIN_CORE_NAMESPACE);
-
-        $elementTexts = [];
-        foreach ($this->dcProperties as $propertyId => $localName) {
-            if (isset($dcMetadata->$localName)) {
-                $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
-            }
-        }
-
-        $meta = $elementTexts;
-        $meta['o:item_set'] = ['o:id' => $itemSetId];
-        return $meta;
-    }
-
-    private function _anyDctermsToJson(SimpleXMLElement $record, $itemSetId)
-    {
-        $elementTexts = [];
-
-        $metadata = $record->metadata;
-        $namespaces = $metadata->getNamespaces(true);
-
-        foreach ($namespaces as $namespace) {
-            $dcMetadata = $metadata
-                ->children($namespace)
-                ->children(self::DCTERMS_NAMESPACE);
-            foreach ($this->dcProperties as $propertyId => $localName) {
-                if (isset($dcMetadata->$localName)) {
-                    $elementTexts["dcterms:$localName"] = $this->extractValues($dcMetadata, $propertyId);
-                }
-            }
-        }
-
-        $meta = $elementTexts;
-        $meta['o:item_set'] = ['o:id' => $itemSetId];
-        return $meta;
-    }
-
-    protected function extractValues(SimpleXMLElement $metadata, $propertyId)
-    {
-        $data = [];
-        $localName = $this->dcProperties[$propertyId];
-        foreach ($metadata->$localName as $value) {
-            $text = trim((string) $value);
-            if (!mb_strlen($text)) {
-                continue;
-            }
-
-            // Extract xsi type if any.
-            $attributes = iterator_to_array($value->attributes('xsi', true));
-            $type = empty($attributes['type']) ? null : trim((string) $attributes['type']);
-            $type = $type && in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
-
-            $val = [
-                'property_id' => $propertyId,
-                'type' => $type,
-                'is_public' => true,
-            ];
-
-            switch ($type) {
-                case 'uri':
-                    $val['o:label'] = null;
-                    $val['@id'] = $text;
-                    break;
-
-                case 'literal':
-                default:
-                    // Extract xml language if any.
-                    $attributes = iterator_to_array($value->attributes('xml', true));
-                    $language = empty((string) $attributes['lang']) ? null : trim((string) $attributes['lang']);
-
-                    $val['@value'] = $text;
-                    $val['@language'] = $language;
-                    break;
-            }
-
-            $data[] = $val;
-        }
-        return $data;
-    }
-
-    protected function buildImportEntity(AbstractRepresentation $resource, $identifier): array
+    protected function buildImportEntity(AbstractRepresentation $resource, string $identifier): array
     {
         return [
             'o:job' => ['o:id' => $this->job->getId()],
             'o-module-oai-pmh-harvester:entity_id' => $resource->id(),
             'o-module-oai-pmh-harvester:entity_name' => $this->getArg('entity_name', 'items'),
-            'o-module-oai-pmh-harvester:identifier' => (string) $identifier,
+            'o-module-oai-pmh-harvester:identifier' => $identifier,
         ];
     }
 }

@@ -2,25 +2,21 @@
 
 namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
 
+use SimpleXMLElement;
+
 class Mock extends AbstractHarvesterMap
 {
     const METADATA_PREFIX = 'mock';
     const METADATA_SCHEMA = 'mock.schema';
 
-    protected function _harvestRecord($record)
+    protected function mapRecordSingle(SimpleXMLElement $record, array $resource): array
     {
-        return [
-            'itemMetadata' => [
-                'public' => $this->getOption('public'),
-            ],
-            'elementTexts' => [
-                'Dublin Core' => [
-                    'Title' => [
-                        ['text' => 'Mock Title', 'html' => 0],
-                    ],
-                ],
-            ],
-            'fileMetadata' => [],
+        $resource['dcterms:title'][] = [
+            'type' => 'literal',
+            'property_id' => 1,
+            'is_public' => true,
+            '@value' => 'Mock Title',
         ];
+        return $resource;
     }
 }

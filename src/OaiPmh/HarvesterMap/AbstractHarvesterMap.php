@@ -1,21 +1,14 @@
 <?php declare(strict_types=1);
 /**
- * @package OaipmhHarvester
- * @subpackage Models
  * @copyright Copyright (c) 2009-2011 Roy Rosenzweig Center for History and New Media
+ * @copyright Daniel Berthereau, 2014-2022
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 namespace OaiPmhHarvester\OaiPmh\HarvesterMap;
 
-use Doctrine\Inflector\InflectorFactory;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 use OaiPmhHarvester\Entity\Entity;
-use OaiPmhHarvester\Entity\Harvest;
-use Omeka\Entity\Item;
-use Omeka\Entity\Job;
-use Omeka\Mvc\Exception\RuntimeException;
-use SimpleXMLIterator;
-use Traversable;
+use SimpleXMLElement;
 
 /**
  * Abstract class on which all other metadata format harvests are based.
@@ -23,48 +16,14 @@ use Traversable;
 abstract class AbstractHarvesterMap implements HarvesterMapInterface
 {
     /**
-     * Notice message code, used for status messages.
-     */
-    const MESSAGE_CODE_NOTICE = 1;
-
-    /**
-     * Error message code, used for status messages.
-     */
-    const MESSAGE_CODE_ERROR = 2;
-
-    /**
-     * Date format for OAI-PMH requests.
-     * Only use day-level granularity for maximum compatibility with
-     * repositories.
-     */
-    const OAI_DATE_FORMAT = 'Y-m-d';
-
-    /**
      * @var \Laminas\ServiceManager\ServiceLocatorInterface;
      */
     protected $services;
 
-    /**
-     * @var SimpleXMLIterator The current, cached SimpleXMLIterator record object.
-     */
-    private $_record;
-
-    private $_options = [
-        'public' => false,
-        'featured' => false,
+    protected $options = [
+        'o:is_public' => false,
+        'o:item_sets' => [],
     ];
-
-    /**
-     * Class constructor.
-     *
-     * Prepares the harvest process.
-     */
-    public function __construct()
-    {
-        // Set an error handler method to record run-time warnings (non-fatal
-        // errors).
-        set_error_handler([$this, 'errorHandler'], E_WARNING);
-    }
 
     public function setServiceLocator(ServiceLocatorInterface $services): self
     {
@@ -72,22 +31,33 @@ abstract class AbstractHarvesterMap implements HarvesterMapInterface
         return $this;
     }
 
-    public function setOption($key, $value): void
+    public function setOptions(array $options): self
     {
-        $this->_options[$key] = $value;
+        $this->options = $options;
+        return $this;
     }
 
-    public function getOption($key, $default = null)
+    protected function getOption($key, $default = null)
     {
-        return $this->_options[$key] ?? $default;
+        return $this->options[$key] ?? $default;
     }
 
-    /**
-     * Abstract method that all class extentions must contain.
-     *
-     * @param SimpleXMLIterator The current record object
-     */
-    abstract protected function _harvestRecord($record);
+    public function mapRecord(SimpleXMLElement $record): array
+    {
+        $resource = [
+            '@type' => 'o:Item',
+            'o:is_public' => $this->getOption('o:is_public'),
+            'o:media' => [],
+            'o:item_set' => $this->getOption('o:item_set'),
+        ];
+        $resource = $this->mapRecordSingle($record, $resource);
+        return [$resource];
+    }
+
+    protected function mapRecordSingle(SimpleXMLElement $record, array $resource): array
+    {
+        return $resource;
+    }
 
     /**
      * Checks whether the current record has already been harvested, and
@@ -125,77 +95,6 @@ abstract class AbstractHarvesterMap implements HarvesterMapInterface
         return $record;
     }
 
-    private function _isIterable($var)
-    {
-        return (is_array($var) || $var instanceof Traversable);
-    }
-
-    /**
-     * Recursive method that loops through all requested records
-     *
-     * This method hands off mapping to the class that extends off this one and
-     * recurses through all resumption tokens until the response is completed.
-     *
-     * @param string|false $resumptionToken
-     * @return string|bool Resumption token if one exists, otherwise true
-     * if the harvest is finished.
-     */
-    private function _harvestRecords()
-    {
-        // Iterate through the records and hand off the mapping to the classes
-        // inheriting from this class.
-        $response = $this->_harvest->listRecords();
-        if ($this->_isIterable($response['records'])) {
-            foreach ($response['records'] as $record) {
-                $this->_harvestLoop($record);
-            }
-        } else {
-            $this->_addStatusMessage("No records were found.");
-        }
-
-        $resumptionToken = @$response['resumptionToken'];
-        if ($resumptionToken) {
-            $this->_addStatusMessage("Received resumption token: $resumptionToken");
-        } else {
-            $this->_addStatusMessage("Did not receive a resumption token.");
-        }
-
-        return ($resumptionToken ? $resumptionToken : true);
-    }
-
-    /**
-     * @internal Bad names for all of these methods, fixme.
-     */
-    private function _harvestLoop($record): void
-    {
-        // Ignore (skip over) deleted records.
-        if ($this->isDeletedRecord($record)) {
-            return;
-        }
-        $existingRecord = $this->_recordExists($record);
-        $harvestedRecord = $this->_harvestRecord($record);
-
-        // Cache the record for later use.
-        $this->_record = $record;
-
-        // Record has already been harvested
-        if ($existingRecord) {
-            // If datestamp has changed, update the record, otherwise ignore.
-            if ($existingRecord->datestamp != $record->header->datestamp) {
-                $this->_updateItem($existingRecord,
-                    $harvestedRecord['elementTexts'],
-                    $harvestedRecord['fileMetadata']);
-            }
-            release_object($existingRecord);
-        } else {
-            $this->_insertItem(
-                $harvestedRecord['itemMetadata'],
-                $harvestedRecord['elementTexts'],
-                $harvestedRecord['fileMetadata']
-            );
-        }
-    }
-
     /**
      * Return whether the record is deleted
      *
@@ -212,317 +111,124 @@ abstract class AbstractHarvesterMap implements HarvesterMapInterface
     }
 
     /**
-     * Insert a record into the database.
-     *
-     * @param Entity $item The item object corresponding to the record.
+     * @param \SimpleXMLElement $metadata Filtered record or sub-record.
+     * @param string $term An existing term.
+     * @return array Property values for he specified term.
      */
-    private function _insertRecord($item): void
+    protected function extractValues(SimpleXMLElement $metadata, string $term): array
     {
-        $record = new Item();
+        $values = [];
 
-        $record->harvest_id = $this->_harvest->id;
-        $record->item_id = $item->id;
-        $record->identifier = (string) $this->_record->header->identifier;
-        $record->datestamp = (string) $this->_record->header->datestamp;
-        $record->save();
+        $localName = substr($term, strpos($term, ':') + 1);
+        $propertyId = $this->getPropertyIds()[$term];
 
-        release_object($record);
-    }
+        $defaultValue = [
+            'type' => null,
+            'property_id' => $propertyId,
+            'is_public' => true,
+        ];
 
-    /**
-     * Update a record in the database with information from this harvest.
-     *
-     * @param OaipmhHarvester_Record The model object corresponding to the record.
-     */
-    private function _updateRecord(Entity $record): void
-    {
-        $record->datestamp = (string) $this->_record->header->datestamp;
-        $record->save();
-    }
-
-    /**
-     * Return the current, formatted date.
-     *
-     * @return string
-     */
-    private function _getCurrentDateTime()
-    {
-        return date('Y-m-d H:i:s');
-    }
-
-    /**
-     * Template method.
-     *
-     * May be overwritten by classes that extend of this one. This method runs
-     * once, prior to record iteration.
-     *
-     * @see self::__construct()
-     */
-    protected function _beforeHarvest(): void
-    {
-    }
-
-    /**
-     * Template method.
-     *
-     * May be overwritten by classes that extend of this one. This method runs
-     * once, after record iteration.
-     *
-     * @see self::__construct()
-     */
-    protected function _afterHarvest(): void
-    {
-    }
-
-    /**
-     * Insert an item set.
-     *
-     * @param array $metadata
-     * @return \Omeka\Api\Representation\ItemSetRepresentation
-     */
-    final protected function _insertCollection($metadata = [])
-    {
-        // If item set is not null, use the existing collection, do not
-        // create a new one.
-        $itemSet = $this->_harvest->itemSet();
-        if (!$itemSet) {
-            // There must be a collection name, so if there is none, like when the
-            // harvest is repository-wide, set it to the base URL.
-            if (!isset($metadata['elementTexts']['Dublin Core']['Title']['text']) ||
-                !$metadata['elementTexts']['Dublin Core']['Title']['text']) {
-                $metadata['elementTexts']['Dublin Core']['Title']['text'] = $this->_harvest->base_url;
+        foreach ($metadata->$localName as $xmlValue) {
+            $text = trim((string) $xmlValue);
+            if (!mb_strlen($text)) {
+                continue;
             }
 
-            $itemSet = insert_collection($metadata['metadata'], $metadata['elementTexts']);
+            // Extract xsi type if any.
+            $attributesXsi = iterator_to_array($xmlValue->attributes('xsi', true));
+            $type = isset($attributesXsi['type']) && !empty($attributesXsi['type'])
+                ? trim((string) $attributesXsi['type'])
+                : null;
+            $type = $type && in_array(strtolower($type), ['dcterms:uri', 'uri']) ? 'uri' : 'literal';
 
-            // Remember to set the harvest's collection ID once it has been saved.
-            $this->_harvest->collection_id = $collection->id;
-            $this->_harvest->save();
+            // Extract xml language if any.
+            $attributesXml = iterator_to_array($xmlValue->attributes('xml', true));
+            $language = isset($attributesXml['lang']) && !empty((string) $attributesXml['lang'])
+                ? trim((string) $attributesXml['lang'])
+                : null;
+
+            $value = $defaultValue;
+            $value['type'] = $type;
+
+            switch ($type) {
+                // The type can never be a resource for now.
+                // case 'resource':
+
+                case 'uri':
+                    $label = (isset($attributesXml['title']) && strlen((string) $attributesXml['title']) ? trim((string) $attributesXml['title']) : null)
+                        ?? (isset($attributesXml['label']) && strlen((string) $attributesXml['label']) ? trim((string) $attributesXml['label']) : null);
+                    $value['@id'] = $text;
+                    $value['o:label'] = $label;
+                    $value['@language'] = $language;
+                    break;
+
+                case 'literal':
+                default:
+                    $value['@value'] = $text;
+                    $value['@language'] = $language;
+                    break;
+            }
+
+            $values[] = $value;
         }
-        return $collection;
+
+        return $values;
     }
 
     /**
-     * Convenience method for inserting an item and its files.
+     * Get all property ids by term.
      *
-     * Method used by map writers that encapsulates item and file insertion.
-     * Items are inserted first, then files are inserted individually. This is
-     * done so Item and File objects can be released from memory, avoiding
-     * memory allocation issues.
-     *
-     * @see insert_item()
-     * @see insert_files_for_item()
-     * @param mixed $metadata Item metadata
-     * @param mixed $elementTexts The item's element texts
-     * @param mixed $fileMetadata The item's file metadata
-     * @return true
+     * @return array Associative array of ids by term.
      */
-    final protected function _insertItem(
-        $metadata = [],
-        $elementTexts = [],
-        $fileMetadata = []
-    ) {
-        // Insert the item.
-        $item = insert_item($metadata, $elementTexts);
+    protected function getPropertyIds(): array
+    {
+        static $properties;
 
-        // Insert the record after the item is saved. The idea here is that the
-        // OaipmhHarvester_Records table should only contain records that have
-        // corresponding items.
-        $this->_insertRecord($item);
+        if (isset($properties)) {
+            return $properties;
+        }
 
-        // If there are files, insert one file at a time so the file objects can
-        // be released individually.
-        if (isset($fileMetadata['files'])) {
+        $connection = $this->services->get('Omeka\Connection');
+        $qb = $connection->createQueryBuilder();
+        $qb
+            ->select(
+                'DISTINCT CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
+                'property.id AS id',
+                // Only the two first selects are needed, but some databases
+                // require "order by" or "group by" value to be in the select.
+                'vocabulary.id'
+            )
+            ->from('property', 'property')
+            ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
+            ->orderBy('vocabulary.id', 'asc')
+            ->addOrderBy('property.id', 'asc')
+            ->addGroupBy('property.id')
+        ;
+        return $properties
+            = array_map('intval', $connection->executeQuery($qb)->fetchAllKeyValue());
+    }
 
-            // The default file transfer type is URL.
-            $fileTransferType = $fileMetadata['file_transfer_type']
-                ?? 'Url';
+    protected function getLocalNamesByIdForVocabulary(string $prefix): array
+    {
+        static $propertiesByVocabulary = [];
 
-            // The default option is ignore invalid files.
-            $fileOptions = $fileMetadata['file_ingest_options']
-                ?? ['ignore_invalid_files' => true];
+        if (isset($propertiesByVocabulary[$prefix])) {
+            return $propertiesByVocabulary[$prefix];
+        }
 
-            // Prepare the files value for one-file-at-a-time iteration.
-            $files = [$fileMetadata['files']];
+        if ($prefix === 'dc') {
+            $propertiesByVocabulary[$prefix] = OaiDc::DUBLIN_CORE_ELEMENTS;
+            return $propertiesByVocabulary[$prefix];
+        }
 
-            foreach ($files as $file) {
-                $fileOb = insert_files_for_item(
-                    $item,
-                    $fileTransferType,
-                    $file,
-                    $fileOptions);
-                $fileObject = $fileOb;
-                if (!empty($file['metadata'])) {
-                    $fileObject->addElementTextsByArray($file['metadata']);
-                    $fileObject->save();
-                }
-
-                // Release the File object from memory.
-                release_object($fileObject);
+        $result = [];
+        foreach ($this->getPropertyIds() as $term => $id) {
+            if (strtok($term, ':') === $prefix) {
+                $result[$id] = strtok(':');
             }
         }
 
-        // Release the Item object from memory.
-        release_object($item);
-
-        return true;
-    }
-
-    /**
-     * Convenience method for inserting an item and its files.
-     *
-     * Method used by map writers that encapsulates item and file insertion.
-     * Items are inserted first, then files are inserted individually. This is
-     * done so Item and File objects can be released from memory, avoiding
-     * memory allocation issues.
-     *
-     * @see insert_item()
-     * @see insert_files_for_item()
-     * @param Entity $itemId ID of item to update
-     * @param mixed $elementTexts The item's element texts
-     * @param mixed $fileMetadata The item's file metadata
-     * @return true
-     */
-    final protected function _updateItem(
-        $record,
-        $elementTexts = [],
-        $fileMetadata = []
-    ) {
-        // Update the item
-        $item = update_item(
-            $record->item_id,
-            ['overwriteElementTexts' => true],
-            $elementTexts,
-            $fileMetadata
-        );
-
-        // Update the datestamp stored in the database for this record.
-        $this->_updateRecord($record);
-
-        // Release the Item object from memory.
-        release_object($item);
-
-        return true;
-    }
-
-    /**
-     * Adds a status message to the harvest.
-     *
-     * @param string $message The error message
-     * @param int|null $messageCode The message code
-     * @param string $delimiter The string dilimiting each status message
-     */
-    final protected function _addStatusMessage(
-        $message,
-        $messageCode = null,
-        $delimiter = "\n\n"
-    ): void {
-        $this->_harvest->addStatusMessage($message, $messageCode, $delimiter);
-    }
-
-    /**
-     * Return this instance's OaipmhHarvester_Harvest object.
-     *
-     * @return Harvest
-     */
-    final protected function _getHarvest(): Harvest
-    {
-        return $this->_harvest;
-    }
-
-    /**
-     * Convenience method that facilitates the building of a correctly formatted
-     * elementTexts array.
-     *
-     * @see insert_item()
-     * @param array $elementTexts The previously build elementTexts array
-     * @param string $elementSet This element's element set
-     * @param string $element This element text's element
-     * @param mixed $text The text
-     * @param bool $html Flag whether this element text is HTML
-     * @return array
-     */
-    protected function _buildElementTexts(
-        array $elementTexts = [],
-        $elementSet,
-        $element,
-        $text,
-        $html = false
-    ) {
-        $elementTexts[$elementSet][$element][] = ['text' => (string) $text, 'html' => (bool) $html];
-        return $elementTexts;
-    }
-
-    /**
-     * Error handler callback.
-     *
-     * @see self::__construct()
-     */
-    public function errorHandler($errno, $errstr, $errfile, $errline)
-    {
-        if (!error_reporting()) {
-            return false;
-        }
-        throw new RuntimeException($errstr, 0, $errno, $errfile, $errline);
-    }
-
-    /**
-     * Harvest records from the OAI-PMH repository.
-     */
-    final public function harvest(): void
-    {
-        try {
-            $this->_harvest->status = Job::STATUS_IN_PROGRESS;
-            $this->_harvest->save();
-
-            $this->_beforeHarvest();
-            // This method does most of the actual work.
-            $resumptionToken = $this->_harvestRecords();
-
-            // A return value of true just indicates success, all other values
-            // must be valid resumption tokens.
-            if ($resumptionToken === true) {
-                $this->_afterHarvest();
-                $this->_harvest->status = Job::STATUS_COMPLETED;
-                $this->_harvest->completed = $this->_getCurrentDateTime();
-                $this->_harvest->resumption_token = null;
-            } else {
-                $this->_harvest->resumption_token = $resumptionToken;
-                $this->_harvest->status = Job::STATUS_STARTING;
-            }
-
-            $this->_harvest->save();
-        } catch (\Laminas\Http\Client\Exception\ExceptionInterface $e) {
-            $this->_stopWithError($e);
-        } catch (\Exception $e) {
-            $this->_stopWithError($e);
-            // For real errors need to be logged and debugged.
-            $this->services->get('Omeka\Logger')->err($e);
-        }
-
-        $peakUsage = memory_get_peak_usage();
-        $this->services->get('Omeka\Logger')->info("[OaiPmhHarvester] Peak memory usage: $peakUsage");
-    }
-
-    private function _stopWithError($e): void
-    {
-        $this->_addStatusMessage($e->getMessage(), self::MESSAGE_CODE_ERROR);
-        $this->_harvest->status = Job::STATUS_ERROR;
-        // Reset the harvest start_from time if an error occurs during
-        // processing. Since there's no way to know exactly when the
-        // error occured, re-harvests need to start from the beginning.
-        $this->_harvest->start_from = null;
-        $this->_harvest->save();
-    }
-
-    public static function factory($harvest)
-    {
-        $classSuffix = InflectorFactory::create()->build()->camelize($harvest->metadata_prefix);
-        $class = 'OaipmhHarvester_Harvest_' . $classSuffix;
-        require_once OAIPMH_HARVESTER_MAPS_DIRECTORY . "/$classSuffix.php";
-
-        // Set the harvest object.
-        $harvester = new $class($harvest);
-        return $harvester;
+        $propertiesByVocabulary[$prefix] = $result;
+        return $propertiesByVocabulary[$prefix];
     }
 }
