@@ -21,61 +21,79 @@ class Mets extends AbstractHarvesterMap
     const NAMESPACE_METS = 'http://www.loc.gov/METS/';
     const NAMESPACE_XLINK = 'http://www.w3.org/1999/xlink';
 
-    /**
-     * Harvest one record.
-     *
-     * @param \SimpleXMLIterator $record XML metadata record
-     * @return array Array of item-level, element texts and file metadata.
-     */
-    protected function _harvestRecord($record)
+    public function mapRecord(SimpleXMLElement $record): array
     {
-        $itemMetadata = [
-            'collection_id' => $this->_collection->id,
-            'public' => $this->getOption('public'),
-            'featured' => $this->getOption('featured'),
+        $resource = [
+            '@type' => 'o:Item',
+            'o:is_public' => $this->getOption('o:is_public'),
+            'o:media' => [],
+            'o:item_set' => $this->getOption('o:item_set'),
         ];
 
-        $map = $this->_getMap($record);
-        $dmdSection = $this->_dmdSecToArray($record);
-        if (empty($map)) {
-            $elementTexts = $dmdSection;
+        // Manage specific profiles with structural map. Furthermore, files may
+        // have metadata.
+        $mapFiles = $this->mapFiles($record);
+        $isEmpty = empty($mapFiles);
+        $dmdSection = $this->mapRecordSingleMets($record, $isEmpty);
+        if ($isEmpty) {
+            $resource += $dmdSection;
         } else {
-            $elementTexts = $dmdSection[$map['itemId']];
+            $resource += $dmdSection[$mapFiles['itemId']];
         }
 
-        $fileMetadata = [];
         $recordMetadata = $record->metadata;
-        $recordMetadata->registerXpathNamespace('mets', self::METS_NAMESPACE);
-        $files = $recordMetadata->xpath('mets:mets/mets:fileSec/mets:fileGrp/mets:file');
-        foreach ($files as $fl) {
-            $dmdId = $fl->attributes();
-            $file = $fl->FLocat->attributes(self::XLINK_NAMESPACE);
+        $recordMetadata->registerXpathNamespace('mets', self::NAMESPACE_METS);
 
-            $fileMetadata['files'][] = [
-                'Upload' => null,
-                'Url' => (string) $file['href'],
-                'source' => (string) $file['href'],
-                //'name'   => (string) $file['title'],
-                'metadata' => (isset($dmdId['DMDID']) ? $dmdSection[(string) $dmdId['DMDID']] : []),
+        $files = $recordMetadata->xpath('mets:mets/mets:fileSec/mets:fileGrp/mets:file');
+        foreach ($files as $fileXml) {
+            $file = $fileXml->FLocat->attributes(self::NAMESPACE_XLINK);
+            if (!isset($file['href'])) {
+                continue;
+            }
+
+            // The dmd id can be set in two main places.
+            $fileAttributes = $fileXml->attributes();
+            if (isset($fileAttributes['DMDID'])) {
+                $dmdId = (string) $fileAttributes['DMDID'];
+            }
+            // Indirect, if any.
+            elseif (isset($fileAttributes['ID'])) {
+                $fileId = (string) $fileAttributes['ID'];
+                $fileDmdIds = $recordMetadata->xpath("mets:mets/mets:structMap[1]//mets:div[mets:fptr[@FILEID = '$fileId']][1]/@DMDID");
+                $dmdId = $fileDmdIds ? (string) reset($fileDmdIds) : null;
+                $dmdId = $dmdId !== $mapFiles['itemId'] ? $dmdId : null;
+            }
+            // No dmd.
+            else {
+                $dmdId = null;
+            }
+
+            $href = (string) $file['href'];
+            $title = !isset($file['title']) || !strlen((string) $file['title']) ? null : [
+                'type' => 'lieral',
+                'property_id' => 1,
+                '@value' => (string) $file['title'],
             ];
+            $baseMedia = [
+                'o:ingester' => 'url',
+                'ingest_url' => $href,
+                'o:source' => $href,
+            ];
+            $resource['o:media'][] = $baseMedia
+                + ($title && !$dmdId ? ['dctems:title' => [$title]] : [])
+                + ($dmdId ? $dmdSection[$dmdId] : []);
         }
 
-        return ['itemMetadata' => $itemMetadata,
-            'elementTexts' => $elementTexts,
-            'fileMetadata' => $fileMetadata, ];
+        return [$resource];
     }
 
     /**
-     * Convenience function that returns the xml structMap
-     * as an array of items and the files associated with it.
+     * Convenience function that returns the xml structMap as an array of items
+     * and the files associated with it.
      *
-     * if the structmap doesn't exist in the xml schema null
-     * will be returned.
-     *
-     * @param \SimpleXMLElement $record
-     * @return array|null
+     * if the structmap doesn't exist in the xml schema, null will be returned.
      */
-    private function _getMap($record)
+    protected function mapFiles(SimpleXMLElement $record): ?array
     {
         $structMap = $record
             ->metadata
@@ -83,45 +101,79 @@ class Mets extends AbstractHarvesterMap
             ->structMap
             ->div;
 
-        $map = null;
-        if (isset($structMap['DMDID'])) {
-            $map['itemId'] = (string) $structMap['DMDID'];
+        if (!isset($structMap['DMDID'])) {
+            return null;
+        }
 
-            $fileCount = count($structMap->fptr);
+        $map = [
+            'itemId' => (string) $structMap['DMDID'],
+            'files' => [],
+        ];
 
-            $map['files'] = null;
-            if ($fileCount != 0) {
-                foreach ($structMap->fptr as $fileId) {
-                    $map['files'][] = (string) $fileId['FILEID'];
-                }
-            }
+        foreach ($structMap->fptr ?? [] as $fileId) {
+            $map['files'][] = (string) $fileId['FILEID'];
         }
 
         return $map;
     }
 
-    protected function mapRecordSingle(SimpleXMLElement $record, array $resource): array
+    protected function mapRecordSingleMets(SimpleXMLElement $record, bool $isEmpty): array
     {
+        $meta = [];
+
         $mets = $record
             ->metadata
             ->mets
             ->children(self::NAMESPACE_METS);
 
-        foreach ([
+        $dublinCores = [
             'dc' => OaiDc::NAMESPACE_DUBLIN_CORE,
             'dcterms' => OaiDcterms::NAMESPACE_DCTERMS,
-        ] as $prefix => $namespace) foreach ($mets->dmdSec as $k) {
-            $metadata = $k
-                ->mdWrap
-                ->xmlData
-                ->children($namespace);
-            foreach ($this->getLocalNamesByIdForVocabulary($prefix) as $localName) {
-                if (isset($metadata->$localName)) {
-                    $resource["dcterms:$localName"] = $this->extractValues($metadata, "dcterms:$localName");
+        ];
+
+        foreach ($mets->dmdSec as $k) {
+            $extractedValues = [];
+            foreach ($dublinCores as $prefix => $namespace) {
+                $localNames = $this->getLocalNamesByIdForVocabulary($prefix);
+
+                // TODO Currently, mdRef is not managed.
+                if (empty($k->mdWrap)) {
+                    continue;
+                }
+
+                $metadata = $k
+                    ->mdWrap
+                    ->xmlData
+                    ->children($namespace);
+
+                // Sometime, an intermediate wrapper is added between xmlData
+                // and children, as <dc:dc>, so a quick check is done.
+                if ($metadata->count() === 1) {
+                    $firstElement = $metadata[0]->getName();
+                    if (!in_array($firstElement, array_keys($localNames))) {
+                        $metadata = $metadata->children($namespace);
+                    }
+                }
+
+                if (!$metadata->count()) {
+                    continue;
+                }
+
+                foreach ($localNames as $localName) {
+                    if (isset($metadata->$localName)) {
+                        $extractedValues["dcterms:$localName"] = $this->extractValues($metadata, "dcterms:$localName");
+                    }
+                }
+
+                if ($isEmpty) {
+                    $meta = $extractedValues;
+                } else {
+                    $dmdAttributes = $k->attributes();
+                    $meta[(string) $dmdAttributes['ID']] = $extractedValues;
                 }
             }
         }
 
-        return $resource;
+        return $meta;
     }
 }
