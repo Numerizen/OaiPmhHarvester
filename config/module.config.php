@@ -126,11 +126,17 @@ return [
         'invokables' => [
             // Let oai_dc first, the only required format.
             'oai_dc' => OaiPmh\HarvesterMap\OaiDc::class,
+            'oai_dcterms' => OaiPmh\HarvesterMap\OaiDcTerms::class,
             'mets' => OaiPmh\HarvesterMap\Mets::class,
             // 'mock' => OaiPmh\HarvesterMap\Mock::class,
         ],
         'aliases' => [
             'dc' => 'oai_dc',
+            'dcterms' => 'oai_dcterms',
+            'oai_dcq' => 'oai_dcterms',
+            'oai_qdc' => 'oai_dcterms',
+            'dcq' => 'oai_dcterms',
+            'qdc' => 'oai_dcterms',
         ],
     ],
 ];
