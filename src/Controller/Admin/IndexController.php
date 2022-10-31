@@ -129,6 +129,12 @@ class IndexController extends AbstractActionController
         $form
             ->setData($optionsData);
 
+        if ((!$predefinedSets && $optionsData['total'] <= $this->maxListSets && !empty($optionsData['sets']) && count($optionsData['sets']) !== $optionsData['total'])
+            || (!$predefinedSets && $optionsData['total'] > $this->maxListSets && !empty($optionsData['sets']) && count($optionsData['sets']) !== $this->maxListSets)
+        ) {
+            $this->messenger()->addWarning('This repository has duplicate identifiers for sets, so they are not all displayed. You may warn the admin of the repository.'); // @translate
+        }
+
         // Don't check validity if the previous form was the repository one.
         if ($prevAction === 'index') {
             return new ViewModel([
