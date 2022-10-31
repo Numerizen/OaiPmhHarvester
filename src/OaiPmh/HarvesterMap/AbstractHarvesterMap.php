@@ -25,13 +25,13 @@ abstract class AbstractHarvesterMap implements HarvesterMapInterface
         'o:item_sets' => [],
     ];
 
-    public function setServiceLocator(ServiceLocatorInterface $services): self
+    public function setServiceLocator(ServiceLocatorInterface $services): HarvesterMapInterface
     {
         $this->services = $services;
         return $this;
     }
 
-    public function setOptions(array $options): self
+    public function setOptions(array $options): HarvesterMapInterface
     {
         $this->options = $options;
         return $this;

@@ -377,7 +377,7 @@ class IndexController extends AbstractActionController
         if ($this->getRequest()->isPost()) {
             $data = $this->params()->fromPost();
             $undoJobIds = [];
-            foreach ($data['jobs'] as $jobId) {
+            foreach ($data['jobs'] ?? [] as $jobId) {
                 $undoJob = $this->undoJob($jobId);
                 $undoJobIds[] = $undoJob->getId();
             }
