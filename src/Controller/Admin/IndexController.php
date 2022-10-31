@@ -139,6 +139,7 @@ class IndexController extends AbstractActionController
         if ($prevAction === 'index') {
             return new ViewModel([
                 'form' => $form,
+                'endpoint' => $endpoint,
                 'repositoryName' => $optionsData['repository_name'],
                 'total' => $optionsData['total'],
                 'harvestAllRecords' => $harvestAllRecords,
@@ -149,6 +150,7 @@ class IndexController extends AbstractActionController
             $this->messenger()->addError('At least one repository should be selected.'); // @translate
             return new ViewModel([
                 'form' => $form,
+                'endpoint' => $endpoint,
                 'repositoryName' => $optionsData['repository_name'],
                 'total' => $optionsData['total'],
                 'harvestAllRecords' => $harvestAllRecords,
@@ -164,6 +166,7 @@ class IndexController extends AbstractActionController
         $params['has_error'] = true;
         return new ViewModel([
             'form' => $form,
+            'endpoint' => $endpoint,
             'repositoryName' => $optionsData['repository_name'],
             'total' => $optionsData['total'],
             'harvestAllRecords' => $harvestAllRecords,
