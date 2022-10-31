@@ -48,6 +48,7 @@ class Harvest extends AbstractJob
             'harvested' => 0, // @translate
             'whitelisted' => 0, // @translate
             'blacklisted' => 0, // @translate
+            'medias' => 0, // @translate
             'imported' => 0, // @translate
         ];
 
@@ -91,8 +92,8 @@ class Harvest extends AbstractJob
         do {
             if ($this->shouldStop()) {
                 $this->logger->notice(new Message(
-                    'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
-                    $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported']
+                    'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d.', // @translate
+                    $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias']
                 ));
                 $this->logger->warn(new Message(
                     'The job was stopped.' // @translate
@@ -163,6 +164,7 @@ class Harvest extends AbstractJob
                 $resources = $harvesterMap->mapRecord($record);
                 foreach ($resources as $resource) {
                     $toInsert[] = $resource;
+                    $stats['medias'] += !empty($resource['o:media']) ? count($resource['o:media']) : 0;
                     ++$stats['imported'];
                 }
             }
@@ -196,9 +198,15 @@ class Harvest extends AbstractJob
         $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
 
         $this->logger->notice(new Message(
-            'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d.', // @translate
-            $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported']
+            'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d.', // @translate
+            $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias']
         ));
+
+        if ($stats['medias']) {
+            $this->logger->notice(new Message(
+                'Imports of media should be checked separately.' // @translate
+            ));
+        }
     }
 
     protected function createItems(array $toCreate): void
