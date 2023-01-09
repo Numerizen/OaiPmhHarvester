@@ -32,8 +32,8 @@ class Harvest extends AbstractJob
     public function perform()
     {
         $services = $this->getServiceLocator();
-        $this->logger = $services->get('Omeka\Logger');
         $this->api = $services->get('Omeka\ApiManager');
+        $this->logger = $services->get('Omeka\Logger');
 
         $harvesterMapManager = $services->get(\OaiPmhHarvester\OaiPmh\HarvesterMapManager::class);
 
@@ -93,7 +93,7 @@ class Harvest extends AbstractJob
         do {
             if ($this->shouldStop()) {
                 $this->logger->notice(new Message(
-                    'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d.', // @translate
+                    'Results: total records = %1$s, harvested = %2$d, not in whitelist = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d.', // @translate
                     $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias'], $stats['errors']
                 ));
                 $this->logger->warn(new Message(
@@ -207,7 +207,7 @@ class Harvest extends AbstractJob
         $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
 
         $this->logger->notice(new Message(
-            'Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d.', // @translate
+            'Results: total records = %1$s, harvested = %2$d, not in whitelist = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d.', // @translate
             $stats['records'], $stats['harvested'], $stats['whitelisted'], $stats['blacklisted'], $stats['imported'], $stats['medias'], $stats['errors']
         ));
 
