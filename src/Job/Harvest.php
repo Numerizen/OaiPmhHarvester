@@ -18,6 +18,18 @@ class Harvest extends AbstractJob
     const BATCH_CREATE_SIZE = 20;
 
     /**
+     * Sleep between requests.
+     *
+     * @var int
+     */
+    const REQUEST_WAIT = 10;
+
+    /**
+     * @var int
+     */
+    const REQUEST_MAX_RETRY = 3;
+
+    /**
      * @var \Omeka\Api\Manager
      */
     protected $api;
@@ -113,12 +125,42 @@ class Harvest extends AbstractJob
             /** @var \SimpleXMLElement $response */
             $response = simplexml_load_file($url);
             if (!$response) {
-                $this->hasErr = true;
-                $message = 'Error.'; // @translate
-                $this->logger->err(new Message(
-                    'Error: the harvester does not list records with url %s.', // @translate
-                    $url
+                $message = 'Server unavailable. Retrying.'; // @translate
+                $this->logger->warn(new Message(
+                    'Error: the harvester does not list records with url %1$s. Retrying %2$d/%3$d times in %4$d seconds', // @translate
+                    $url, 1, self::REQUEST_MAX_RETRY, self::REQUEST_WAIT * 3
                 ));
+
+                sleep(self::REQUEST_WAIT * 3);
+                $response = simplexml_load_file($url);
+                if (!$response) {
+                    $message = 'Server unavailable. Retrying.'; // @translate
+                    $this->logger->warn(new Message(
+                        'Error: the harvester does not list records with url %1$s. Retrying %2$d/%3$d times in %4$d seconds', // @translate
+                        $url, 2, self::REQUEST_MAX_RETRY, self::REQUEST_WAIT * 6
+                    ));
+
+                    sleep(self::REQUEST_WAIT * 6);
+                    $response = simplexml_load_file($url);
+                    if (!$response) {
+                        $message = 'Server unavailable. Retrying.'; // @translate
+                        $this->logger->warn(new Message(
+                            'Error: the harvester does not list records with url %1$s. Retrying %2$d/%3$d times in %4$d seconds', // @translate
+                            $url, 3, self::REQUEST_MAX_RETRY, self::REQUEST_WAIT * 10
+                        ));
+
+                        sleep(self::REQUEST_WAIT * 10);
+                        $response = simplexml_load_file($url);
+                        if (!$response) {
+                            $this->hasErr = true;
+                            $message = 'Error.'; // @translate
+                            $this->logger->err(new Message(
+                                'Error: the harvester does not list records with url %1$s.', // @translate
+                                $url
+                            ));
+                        }
+                    }
+                }
                 break;
             }
 
@@ -191,6 +233,8 @@ class Harvest extends AbstractJob
                 'o-module-oai-pmh-harvester:stats' => $stats,
             ];
             $this->api->update('oaipmhharvester_harvests', $harvestId, $harvestData);
+
+            sleep(self::REQUEST_WAIT);
         } while ($resumptionToken);
 
         // Update job.
