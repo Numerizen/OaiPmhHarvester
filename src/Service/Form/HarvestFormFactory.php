@@ -10,7 +10,7 @@ class HarvestFormFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $services, $requestedName, array $options = null)
     {
-        $harvestForm = new HarvestForm;
+        $harvestForm = new HarvestForm(null, $options ?? []);
         return $harvestForm
             ->setOaiPmhRepository($services->get('ControllerPluginManager')->get('oaiPmhRepository'));
     }
