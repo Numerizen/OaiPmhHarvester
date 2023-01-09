@@ -39,6 +39,11 @@ class Harvest extends AbstractJob
      */
     protected $logger;
 
+    /**
+     * @var \Doctrine\ORM\EntityManager
+     */
+    protected $entityManager;
+
     protected $hasErr = false;
 
     public function perform()
@@ -46,6 +51,7 @@ class Harvest extends AbstractJob
         $services = $this->getServiceLocator();
         $this->api = $services->get('Omeka\ApiManager');
         $this->logger = $services->get('Omeka\Logger');
+        $this->entityManager = $services->get('Omeka\EntityManager');
 
         $harvesterMapManager = $services->get(\OaiPmhHarvester\OaiPmh\HarvesterMapManager::class);
 
@@ -291,6 +297,7 @@ class Harvest extends AbstractJob
                     $total += count($currentResults);
                     $identifierIds = array_merge($identifierIds, array_map($getId, array_values($currentResults)));
                     $this->createRollback($currentResults, $identifier);
+                    $this->entityManager->clear();
                 }
                 $identifierTotal = count($identifierIds);
                 if ($identifierTotal === count($resources)) {
