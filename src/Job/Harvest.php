@@ -191,6 +191,10 @@ class Harvest extends AbstractJob
             $toInsert = [];
             /** @var \SimpleXMLElement $record */
             foreach ($records->record as $record) {
+                if ($harvesterMap->isDeletedRecord($record)) {
+                    continue;
+                }
+
                 ++$stats['harvested'];
                 if ($whitelist || $blacklist) {
                     // Use xml instead of string because some formats may use
