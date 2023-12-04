@@ -214,7 +214,7 @@ class Harvest extends AbstractJob
                     }
                 }
                 // The oai identifier is not part of the resource.
-                // The oai identifier should not be included in the resouce.
+                // The oai identifier should not be included in the resource.
                 // The oai identifier does not depend on the metadata prefix.
                 // To make identifier really unique, the endpoint from the
                 // harvest may be used.

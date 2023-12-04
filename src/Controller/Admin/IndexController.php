@@ -329,7 +329,7 @@ class IndexController extends AbstractActionController
             $this->messenger()->addSuccess($message);
         }
 
-        $urlHelper = $this->url();
+        $urlPlugin = $this->url();
         foreach ($sets as $setSpec => $set) {
             $endpoint = $data['endpoint'];
             // TODO : job harvest / job item creation ?
@@ -346,14 +346,14 @@ class IndexController extends AbstractActionController
             ] + $set;
             $job = $this->jobDispatcher()->dispatch(\OaiPmhHarvester\Job\Harvest::class, $args);
 
-            $urlHelper = $this->url();
+            $urlPlugin = $this->url();
             // TODO Don't use PsrMessage for now to fix issues with Doctrine and inexisting file to remove.
             $message = new Message(
                 'Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). This may take a while.', // @translate
                 $set['set_name'],
                 sprintf(
                     '<a href="%s">',
-                    htmlspecialchars($urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
+                    htmlspecialchars($urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId()]))
                 ),
                 $job->getId(),
                 '</a>',
@@ -361,8 +361,8 @@ class IndexController extends AbstractActionController
                     '<a href="%s">',
                     // Check if module Log is enabled (avoid issue when disabled).
                     htmlspecialchars(class_exists(\Log\Stdlib\PsrMessage::class)
-                        ? $urlHelper->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
-                        : $urlHelper->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
+                        ? $urlPlugin->fromRoute('admin/log/default', [], ['query' => ['job_id' => $job->getId()]])
+                        : $urlPlugin->fromRoute('admin/id', ['controller' => 'job', 'id' => $job->getId(), 'action' => 'log'])
                 ))
             );
             $message->setEscapeHtml(false);
