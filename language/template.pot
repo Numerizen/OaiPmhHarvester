@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-31 00:00+0000\n"
+"POT-Creation-Date: 2023-12-04 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,6 +132,10 @@ msgstr ""
 msgid "Imported: %d %s"
 msgstr ""
 
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:93
+msgid "items"
+msgstr ""
+
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:100
 msgid "Undone"
 msgstr ""
@@ -165,6 +169,127 @@ msgstr ""
 
 #: view/oai-pmh-harvester/admin/index/sets.phtml:37
 msgid "Harvest"
+msgstr ""
+
+#: src/Job/Undo.php:29
+#, php-format
+msgid "The job \"Undo\" was stopped: %d/%d resources processed."
+msgstr ""
+
+#: src/Job/Harvest.php:65
+msgid "records"
+msgstr ""
+
+#: src/Job/Harvest.php:66
+msgid "harvested"
+msgstr ""
+
+#: src/Job/Harvest.php:67
+msgid "whitelisted"
+msgstr ""
+
+#: src/Job/Harvest.php:68
+msgid "blacklisted"
+msgstr ""
+
+#: src/Job/Harvest.php:69
+msgid "medias"
+msgstr ""
+
+#: src/Job/Harvest.php:70
+msgid "imported"
+msgstr ""
+
+#: src/Job/Harvest.php:71
+msgid "errors"
+msgstr ""
+
+#: src/Job/Harvest.php:77
+msgid "Harvesting started"
+msgstr ""
+
+#: src/Job/Harvest.php:96
+#, php-format
+msgid "The format \"%s\" is not managed by the module currently."
+msgstr ""
+
+#: src/Job/Harvest.php:114 src/Job/Harvest.php:264
+#, php-format
+msgid ""
+"Results: total records = %1$s, harvested = %2$d, not in whitelist = %3$d, "
+"blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d."
+msgstr ""
+
+#: src/Job/Harvest.php:118
+msgid "The job was stopped."
+msgstr ""
+
+#: src/Job/Harvest.php:134 src/Job/Harvest.php:143 src/Job/Harvest.php:152
+msgid "Server unavailable. Retrying."
+msgstr ""
+
+#: src/Job/Harvest.php:136 src/Job/Harvest.php:145 src/Job/Harvest.php:154
+#, php-format
+msgid ""
+"Error: the harvester does not list records with url %1$s. Retrying %2$d/%3$d "
+"times in %4$d seconds"
+msgstr ""
+
+#: src/Job/Harvest.php:162 src/Job/Harvest.php:175
+msgid "Error."
+msgstr ""
+
+#: src/Job/Harvest.php:164
+#, php-format
+msgid "Error: the harvester does not list records with url %1$s."
+msgstr ""
+
+#: src/Job/Harvest.php:177
+#, php-format
+msgid "Error: the harvester does not list records with url %s."
+msgstr ""
+
+#: src/Job/Harvest.php:241
+msgid "Processing"
+msgstr ""
+
+#: src/Job/Harvest.php:252
+msgid "Harvest ended."
+msgstr ""
+
+#: src/Job/Harvest.php:270
+msgid "Imports of medias should be checked separately."
+msgstr ""
+
+#: src/Job/Harvest.php:276
+msgid ""
+"Some records were not imported, probably related to issue on media. You may "
+"check the main logs."
+msgstr ""
+
+#: src/Job/Harvest.php:310
+#, php-format
+msgid "%1$d resource created from oai record %2$s: #%3$s."
+msgstr ""
+
+#: src/Job/Harvest.php:315
+#, php-format
+msgid "%1$d resources created from oai record %2$s: #%3$s."
+msgstr ""
+
+#: src/Job/Harvest.php:321
+#, php-format
+msgid "Only %1$d/%2$d resources created from oai record %3$s: #%4$s."
+msgstr ""
+
+#: src/Job/Harvest.php:326
+#, php-format
+msgid "No resource created from oai record %s."
+msgstr ""
+
+#: src/Job/Harvest.php:332
+#, php-format
+msgid "No resource created from oai record %s, according to its metadata."
 msgstr ""
 
 #: src/Form/SetsForm.php:56
@@ -249,111 +374,6 @@ msgstr ""
 
 #: src/Service/OaiPmh/HarvesterMapManagerFactory.php:21
 msgid "Missing harvest configuration"
-msgstr ""
-
-#: src/Job/Undo.php:29
-#, php-format
-msgid "The job \"Undo\" was stopped: %d/%d resources processed."
-msgstr ""
-
-#: src/Job/Harvest.php:47
-msgid "records"
-msgstr ""
-
-#: src/Job/Harvest.php:48
-msgid "harvested"
-msgstr ""
-
-#: src/Job/Harvest.php:49
-msgid "whitelisted"
-msgstr ""
-
-#: src/Job/Harvest.php:50
-msgid "blacklisted"
-msgstr ""
-
-#: src/Job/Harvest.php:51
-msgid "medias"
-msgstr ""
-
-#: src/Job/Harvest.php:52
-msgid "imported"
-msgstr ""
-
-#: src/Job/Harvest.php:53
-msgid "errors"
-msgstr ""
-
-#: src/Job/Harvest.php:59
-msgid "Harvesting started"
-msgstr ""
-
-#: src/Job/Harvest.php:78
-#, php-format
-msgid "The format \"%s\" is not managed by the module currently."
-msgstr ""
-
-#: src/Job/Harvest.php:96 src/Job/Harvest.php:211
-#, php-format
-msgid ""
-"Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, "
-"blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d."
-msgstr ""
-
-#: src/Job/Harvest.php:100
-msgid "The job was stopped."
-msgstr ""
-
-#: src/Job/Harvest.php:117 src/Job/Harvest.php:127
-msgid "Error."
-msgstr ""
-
-#: src/Job/Harvest.php:119 src/Job/Harvest.php:129
-#, php-format
-msgid "Error: the harvester does not list records with url %s."
-msgstr ""
-
-#: src/Job/Harvest.php:190
-msgid "Processing"
-msgstr ""
-
-#: src/Job/Harvest.php:199
-msgid "Harvest ended."
-msgstr ""
-
-#: src/Job/Harvest.php:217
-msgid "Imports of medias should be checked separately."
-msgstr ""
-
-#: src/Job/Harvest.php:223
-msgid ""
-"Some records were not imported, probably related to issue on media. You may "
-"check the main logs."
-msgstr ""
-
-#: src/Job/Harvest.php:257
-#, php-format
-msgid "%1$d resource created from oai record %2$s: #%3$s."
-msgstr ""
-
-#: src/Job/Harvest.php:262
-#, php-format
-msgid "%1$d resources created from oai record %2$s: #%3$s."
-msgstr ""
-
-#: src/Job/Harvest.php:268
-#, php-format
-msgid "Only %1$d/%2$d resources created from oai record %3$s: #%4$s."
-msgstr ""
-
-#: src/Job/Harvest.php:273
-#, php-format
-msgid "No resource created from oai record %s."
-msgstr ""
-
-#: src/Job/Harvest.php:279
-#, php-format
-msgid "No resource created from oai record %s, according to its metadata."
 msgstr ""
 
 #: config/module.config.php:95

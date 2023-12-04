@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OaipmhHarvester\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-31 00:00+0000\n"
-"PO-Revision-Date: 2022-10-31 00:00+0000\n"
+"POT-Creation-Date: 2023-12-04 00:00+0000\n"
+"PO-Revision-Date: 2023-12-04 00:00+0000\n"
 "Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
 "Language-Team: French <kde-i18n-doc@kde.org>\n"
 "Language: fr\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.2\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/Controller/Admin/IndexController.php:235
 #, php-format
@@ -120,8 +120,11 @@ msgid "Job details"
 msgstr "Détails de la tâche"
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:81
-msgid "Problems were detected with the import. Check the job’s log for details."
-msgstr "Des problèmes ont été détectés lors de l’import. Vérifiez les journaux de la tâche pour davantage de détails."
+msgid ""
+"Problems were detected with the import. Check the job’s log for details."
+msgstr ""
+"Des problèmes ont été détectés lors de l’import. Vérifiez les journaux de la "
+"tâche pour davantage de détails."
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:88
 #, php-format
@@ -132,6 +135,10 @@ msgstr "%s : %s"
 #, php-format
 msgid "Imported: %d %s"
 msgstr "Importés : %d %s"
+
+#: view/oai-pmh-harvester/admin/index/past-harvests.phtml:93
+msgid "items"
+msgstr "contenus"
 
 #: view/oai-pmh-harvester/admin/index/past-harvests.phtml:100
 msgid "Undone"
@@ -168,14 +175,149 @@ msgstr "Merci de choisir un lot à importer."
 msgid "Harvest"
 msgstr "Moisson"
 
+#: src/Job/Undo.php:29
+#, php-format
+msgid "The job \"Undo\" was stopped: %d/%d resources processed."
+msgstr "La tâche \"Défaire\" a été arrêtée : %d/%d notices traitées."
+
+#: src/Job/Harvest.php:65
+msgid "records"
+msgstr "notices"
+
+#: src/Job/Harvest.php:66
+msgid "harvested"
+msgstr "moissonnées"
+
+#: src/Job/Harvest.php:67
+msgid "whitelisted"
+msgstr "en liste blanche"
+
+#: src/Job/Harvest.php:68
+msgid "blacklisted"
+msgstr "en liste noire"
+
+#: src/Job/Harvest.php:69
+msgid "medias"
+msgstr "médias"
+
+#: src/Job/Harvest.php:70
+msgid "imported"
+msgstr "importées"
+
+#: src/Job/Harvest.php:71
+msgid "errors"
+msgstr "erreurs"
+
+#: src/Job/Harvest.php:77
+msgid "Harvesting started"
+msgstr "Moisson lancée"
+
+#: src/Job/Harvest.php:96
+#, php-format
+msgid "The format \"%s\" is not managed by the module currently."
+msgstr "Le format « %s » n’'est pas géré par le module actuellement."
+
+#: src/Job/Harvest.php:114 src/Job/Harvest.php:264
+#, php-format
+msgid ""
+"Results: total records = %1$s, harvested = %2$d, not in whitelist = %3$d, "
+"blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d."
+msgstr ""
+"Résultats : total des notices = %1$s, moissonnées = %2$d, en liste blanche = "
+"%3$d, en liste noire = %4$d, importées = %5$d, médias = %6$d, erreurs = %7$d."
+
+#: src/Job/Harvest.php:118
+msgid "The job was stopped."
+msgstr "La tâche a été arrêtée."
+
+#: src/Job/Harvest.php:134 src/Job/Harvest.php:143 src/Job/Harvest.php:152
+msgid "Server unavailable. Retrying."
+msgstr "Serveur indisponible. Nouvel essai."
+
+#: src/Job/Harvest.php:136 src/Job/Harvest.php:145 src/Job/Harvest.php:154
+#, php-format
+msgid ""
+"Error: the harvester does not list records with url %1$s. Retrying %2$d/%3$d "
+"times in %4$d seconds"
+msgstr ""
+"Erreur : le moissonneur n’a trouvé aucune notice avec l’url %s. Nouvel essai "
+"%2$d/%3$d dans %4$d secondes"
+
+#: src/Job/Harvest.php:162 src/Job/Harvest.php:175
+msgid "Error."
+msgstr "Erreur."
+
+#: src/Job/Harvest.php:164
+#, php-format
+msgid "Error: the harvester does not list records with url %1$s."
+msgstr "Erreur : le moissonneur n’a trouvé aucune notice avec l’url %s."
+
+#: src/Job/Harvest.php:177
+#, php-format
+msgid "Error: the harvester does not list records with url %s."
+msgstr "Erreur : le moissonneur n’a trouvé aucune notice avec l’url %s."
+
+#: src/Job/Harvest.php:241
+msgid "Processing"
+msgstr "En traitement"
+
+#: src/Job/Harvest.php:252
+msgid "Harvest ended."
+msgstr "Moisson terminée."
+
+#: src/Job/Harvest.php:270
+msgid "Imports of medias should be checked separately."
+msgstr "Les imports des médias doivent être vérifiées séparément."
+
+#: src/Job/Harvest.php:276
+msgid ""
+"Some records were not imported, probably related to issue on media. You may "
+"check the main logs."
+msgstr ""
+"Certaines notices n’ont pas été importées, probablement en raison de "
+"problèmes sur les médias. Vous pouvez vérifier les journaux."
+
+#: src/Job/Harvest.php:310
+#, php-format
+msgid "%1$d resource created from oai record %2$s: #%3$s."
+msgstr "%1$d ressource créée à partir de la notice oai %2$s : #%3$s."
+
+#: src/Job/Harvest.php:315
+#, php-format
+msgid "%1$d resources created from oai record %2$s: #%3$s."
+msgstr "%1$d ressources créées à partir de la notice oai  %2$s : #%3$s."
+
+#: src/Job/Harvest.php:321
+#, php-format
+msgid "Only %1$d/%2$d resources created from oai record %3$s: #%4$s."
+msgstr ""
+"Seules %1$d/%2$d notices ont été créées à partir de la notice oai %3$s : "
+"#%4$s."
+
+#: src/Job/Harvest.php:326
+#, php-format
+msgid "No resource created from oai record %s."
+msgstr "Aucune ressource créée à partir de la notice oai %s."
+
+#: src/Job/Harvest.php:332
+#, php-format
+msgid "No resource created from oai record %s, according to its metadata."
+msgstr ""
+"Aucune ressource créée à partir de la notice oai %s, conformément à ses "
+"métadonnées."
+
 #: src/Form/SetsForm.php:56
 msgid "Filters (whitelist)"
 msgstr "Filtres (liste blanche)"
 
 #: src/Form/SetsForm.php:57 src/Form/SetsForm.php:68
 #: src/Form/HarvestForm.php:74 src/Form/HarvestForm.php:85
-msgid "Add strings to filter the input, for example to import only some articles of a journal."
-msgstr "Ajouter des chaînes pour filtrer les entrées, par exemple pour importer seulement certains articles d’une revue."
+msgid ""
+"Add strings to filter the input, for example to import only some articles of "
+"a journal."
+msgstr ""
+"Ajouter des chaînes pour filtrer les entrées, par exemple pour importer "
+"seulement certains articles d’une revue."
 
 #: src/Form/SetsForm.php:67
 msgid "Filters (blacklist)"
@@ -210,8 +352,14 @@ msgid "Skip listing of sets and harvest only these sets"
 msgstr "Ignorer la liste des lots et moissonner seulement ces lots"
 
 #: src/Form/HarvestForm.php:58
-msgid "Set one set identifier and a metadata prefix by line. Separate the set and the prefix by \"=\". If no prefix is set, \"dcterms\" or \"oai_dc\" will be used."
-msgstr "Indiquer un identifiant de lot et un préfixe de métadonnées par ligne. Séparer le lot et le préfixe par \"=\". Si aucun préfixe n’est indiqué, \"dcterms\" ou \"oai_dc\" seront utilisés."
+msgid ""
+"Set one set identifier and a metadata prefix by line. Separate the set and "
+"the prefix by \"=\". If no prefix is set, \"dcterms\" or \"oai_dc\" will be "
+"used."
+msgstr ""
+"Indiquer un identifiant de lot et un préfixe de métadonnées par ligne. "
+"Séparer le lot et le préfixe par \"=\". Si aucun préfixe n’est indiqué, "
+"\"dcterms\" ou \"oai_dc\" seront utilisés."
 
 #: src/Form/HarvestForm.php:73
 msgid "Filters on each record (whitelist)"
@@ -222,8 +370,12 @@ msgid "Filters on each record (blacklist)"
 msgstr "Filtres pour chaque notice (liste noire)"
 
 #: src/Controller/Admin/IndexController.php:135
-msgid "This repository has duplicate identifiers for sets, so they are not all displayed. You may warn the admin of the repository."
-msgstr "Ce dépôt a des identifiants en doublon pour les lots et ils ne peuvent pas être tous affichés. Vous pouvez avertir son gestionnaire."
+msgid ""
+"This repository has duplicate identifiers for sets, so they are not all "
+"displayed. You may warn the admin of the repository."
+msgstr ""
+"Ce dépôt a des identifiants en doublon pour les lots et ils ne peuvent pas "
+"être tous affichés. Vous pouvez avertir son gestionnaire."
 
 #: src/Controller/Admin/IndexController.php:150
 msgid "At least one repository should be selected."
@@ -231,8 +383,11 @@ msgstr "Au moins un dépôt doit être sélectionné."
 
 #: src/Controller/Admin/IndexController.php:352
 #, php-format
-msgid "Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). This may take a while."
-msgstr "Moisson %1$s lancée en arrière-plan (tâche %2$s#%3$d%4$s, %5$sjournaux%4$s)."
+msgid ""
+"Harvesting %1$s started in background (job %2$s#%3$d%4$s, %5$slogs%4$s). "
+"This may take a while."
+msgstr ""
+"Moisson %1$s lancée en arrière-plan (tâche %2$s#%3$d%4$s, %5$sjournaux%4$s)."
 
 #: src/Controller/Admin/IndexController.php:385
 #, php-format
@@ -242,107 +397,6 @@ msgstr "Annulations en cours pour les tâches suivantes : %s"
 #: src/Service/OaiPmh/HarvesterMapManagerFactory.php:21
 msgid "Missing harvest configuration"
 msgstr "Configuration de la moisson manquante"
-
-#: src/Job/Undo.php:29
-#, php-format
-msgid "The job \"Undo\" was stopped: %d/%d resources processed."
-msgstr "La tâche \"Défaire\" a été arrêtée : %d/%d notices traitées."
-
-#: src/Job/Harvest.php:47
-msgid "records"
-msgstr "notices"
-
-#: src/Job/Harvest.php:48
-msgid "harvested"
-msgstr "moissonnées"
-
-#: src/Job/Harvest.php:49
-msgid "whitelisted"
-msgstr "en liste blanche"
-
-#: src/Job/Harvest.php:50
-msgid "blacklisted"
-msgstr "en liste noire"
-
-#: src/Job/Harvest.php:51
-msgid "medias"
-msgstr "médias"
-
-#: src/Job/Harvest.php:52
-msgid "imported"
-msgstr "importées"
-
-#: src/Job/Harvest.php:53
-msgid "errors"
-msgstr "erreurs"
-
-#: src/Job/Harvest.php:59
-msgid "Harvesting started"
-msgstr "Moisson lancée"
-
-#: src/Job/Harvest.php:78
-#, php-format
-msgid "The format \"%s\" is not managed by the module currently."
-msgstr "Le format « %s » n’'est pas géré par le module actuellement."
-
-#: src/Job/Harvest.php:96 src/Job/Harvest.php:211
-#, php-format
-msgid "Results: total records = %1$s, harvested = %2$d, whitelisted = %3$d, blacklisted = %4$d, imported = %5$d, medias = %6$d, errors = %7$d."
-msgstr "Résultats : total des notices = %1$s, moissonnées = %2$d, en liste blanche = %3$d, en liste noire = %4$d, importées = %5$d, médias = %6$d, erreurs = %7$d."
-
-#: src/Job/Harvest.php:100
-msgid "The job was stopped."
-msgstr "La tâche a été arrêtée."
-
-#: src/Job/Harvest.php:117 src/Job/Harvest.php:127
-msgid "Error."
-msgstr "Erreur."
-
-#: src/Job/Harvest.php:119 src/Job/Harvest.php:129
-#, php-format
-msgid "Error: the harvester does not list records with url %s."
-msgstr "Erreur : le moissonneur n’a trouvé aucune notice avec l’url %s."
-
-#: src/Job/Harvest.php:190
-msgid "Processing"
-msgstr "En traitement"
-
-#: src/Job/Harvest.php:199
-msgid "Harvest ended."
-msgstr "Moisson terminée."
-
-#: src/Job/Harvest.php:217
-msgid "Imports of medias should be checked separately."
-msgstr "Les imports des médias doivent être vérifiées séparément."
-
-#: src/Job/Harvest.php:223
-msgid "Some records were not imported, probably related to issue on media. You may check the main logs."
-msgstr "Certaines notices n’ont pas été importées, probablement en raison de problèmes sur les médias. Vous pouvez vérifier les journaux."
-
-#: src/Job/Harvest.php:257
-#, php-format
-msgid "%1$d resource created from oai record %2$s: #%3$s."
-msgstr "%1$d ressource créée à partir de la notice oai %2$s : #%3$s."
-
-#: src/Job/Harvest.php:262
-#, php-format
-msgid "%1$d resources created from oai record %2$s: #%3$s."
-msgstr "%1$d ressources créées à partir de la notice oai  %2$s : #%3$s."
-
-#: src/Job/Harvest.php:268
-#, php-format
-msgid "Only %1$d/%2$d resources created from oai record %3$s: #%4$s."
-msgstr "Seules %1$d/%2$d notices ont été créées à partir de la notice oai %3$s : #%4$s."
-
-#: src/Job/Harvest.php:273
-#, php-format
-msgid "No resource created from oai record %s."
-msgstr "Aucune ressource créée à partir de la notice oai %s."
-
-#: src/Job/Harvest.php:279
-#, php-format
-msgid "No resource created from oai record %s, according to its metadata."
-msgstr "Aucune ressource créée à partir de la notice oai %s, conformément à ses métadonnées."
 
 #: config/module.config.php:95
 msgid "Sets"
