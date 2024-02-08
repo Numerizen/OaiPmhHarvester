@@ -249,7 +249,7 @@ class IndexController extends AbstractActionController
             $prefix = $data['namespace'][0];
             $message .= $repositoryName;
             $uniqueUri = $data['endpoint'] . "?verb=ListRecords&metadataPrefix=$prefix";
-            $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 37, 'type' => 'eq', 'text' => $uniqueUri]]])->getContent();
+            $itemSet = $api->searchOne('item_sets', ['property' => [['property' => 37, 'type' => 'eq', 'text' => $uniqueUri]]])->getContent();
             if (!$itemSet) {
                 $toCreate = [
                     // dctype:Collection.
@@ -283,7 +283,7 @@ class IndexController extends AbstractActionController
                     $prefix
                 ) . ' | ';
                 $uniqueUri = $data['endpoint'] . "?verb=ListRecords&set=$setSpec&metadataPrefix=$prefix";
-                $itemSet = $api->searchOne('item_sets', ['property' => [['property_id' => 37, 'type' => 'eq', 'text' => $uniqueUri]]])->getContent();
+                $itemSet = $api->searchOne('item_sets', ['property' => [['property' => 37, 'type' => 'eq', 'text' => $uniqueUri]]])->getContent();
                 if (!$itemSet) {
                     $toCreate = [
                         // dctype:Collection.
