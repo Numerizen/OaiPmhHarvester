@@ -301,7 +301,6 @@ class Harvest extends AbstractJob
                     $total += count($currentResults);
                     $identifierIds = array_merge($identifierIds, array_map($getId, array_values($currentResults)));
                     $this->createRollback($currentResults, $identifier);
-                    $this->entityManager->clear();
                 }
                 $identifierTotal = count($identifierIds);
                 if ($identifierTotal === count($resources)) {
