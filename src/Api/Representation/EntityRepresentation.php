@@ -2,6 +2,7 @@
 
 namespace OaiPmhHarvester\Api\Representation;
 
+use DateTime;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 use Omeka\Api\Representation\JobRepresentation;
 
@@ -47,7 +48,7 @@ class EntityRepresentation extends AbstractEntityRepresentation
         return $this->resource->getIdentifier();
     }
 
-    public function created()
+    public function created(): DateTime
     {
         return $this->resource->getCreated();
     }

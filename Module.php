@@ -85,8 +85,7 @@ class Module extends AbstractModule
                         // execution, or skipped when failing.
                         'flushEntityManager' => false,
                     ]
-                )
-                ->getContent();
+                );
         } catch (\Omeka\Api\Exception\NotFoundException $e) {
         }
     }
